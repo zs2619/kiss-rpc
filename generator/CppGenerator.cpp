@@ -64,7 +64,7 @@ void CppGenerator::generateEnumSrc()
 		indent_up();
 		while(it_inner!=(*it)->defs_.end())
 		{
-			srcFile_<<indent()<<"e.push_back("<<*it_inner<<")"<<";"<<std::endl;
+			srcFile_<<indent()<<"e.addEnumValue("<<*it_inner<<")"<<";"<<std::endl;
 			++it_inner;
 		}
 		indent_down();

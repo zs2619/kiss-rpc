@@ -262,6 +262,30 @@
 				</File>
 			</Filter>
 		</Filter>
+		<Filter
+			Name="lib"
+			>
+			<Filter
+				Name="cpp"
+				>
+				<File
+					RelativePath=".\lib\cpp\EnumMap.h"
+					>
+				</File>
+				<File
+					RelativePath=".\lib\cpp\IProtoclo.h"
+					>
+				</File>
+				<File
+					RelativePath=".\lib\cpp\RpcTypeDef.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="as3"
+				>
+			</Filter>
+		</Filter>
 		<File
 			RelativePath=".\main.cpp"
 			>
