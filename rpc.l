@@ -16,7 +16,7 @@ whitespace    ([ \t\r\n]*)
 sillycomm     ("/*""*"*"*/")
 multicomm     ("/*"[^*]"/"*([^*/]|[^*]"/"|"*"[^/])*"*"*"*/")
 comment       ("//"[^\n]*)
-symbol        ([:;\,\{\}\(\)\=<>\[\]])
+symbol        ([:;\,\{\}\(\)\=<>\[\]\"])
 %%
 
 "bool"              { return tok_bool;                 }

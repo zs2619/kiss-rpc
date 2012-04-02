@@ -13,8 +13,8 @@
 #include <vector>
 class Definition
 {
-
 };
+
 class DefType : public Definition
 {
 public:

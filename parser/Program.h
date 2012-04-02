@@ -59,6 +59,8 @@ public:
 	StructVector		structs_;
 	ServiceVector		services_;
 
+	bool addIncludeFile(const std::string& includeName);
+	std::vector<std::string>	include_;
 	std::string			fileName_; //<输入文件名
 	std::string			outputDir_; //<输出文件目录
 };

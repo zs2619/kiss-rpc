@@ -1,3 +1,5 @@
+include "shuai"
+include "zhn"
 //enum fff 
 //{
 //	zhang,
@@ -25,8 +27,8 @@
 //	array<int16> fdf;
 //	map<int16,bool> dfd;
 //}
-service sha
-{
-	ping();
-	haha(int8 a);
-}
+//service sha
+//{
+//	ping();
+//	haha(int8 a);
+//}

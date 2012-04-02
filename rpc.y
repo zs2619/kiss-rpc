@@ -77,9 +77,12 @@
 %%
 Program :Header DefinitionList
 
-Header:  |Header HeaderDef 
+Header:  Header HeaderDef |
 
-HeaderDef :tok_include '"' tok_identifier '"'
+HeaderDef :tok_include '\"' tok_identifier '\"'
+		{
+			Program::inst()->addIncludeFile(*$3);
+		}
 
 DefinitionList: DefinitionList Definition|Definition
 
