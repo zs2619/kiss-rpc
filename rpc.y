@@ -43,6 +43,8 @@
 	SimpleDefType*	 simpleType_;
 	MapDefType*		 mapType_;
 	ArrayDefType*	 arrayType_;
+	FuctionDefType*	 funType_;
+	ServiceDefType*  serviceType_;
 }
 
 %token<str_>     tok_identifier
@@ -61,10 +63,10 @@
 %type<type_>		ValueType
 
 %type<fieldType_>	FunctionField
-%type<type_>		FunctionFieldList
-%type<type_>		Function
-%type<type_>		Functions
-%type<type_>		Service
+%type<structType_>	FunctionFieldList
+%type<funType_>		Function
+%type<serviceType_>	Functions
+%type<serviceType_>	Service
 
 %type<mapType_>		MapContainer
 %type<arrayType_>	ArrayContainer
@@ -83,23 +85,48 @@ DefinitionList: DefinitionList Definition|Definition
 
 Definition:Struct|Enum|Service
 
-Service: tok_service tok_identifier '{' Functions '}'
+Service: tok_service tok_identifier '{' Functions '}' Separator
 		{
+			$4->name_=*$2;
+			if(!Program::inst()->services_.addDef($4))
+			{
+				yyerror("service name repeat: \"%s\"\n", $2);
+			}
 		}
 Functions: Functions Function 
 		{
+			if(!$$->addFunciton($2))
+			{
+				yyerror("fun name repeat: \"%s\"\n", $2->name_);
+			}
 		}
-		 |Function 
+		|Function 
 		{
+			$$=new ServiceDefType;
+			if(!$$->addFunciton($1))
+			{
+				yyerror("fun name repeat: \"%s\"\n", $1->name_);
+			}
 		}
-Function:	tok_identifier '(' FunctionFieldList ')'
+
+Function:	tok_identifier '(' FunctionFieldList ')' Separator
 		{
+			$$ = new FuctionDefType;
+			$$->name_=*$1;
+			$$->argrs_=$3;
 		}
+
 FunctionFieldList: FunctionFieldList FunctionField
 		{
+			$$ = new StructDefType;
+			if(!$$->addStructValue($2))
+			{
+				yyerror("fun argument repeat: \"%s\"\n", $2);
+			}
 		}
 		|
 		{
+			$$ = new StructDefType;
 		}
 FunctionField:	 FieldType tok_identifier Separator
 		{
@@ -108,7 +135,7 @@ FunctionField:	 FieldType tok_identifier Separator
 			$$->name_=*$2;
 		}
 
-Struct: tok_struct tok_identifier  '{' StructFieldList '}' 
+Struct: tok_struct tok_identifier  '{' StructFieldList '}' Separator
 		{
 			$4->name_=*$2;
 			if(!Program::inst()->structs_.addDef($4))
@@ -121,7 +148,7 @@ StructFieldList: StructFieldList	StructField
 			 $$=$1;
 			if(!$$->addStructValue($2))
 			{
-				yyerror("enum value repeat: \"%s\"\n", $1);
+				yyerror("struct value repeat: \"%s\"\n", $1);
 			}
 		 }
 		|StructField
@@ -130,7 +157,7 @@ StructFieldList: StructFieldList	StructField
 
 			if(!$$->addStructValue($1))
 			{
-				yyerror("enum value repeat: \"%s\"\n", $1);
+				yyerror("struct value repeat: \"%s\"\n", $1);
 			}
 		}
 StructField: FieldType tok_identifier Separator
@@ -186,7 +213,7 @@ ValueType: tok_identifier
 			 $$= $1;
 		 }
 
-Enum: tok_enum	tok_identifier '{'EnumFieldList'}'
+Enum: tok_enum	tok_identifier '{'EnumFieldList'}' Separator
 		{
 			$4->name_=*$2;
 			if(!Program::inst()->enums_.addDef($4))

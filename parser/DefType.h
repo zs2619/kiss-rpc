@@ -24,6 +24,7 @@ public:
 	virtual bool is_array()     const { return false; }
 	virtual bool is_map()       const { return false; }
 	virtual bool is_service()   const { return false; }
+	virtual bool is_function()   const { return false; }
 
 	std::string name_;
 };
@@ -89,11 +90,21 @@ public:
 	DefType*	valueDef_;
 };
 
+class FuctionDefType: public DefType
+{
+public:
+	virtual bool is_function()   const { return true; }
+	StructDefType*	argrs_;
+};
+
 class ServiceDefType:public DefType 
 {
 public:
 	virtual bool is_service()   const { return true; }
+	bool findFunByName(const std::string& name);
+	bool addFunciton(FuctionDefType* fun);
 
+	std::vector<FuctionDefType*>	funs_;
 };
 
 

@@ -269,15 +269,15 @@
 				Name="cpp"
 				>
 				<File
+					RelativePath=".\lib\cpp\Common.h"
+					>
+				</File>
+				<File
 					RelativePath=".\lib\cpp\EnumMap.h"
 					>
 				</File>
 				<File
 					RelativePath=".\lib\cpp\IProtoclo.h"
-					>
-				</File>
-				<File
-					RelativePath=".\lib\cpp\RpcTypeDef.h"
 					>
 				</File>
 			</Filter>

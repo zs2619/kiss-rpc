@@ -52,3 +52,25 @@ bool StructDefType::fineValueByName( const std::string& value )
 	return false;
 
 }
+
+bool ServiceDefType::addFunciton( FuctionDefType* fun )
+{
+	if(!findFunByName(fun->name_))
+	{
+		funs_.push_back(fun);
+		return true;
+	}
+	return false;
+}
+
+bool ServiceDefType::findFunByName( const std::string& name )
+{
+	std::vector<FuctionDefType*>::iterator it=funs_.begin();
+	while (it!=funs_.end())
+	{
+		if((*it)->name_==name)
+			return true;
+		++it;
+	}
+	return false;
+}
