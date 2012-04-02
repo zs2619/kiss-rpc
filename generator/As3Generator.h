@@ -9,6 +9,8 @@
 #define	__AS3GENERATOR_H__
 
 #include "Generator.h"
+
+/** Éú³Éas3 ºó¶Ë*/
 class As3Generator :public Generator
 {
 public:

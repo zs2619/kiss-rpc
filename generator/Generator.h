@@ -61,7 +61,7 @@ public:
 protected:
 	int			indent_;		//<缩进
 	Program*	program_;
-	std::string name_; 
+	std::string name_;			//<生成后端的名字
 };
 
 #endif

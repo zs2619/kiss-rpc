@@ -9,6 +9,8 @@
 #ifndef	__CPPGENERATOR_H__
 #define	__CPPGENERATOR_H__
 #include "Generator.h"
+
+/** Éú³Écpp ºó¶Ë*/
 class CppGenerator: public Generator
 {
 public:

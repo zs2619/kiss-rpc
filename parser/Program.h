@@ -59,7 +59,7 @@ public:
 	StructVector		structs_;
 	ServiceVector		services_;
 
-	std::string			fileName_;
-	std::string			outputDir_;
+	std::string			fileName_; //<输入文件名
+	std::string			outputDir_; //<输出文件目录
 };
 #endif
