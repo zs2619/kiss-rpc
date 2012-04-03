@@ -13,71 +13,41 @@ class IProtocol {
 public:
 	virtual ~IProtocol() {}
 
-	/**  Writing functions. */
-	bool writeMessageBegin(const std::string& name) { }
-	bool writeMessageEnd() { }
+	bool writeBool(bool value)=0;
 
-	bool writeStructBegin(const char* name) { }
-	bool writeStructEnd() { }
+	bool writeUint8( uint8 i)=0;
+	bool writeInt8( int8 i)=0;
 
-	bool writeFieldBegin(const char* name) { }
-	bool writeFieldEnd() { }
+	bool writeUInt16( uint16 i) =0;
+	bool writeInt16( int16 i) =0;
 
-	bool writeMapBegin() { }
-	bool writeMapEnd() { }
+	bool writeUInt32( uint32 i) =0;
+	bool writeInt32( int32 i)=0;
 
-	bool writeArrayBegin() { } 
-	bool writeArrayEnd() { }
+	bool writeInt64( int64 i)=0;
 
-	bool writeBool(bool value) { }
+	bool writeFloat(float f)=0;
 
-	bool writeUint8( uint8 i) { }
-	bool writeInt8( int8 i) { } 
-
-	bool writeUInt16( uint16 i) { }
-	bool writeInt16( int16 i) { }
-
-	bool writeUInt32( uint32 i) { }
-	bool writeInt32( int32 i) { }
-
-	bool writeInt64( int64 i) { }
-
-	bool writeFloat(float f) { }
-
-	bool writeString(const std::string& str) { }
+	bool writeString(const std::string& str)=0;
 
 	/** Reading functions */
-	bool readMessageBegin(std::string& name) { }
-	bool readMessageEnd() { }
 
-	bool readStructBegin(std::string& name) { }
-	bool readStructEnd() { }
+	bool readBool(bool& value)=0;
 
-	bool readFieldBegin(std::string& name) { }
-	bool readFieldEnd() { }
+	bool readUint8(uint8 i)=0;
+	bool readint8(int8 i)=0;
 
-	bool readMapBegin() { }
-	bool readMapEnd() { }
+	bool readUInt16(uint16& i)=0;
+	bool readInt16(int16& i)=0;
 
-	bool readArrayBegin() { }
-	bool readArrayEnd() { }
+	bool readUInt32(uint32& i)=0;
+	bool readInt32(int32& i)=0;
 
-	bool readBool(bool& value) { }
+	bool readInt64(int64& i)=0;
 
-	bool readUint8(uint8 i) { }
-	bool readint8(int8 i) { }
+	bool readFloat(float& f)=0;
 
-	bool readUInt16(uint16& i) { }
-	bool readInt16(int16& i) { }
-
-	bool readUInt32(uint32& i) { }
-	bool readInt32(int32& i) { }
-
-	bool readInt64(int64& i) { }
-
-	bool readFloat(float& f) { }
-
-	bool readString(std::string& str) { }
+	bool readString(std::string& str)=0;
 };
 
 #endif 

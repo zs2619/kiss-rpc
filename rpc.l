@@ -1,4 +1,5 @@
 identifier    ([a-zA-Z_][a-zA-Z_0-9]*)
+fileName	  ([a-zA-Z_0-9\.]*)
 %{
 #include <string>
 #include "parser/Global.h"
@@ -56,5 +57,5 @@ symbol        ([:;\,\{\}\(\)\=<>\[\]\"])
 {symbol}             { return yytext[0];                }
 
 {identifier}		 { yylval.str_ = new std::string(yytext, yyleng); return tok_identifier; } 
-
+{fileName}			 { yylval.str_ = new std::string(yytext, yyleng); return tok_fileName; } 
 %%

@@ -12,21 +12,6 @@ public interface IProtocol
 public:
 
 	/**  Writing functions. */
-	function  writeMessageBegin( name:String) :void;
-	function  writeMessageEnd() :void;
-
-	function  writeStructBegin( name:String) :void;
-	function  writeStructEnd() :void;
-
-	function  writeFieldBegin( name:String) :void;
-	function  writeFieldEnd() :void;
-
-	function  writeMapBegin() :void;
-	function  writeMapEnd() :void;
-
-	function  writeArrayBegin() :void ;
-	function  writeArrayEnd() :void;
-
 	function  writeBool(value:bool):void;
 
 	function  writeUint8( i:uint):void;
@@ -45,21 +30,6 @@ public:
 	function  writeString(str:String) :void;
 
 	/** Reading functions */
-	function  readMessageBegin():void ;
-	function  readMessageEnd():void;
-
-	function  readStructBegin():void ;
-	function  readStructEnd()void;
-
-	function  readFieldBegin():void;
-	function  readFieldEnd():void;
-
-	function  readMapBegin():void;
-	function  readMapEnd():void;
-
-	function  readArrayBegin():void;
-	function  readArrayEnd() :void;
-
 	function  readBool():Boolean;
 
 	function  readUint8():uint;

@@ -48,6 +48,8 @@
 }
 
 %token<str_>     tok_identifier
+%token<str_>     tok_fileName
+
 %type<str_>		 EnumValue
 
 %type<enumType_>	EnumFieldList
@@ -76,10 +78,11 @@
 
 %%
 Program :Header DefinitionList
+		 |Header
 
 Header:  Header HeaderDef |
 
-HeaderDef :tok_include '\"' tok_identifier '\"'
+HeaderDef :tok_include '\"' tok_fileName '\"'
 		{
 			Program::inst()->addIncludeFile(*$3);
 		}
@@ -176,6 +179,10 @@ FieldType: tok_identifier
 			{
 				$$= new StructDefType;
 				$$->name_=*$1;
+				if(!Program::inst()->structs_.findDefByName($$->name_))
+				{
+					yyerror("struct no define: \"%s\"\n", $1);
+				}
 			}
 			| SimpleDefType 
 			{
@@ -210,6 +217,10 @@ ValueType: tok_identifier
 		 {
 			 $$= new StructDefType;
 			 $$->name_=*$1;
+			 if(!Program::inst()->structs_.findDefByName($$->name_))
+			 {
+				yyerror("struct no define: \"%s\"\n", $1);
+			 }
 		 }
 		 |SimpleDefType 
 		 {

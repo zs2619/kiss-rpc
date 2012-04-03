@@ -24,7 +24,7 @@ extern FILE* yyin;
 */
 int main(int argc,char** argv)
 {
-	Program::inst()->fileName_="shuai.txt";
+	Program::inst()->fileName_="zhang.txt";
 	yyin = fopen(Program::inst()->fileName_.c_str() , "r" );
 	assert(yyin);
 	try {
