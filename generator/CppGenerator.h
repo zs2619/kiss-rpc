@@ -24,6 +24,10 @@ private:
 
 	void generateStructHeader();
 	void generateStructSrc();
+
+	void defineField(FieldDefType* t);
+	std::string typeName(DefType* t);
+
 private:
 	std::ofstream	headerFile_;
 	std::ofstream	srcFile_;

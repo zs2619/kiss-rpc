@@ -82,28 +82,17 @@ void CppGenerator::generateStructHeader()
 	{
 		headerFile_<<"struct "<<(*it)->name_<<std::endl;
 		headerFile_<<"{ "<<std::endl;
-		indent_up();
 
 		std::vector<FieldDefType*>::iterator it_inner=(*it)->members_.begin();
 		indent_up();
 		while(it_inner!=(*it)->members_.end())
 		{
 			FieldDefType*& t=*it_inner;
-			if(t->type_->is_array())
-			{
-
-			}else if(t->type_->is_map())
-			{
-
-			}else if (t->type_->is_simple_type())
-			{
-			}
-
-			headerFile_<<indent()<<"e.push_back("<<*it_inner<<")"<<";"<<std::endl;
+			defineField(t);
 			++it_inner;
 		}
 		indent_down();
-		headerFile_<<"} "<<std::endl;
+		headerFile_<<"} ;"<<std::endl;
 		++it;
 	}
 
@@ -112,4 +101,55 @@ void CppGenerator::generateStructHeader()
 void CppGenerator::generateStructSrc()
 {
 
+}
+
+void CppGenerator::defineField( FieldDefType* t )
+{
+	headerFile_<<indent()<<typeName(t->type_)<<indent()<<t->name_<<";"<<std::endl;
+}
+
+std::string CppGenerator::typeName( DefType* t )
+{
+	if(t->is_array())
+	{
+		ArrayDefType* array=(ArrayDefType*)t;
+		std::string temp="std::vetcotr<"; 
+		temp=temp+typeName(array->valueDef_) +"> ";
+		return temp;
+	}else if(t->is_map())
+	{
+		MapDefType* map=(MapDefType*)t;
+		std::string temp="std::map<";
+		temp=temp+typeName(map->keyDef_)+","+typeName(map->valueDef_)+">";
+		return temp;
+	}else if (t->is_simple_type())
+	{
+		SimpleDefType* s=(SimpleDefType*)t;
+		switch (s->t_)
+		{
+		case	SimpleDefType::boolType : return "bool";
+		case	SimpleDefType::uint8Type : return "uint8";
+		case	SimpleDefType::int8Type : return "int8";
+		case	SimpleDefType::uint16Type : return "uint16";
+		case	SimpleDefType::int16Type : return "int16";
+
+		case	SimpleDefType::uint32Type : return "uint32";
+		case	SimpleDefType::int32Type : return "int32";
+
+		case	SimpleDefType::int64Type : return "int46";
+		case	SimpleDefType::floatType : return "float";
+		case	SimpleDefType::stringType : return "std::string";
+		default          : assert(0&&"type error"); return "";
+		}
+	}
+	else if(t->is_struct())
+	{
+		 return t->name_;
+	}
+	else if (t->is_enum())
+	{
+		 return t->name_;
+	}
+	assert(0&&"type error"); 
+	return "";
 }

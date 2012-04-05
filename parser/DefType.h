@@ -11,6 +11,7 @@
 
 #include <string>
 #include <vector>
+#include <assert.h>
 class Definition
 {
 };
@@ -35,6 +36,7 @@ public:
 	virtual bool is_enum() const { return true; }
 	bool	addEnumValue(const std::string& value);
 	bool	fineValueByName(const std::string& value);
+
 	std::vector<std::string> defs_;
 };
 
@@ -62,6 +64,8 @@ public:
 		stringType  ,
 	};
 	virtual bool is_simple_type() const { return true; }
+
+	std::string getType();
 	dataType t_;
 };
 
@@ -79,6 +83,7 @@ class MapDefType:public DefType
 {
 public:
 	virtual bool is_map()       const { return true; }
+
 	SimpleDefType* keyDef_;
 	DefType*	   valueDef_;
 };
