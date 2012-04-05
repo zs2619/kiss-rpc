@@ -1,5 +1,5 @@
-include "shuai"
-include "zhn"
+//include "shuai"
+//include "zhn"
 //enum fff 
 //{
 //	zhang,
@@ -15,18 +15,20 @@ include "zhn"
 //	zhang(int8 a,int16 b)
 //	shai(bool d,bool d)
 //}
-//struct user
-//{
-//	bool b;
-//	int8 i;
-//}
-//struct fdfa
-//{
-//	int8 f;
-//	user  u;
-//	array<int16> fdf;
-//	map<int16,bool> dfd;
-//}
+struct user
+{
+	bool b;
+	int8 i;
+
+}
+struct fdfa
+{
+	int8 f;
+	user  u;
+	array<int16> fdf;
+	map<int16,bool> dfd;
+}
+
 //service sha
 //{
 //	ping();

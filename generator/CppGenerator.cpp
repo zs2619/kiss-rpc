@@ -121,7 +121,8 @@ void CppGenerator::generateStructSrc()
 	{
 		//构造 析构函数
 		srcFile_<<indent()<<(*it)->name_<<"::"<<(*it)->name_<<"()"<<std::endl;
-		std::vector<FieldDefType*>::iterator it_inner=(*it)->members_.begin();
+		std::vector<FieldDefType*>::iterator it_inner;
+		it_inner=(*it)->members_.begin();
 		bool frist=true;
 		while(it_inner!=(*it)->members_.end())
 		{
@@ -147,11 +148,20 @@ void CppGenerator::generateStructSrc()
 		srcFile_<<"{ "<<std::endl;
 		srcFile_<<"} "<<std::endl;
 
+		//序列化函数
 		srcFile_<<std::endl;
 		srcFile_<<indent()<<"//serialize"<<std::endl;
 		srcFile_<<indent()<<"bool "<<(*it)->name_<<"::serialize(IProtoclo* __P__) "<<std::endl;
 		srcFile_<<"{ "<<std::endl;
-
+		it_inner=(*it)->members_.begin();
+		indent_up();
+		while(it_inner!=(*it)->members_.end())
+		{
+			serializeField((*it_inner)->type_,(*it_inner)->name_);
+			srcFile_<<std::endl;
+			++it_inner;
+		}
+		indent_down();
 		srcFile_<<"}// serialize"<<std::endl;
 		
 		//反序列化函数
@@ -159,6 +169,16 @@ void CppGenerator::generateStructSrc()
 		srcFile_<<indent()<<"//deSerialize"<<std::endl;
 		srcFile_<<indent()<<"bool "<<(*it)->name_<<"::deSerialize(IProtoclo* __P__)"<<std::endl;
 		srcFile_<<"{ "<<std::endl;
+		it_inner=(*it)->members_.begin();
+		indent_up();
+		while(it_inner!=(*it)->members_.end())
+		{
+			deSerializeField((*it_inner)->type_,(*it_inner)->name_);
+			srcFile_<<std::endl;
+			++it_inner;
+		}
+		srcFile_<<indent()<<"return true; "<<std::endl;
+		indent_down();
 
 		srcFile_<<"}//deSerialize "<<std::endl;
 
@@ -244,4 +264,210 @@ std::string CppGenerator::typeName( DefType* t )
 	}
 	assert(0&&"type error"); 
 	return "";
+}
+
+void CppGenerator::serializeField( DefType* t ,const std::string& fieldName )
+{
+	if (t->is_struct())
+	{
+		srcFile_<<indent()<<fieldName<<"->serialize(__P__);"<<std::endl;
+	}
+	else if (t->is_simple_type())
+	{
+		SimpleDefType* s=(SimpleDefType*)t;
+		switch (s->t_)
+		{
+		case	SimpleDefType::boolType : 
+			{
+				srcFile_<<indent()<<"__P__->writeBool("<<fieldName<<");"<<std::endl;
+				break;
+			} 
+		case	SimpleDefType::uint8Type : 
+			{
+				srcFile_<<indent()<<"__P__->writeUint8("<<fieldName<<");"<<std::endl;
+				break;
+			} 
+		case	SimpleDefType::int8Type : 
+			{
+				srcFile_<<indent()<<"__P__->writeInt8("<<fieldName<<");"<<std::endl;
+				break;
+			} 
+		case	SimpleDefType::uint16Type :
+			{
+				srcFile_<<indent()<<"__P__->writeUInt16("<<fieldName<<");"<<std::endl;
+				break;
+			} 
+		case	SimpleDefType::int16Type :
+			{
+				srcFile_<<indent()<<"__P__->writeInt16("<<fieldName<<");"<<std::endl;
+				break;
+			} 
+		case	SimpleDefType::uint32Type :
+			{
+				srcFile_<<indent()<<"__P__->writeUInt32("<<fieldName<<");"<<std::endl;
+				break;
+			} 
+		case	SimpleDefType::int32Type :
+			{
+				srcFile_<<indent()<<"__P__->writeInt32("<<fieldName<<");"<<std::endl;
+				break;
+			} 
+		case	SimpleDefType::int64Type :
+			{
+				srcFile_<<indent()<<"__P__->writeInt64("<<fieldName<<");"<<std::endl;
+				break;
+			} 
+		case	SimpleDefType::floatType :
+			{
+				srcFile_<<indent()<<"__P__->writeFloat("<<fieldName<<");"<<std::endl;
+				break;
+			} 
+		case	SimpleDefType::stringType :
+			{
+				srcFile_<<indent()<<"__P__->writeString("<<fieldName<<");"<<std::endl;
+				break;
+			}
+
+		}
+	}
+	else if(t->is_array())
+	{
+		srcFile_<<indent()<<"__P__->writeInt16("<<fieldName<<".size());"<<std::endl;
+		std::string temp="_i_"+fieldName+"_";
+		srcFile_<<indent()<<"for (int "<<temp<<"=0;i<"<<fieldName<<".size();"<<temp<<"++)"<<std::endl;
+		srcFile_<<indent()<<"{"<<std::endl;
+		indent_up();
+		std::string tempAgr="fieldName["+temp+"]";
+		serializeField(((ArrayDefType*)t)->valueDef_,tempAgr);
+		indent_down();
+		srcFile_<<indent()<<"}"<<std::endl;
+
+	}else if (t->is_enum())
+	{
+		srcFile_<<indent()<<"__P__->writeInt16("<<fieldName<<");"<<std::endl;
+
+	}else if(t->is_map())
+	{
+		srcFile_<<indent()<<"__P__->writeInt16("<<fieldName<<".size());"<<std::endl;
+		std::string temp="_it_"+fieldName+"_";
+		srcFile_<<indent()<<typeName(t)<<"::iterator "<<temp<<" = "<<fieldName<<".begin();"<<std::endl;
+		srcFile_<<indent()<<"while("<<temp<<"!="<<fieldName<<".end())"<<std::endl;
+		srcFile_<<indent()<<"{"<<std::endl;
+		indent_up();
+		std::string tempfirst=temp+"->frist";
+		std::string tempsecond=temp+"->second";
+		serializeField(((MapDefType*)t)->keyDef_,tempfirst);
+		serializeField(((MapDefType*)t)->valueDef_,tempsecond);
+		srcFile_<<indent()<<"++"<<temp<<";"<<std::endl;
+		indent_down();
+		srcFile_<<indent()<<"}"<<std::endl;
+	}
+}
+
+void CppGenerator::deSerializeField( DefType* t ,const std::string& fieldName )
+{
+	if (t->is_struct())
+	{
+		srcFile_<<indent()<<"if(!"<<fieldName<<"->deSerialize(__P__))return false;"<<std::endl;
+	}
+	else if (t->is_simple_type())
+	{
+		SimpleDefType* s=(SimpleDefType*)t;
+		switch (s->t_)
+		{
+		case	SimpleDefType::boolType : 
+			{
+				srcFile_<<indent()<<"if(!"<<"__P__->readBool("<<fieldName<<"))return false;"<<std::endl;
+				break;
+			} 
+		case	SimpleDefType::uint8Type : 
+			{
+				srcFile_<<indent()<<"if(!"<<"__P__->readUint8("<<fieldName<<"))return false;"<<std::endl;
+				break;
+			} 
+		case	SimpleDefType::int8Type : 
+			{
+				srcFile_<<indent()<<"if(!"<<"__P__->readInt8("<<fieldName<<"))return false;"<<std::endl;
+				break;
+			} 
+		case	SimpleDefType::uint16Type :
+			{
+				srcFile_<<indent()<<"if(!"<<"__P__->readUInt16("<<fieldName<<"))return false;"<<std::endl;
+				break;
+			} 
+		case	SimpleDefType::int16Type :
+			{
+				srcFile_<<indent()<<"if(!"<<"__P__->readInt16("<<fieldName<<"))return false;"<<std::endl;
+				break;
+			} 
+		case	SimpleDefType::uint32Type :
+			{
+				srcFile_<<indent()<<"if(!"<<"__P__->readUInt32("<<fieldName<<"))return false;"<<std::endl;
+				break;
+			} 
+		case	SimpleDefType::int32Type :
+			{
+				srcFile_<<indent()<<"if(!"<<"__P__->readInt32("<<fieldName<<"))return false;"<<std::endl;
+				break;
+			} 
+		case	SimpleDefType::int64Type :
+			{
+				srcFile_<<indent()<<"if(!"<<"__P__->readInt64("<<fieldName<<"))return false;"<<std::endl;
+				break;
+			} 
+		case	SimpleDefType::floatType :
+			{
+				srcFile_<<indent()<<"if(!"<<"__P__->readFloat("<<fieldName<<"))return false;"<<std::endl;
+				break;
+			} 
+		case	SimpleDefType::stringType :
+			{
+				srcFile_<<indent()<<"if(!"<<"__P__->readString("<<fieldName<<"))return false;"<<std::endl;
+				break;
+			}
+		}
+	}
+	else if(t->is_array())
+	{
+		std::string size="_n_"+fieldName+"_array";
+		srcFile_<<indent()<<"int "<<size<<"=0;"<<std::endl;
+		srcFile_<<indent()<<"if(!"<<"__P__->readInt16("<<size<<"))return false;"<<std::endl;
+		srcFile_<<indent()<<"fieldName.resize( "<<size<<");"<<std::endl;
+		std::string count="_i_"+fieldName+"_";
+		srcFile_<<indent()<<"for (int "<<count<<"=0;"<<count<<"<"<<size<<";"<<count<<"++)"<<std::endl;
+		srcFile_<<indent()<<"{"<<std::endl;
+		indent_up();
+		std::string tempAgr="fieldName["+count+"]";
+		deSerializeField(((ArrayDefType*)t)->valueDef_,tempAgr);
+		indent_down();
+		srcFile_<<indent()<<"}"<<std::endl;
+
+	}else if (t->is_enum())
+	{
+		srcFile_<<indent()<<"if(!"<<"__P__->readInt16("<<fieldName<<"))return false;"<<std::endl;
+
+	}else if(t->is_map())
+	{
+		std::string size="_n_"+fieldName+"_map_";
+		srcFile_<<indent()<<"int "<<size<<"=0;"<<std::endl;
+		srcFile_<<indent()<<"__P__->readInt16("<<size<<")return false;"<<std::endl;
+		std::string count="_i_"+fieldName+"_";
+		srcFile_<<indent()<<"for (int "<<count<<"=0;"<<count<<"<"<<size<<";"<<count<<"++)"<<std::endl;
+		srcFile_<<indent()<<"{"<<std::endl;
+		indent_up();
+		std::string firstType=typeName(((MapDefType*)t)->keyDef_);
+		std::string firstValue=" _first_map_"+fieldName;
+		srcFile_<<indent()<<firstType<<" "<<firstValue<<";"<<std::endl;
+		
+		std::string secondType=typeName(((MapDefType*)t)->valueDef_);
+		std::string secondValue=" _second_map_"+fieldName;
+		srcFile_<<indent()<<secondType<<" "<<secondValue<<";"<<std::endl;
+
+		deSerializeField(((MapDefType*)t)->keyDef_,firstValue);
+		deSerializeField(((MapDefType*)t)->valueDef_,secondValue);
+		srcFile_<<indent()<<fieldName<<"["<<firstValue<<"]="<< secondValue<<std::endl;
+		indent_down();
+		srcFile_<<indent()<<"}"<<std::endl;
+	}
+
 }
