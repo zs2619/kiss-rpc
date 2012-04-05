@@ -27,7 +27,7 @@ private:
 
 	void defineField(FieldDefType* t);
 	std::string typeName(DefType* t);
-
+	std::string DefaultValue( DefType* t );
 private:
 	std::ofstream	headerFile_;
 	std::ofstream	srcFile_;

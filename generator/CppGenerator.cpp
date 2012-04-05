@@ -82,17 +82,32 @@ void CppGenerator::generateStructHeader()
 	{
 		headerFile_<<"struct "<<(*it)->name_<<std::endl;
 		headerFile_<<"{ "<<std::endl;
-
-		std::vector<FieldDefType*>::iterator it_inner=(*it)->members_.begin();
 		indent_up();
+		//构造 析构函数
+		headerFile_<<indent()<<(*it)->name_<<"()"<<std::endl;
+		headerFile_<<indent()<<"~"<<(*it)->name_<<"()"<<std::endl;
+
+		//属性
+		std::vector<FieldDefType*>::iterator it_inner=(*it)->members_.begin();
 		while(it_inner!=(*it)->members_.end())
 		{
 			FieldDefType*& t=*it_inner;
 			defineField(t);
 			++it_inner;
 		}
+		//序列化函数
+		headerFile_<<std::endl;
+		headerFile_<<indent()<<"//serialize"<<std::endl;
+		headerFile_<<indent()<<"bool serialize(IProtoclo* __P__); "<<std::endl;
+		
+		//反序列化函数
+		headerFile_<<std::endl;
+		headerFile_<<indent()<<"//deSerialize"<<std::endl;
+		headerFile_<<indent()<<"bool deSerialize(IProtoclo* __P__);"<<std::endl;
+
 		indent_down();
-		headerFile_<<"} ;"<<std::endl;
+		headerFile_<<"} //struct;"<<std::endl;
+		headerFile_<<std::endl;
 		++it;
 	}
 
@@ -100,12 +115,89 @@ void CppGenerator::generateStructHeader()
 
 void CppGenerator::generateStructSrc()
 {
+	std::vector<StructDefType*>::iterator it=program_->structs_.defs_.begin();
+	std::vector<StructDefType*>::iterator it_end=program_->structs_.defs_.end();
+	while(it!=it_end)
+	{
+		//构造 析构函数
+		srcFile_<<indent()<<(*it)->name_<<"::"<<(*it)->name_<<"()"<<std::endl;
+		std::vector<FieldDefType*>::iterator it_inner=(*it)->members_.begin();
+		bool frist=true;
+		while(it_inner!=(*it)->members_.end())
+		{
+			FieldDefType*& t=*it_inner;
+			if (t->type_->is_enum()||t->type_->is_simple_type())
+			{
+				if (frist)
+				{
+					srcFile_<<":"<<t->name_<<"("<<DefaultValue(t->type_)<<")"<<std::endl;
+					frist=false;
+				}
+				else
+				{
+					srcFile_<<","<<t->name_<<"("<<DefaultValue(t->type_)<<")"<<std::endl;
+				}
+			}
+			++it_inner;
+		}
+
+		srcFile_<<"{ "<<std::endl;
+		srcFile_<<"} "<<std::endl;
+		srcFile_<<indent()<<(*it)->name_<<"::""~"<<(*it)->name_<<"()"<<std::endl;
+		srcFile_<<"{ "<<std::endl;
+		srcFile_<<"} "<<std::endl;
+
+		srcFile_<<std::endl;
+		srcFile_<<indent()<<"//serialize"<<std::endl;
+		srcFile_<<indent()<<"bool "<<(*it)->name_<<"::serialize(IProtoclo* __P__) "<<std::endl;
+		srcFile_<<"{ "<<std::endl;
+
+		srcFile_<<"}// serialize"<<std::endl;
+		
+		//反序列化函数
+		srcFile_<<std::endl;
+		srcFile_<<indent()<<"//deSerialize"<<std::endl;
+		srcFile_<<indent()<<"bool "<<(*it)->name_<<"::deSerialize(IProtoclo* __P__)"<<std::endl;
+		srcFile_<<"{ "<<std::endl;
+
+		srcFile_<<"}//deSerialize "<<std::endl;
+
+		srcFile_<<std::endl;
+		++it;
+	}
 
 }
 
 void CppGenerator::defineField( FieldDefType* t )
 {
 	headerFile_<<indent()<<typeName(t->type_)<<indent()<<t->name_<<";"<<std::endl;
+}
+std::string CppGenerator::DefaultValue( DefType* t )
+{
+	if (t->is_simple_type())
+	{
+		SimpleDefType* s=(SimpleDefType*)t;
+		switch (s->t_)
+		{
+		case	SimpleDefType::boolType : return "false";
+		case	SimpleDefType::uint8Type : return "0";
+		case	SimpleDefType::int8Type : return "0";
+		case	SimpleDefType::uint16Type : return "0";
+		case	SimpleDefType::int16Type : return "0";
+
+		case	SimpleDefType::uint32Type : return "0";
+		case	SimpleDefType::int32Type : return "0";
+
+		case	SimpleDefType::int64Type : return "0";
+		case	SimpleDefType::floatType : return "0.0";
+		default          : assert(0&&"type error"); return "";
+		}
+	}else if (t->is_enum())
+	{
+		 return "0";
+	}
+	assert(0&&"type error"); 
+	return "";
 }
 
 std::string CppGenerator::typeName( DefType* t )
