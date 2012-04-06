@@ -21,6 +21,8 @@ public:
 	void    generateStruct();
 	std::string typeName(DefType* t);
 	std::string DefaultValue( DefType* t );
+	void serializeField( DefType* t ,const std::string& fieldName );
+	void deSerializeField( DefType* t ,const std::string& fieldName );
 private:
 	std::ofstream	as3File_;
 };

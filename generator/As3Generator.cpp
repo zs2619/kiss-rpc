@@ -165,7 +165,14 @@ void As3Generator::generateStruct()
 		as3File_<<indent()<<"{ "<<std::endl;
 		indent_up();
 		//序列化属性
-
+		it_inner=(*it)->members_.begin();
+		while(it_inner!=(*it)->members_.end())
+		{
+			serializeField((*it_inner)->type_,(*it_inner)->name_);
+			as3File_<<std::endl;
+			++it_inner;
+		}
+		as3File_<<indent()<<"return true"<<std::endl;
 		indent_down();
 		as3File_<<indent()<<"}//serialize "<<std::endl;
 		
@@ -176,7 +183,14 @@ void As3Generator::generateStruct()
 		as3File_<<indent()<<"{ "<<std::endl;
 		indent_up();
 		//反序列化属性
-
+		it_inner=(*it)->members_.begin();
+		while(it_inner!=(*it)->members_.end())
+		{
+			deSerializeField((*it_inner)->type_,(*it_inner)->name_);
+			as3File_<<std::endl;
+			++it_inner;
+		}
+		as3File_<<indent()<<"return true"<<std::endl;
 		indent_down();
 		as3File_<<indent()<<"}// deSerialize"<<std::endl;
 
@@ -185,5 +199,178 @@ void As3Generator::generateStruct()
 		as3File_<<"}//class"<<std::endl;
 		as3File_.close();
 		++it;
+	}
+}
+
+
+void As3Generator::serializeField( DefType* t ,const std::string& fieldName )
+{
+	if (t->is_struct())
+	{
+		as3File_<<indent()<<fieldName<<".serialize(__P__);"<<std::endl;
+	}
+	else if (t->is_simple_type())
+	{
+		SimpleDefType* s=(SimpleDefType*)t;
+		switch (s->t_)
+		{
+		case	SimpleDefType::boolType : 
+			{
+				as3File_<<indent()<<"__P__.writeBool("<<fieldName<<");"<<std::endl;
+				break;
+			} 
+		case	SimpleDefType::uint8Type : 
+			{
+				as3File_<<indent()<<"__P__.writeUint8("<<fieldName<<");"<<std::endl;
+				break;
+			} 
+		case	SimpleDefType::int8Type : 
+			{
+				as3File_<<indent()<<"__P__.writeInt8("<<fieldName<<");"<<std::endl;
+				break;
+			} 
+		case	SimpleDefType::uint16Type :
+			{
+				as3File_<<indent()<<"__P__.writeUInt16("<<fieldName<<");"<<std::endl;
+				break;
+			} 
+		case	SimpleDefType::int16Type :
+			{
+				as3File_<<indent()<<"__P__.writeInt16("<<fieldName<<");"<<std::endl;
+				break;
+			} 
+		case	SimpleDefType::uint32Type :
+			{
+				as3File_<<indent()<<"__P__.writeUInt32("<<fieldName<<");"<<std::endl;
+				break;
+			} 
+		case	SimpleDefType::int32Type :
+			{
+				as3File_<<indent()<<"__P__.writeInt32("<<fieldName<<");"<<std::endl;
+				break;
+			} 
+		case	SimpleDefType::int64Type :
+			{
+				as3File_<<indent()<<"__P__.writeInt64("<<fieldName<<");"<<std::endl;
+				break;
+			} 
+		case	SimpleDefType::floatType :
+			{
+				as3File_<<indent()<<"__P__.writeFloat("<<fieldName<<");"<<std::endl;
+				break;
+			} 
+		case	SimpleDefType::stringType :
+			{
+				as3File_<<indent()<<"__P__.writeString("<<fieldName<<");"<<std::endl;
+				break;
+			}
+
+		}
+	}
+	else if(t->is_array())
+	{
+		as3File_<<indent()<<"__P__.writeInt16("<<fieldName<<".length );"<<std::endl;
+		std::string temp="_i_"+fieldName+"_";
+		as3File_<<indent()<<"for (var  "<<temp<<":int=0;"<<temp<<"<"<<fieldName<<".length;"<<temp<<"++)"<<std::endl;
+		as3File_<<indent()<<"{"<<std::endl;
+		indent_up();
+		std::string tempAgr=fieldName+"["+temp+"]";
+		serializeField(((ArrayDefType*)t)->valueDef_,tempAgr);
+		indent_down();
+		as3File_<<indent()<<"}"<<std::endl;
+
+	}else if (t->is_enum())
+	{
+		as3File_<<indent()<<"__P__.writeInt16("<<fieldName<<");"<<std::endl;
+
+	}else if(t->is_map())
+	{
+	}
+}
+
+void As3Generator::deSerializeField( DefType* t ,const std::string& fieldName )
+{
+	if (t->is_struct())
+	{
+		as3File_<<indent()<<"if(!"<<fieldName<<".deSerialize(__P__))return false;"<<std::endl;
+	}
+	else if (t->is_simple_type())
+	{
+		SimpleDefType* s=(SimpleDefType*)t;
+		switch (s->t_)
+		{
+		case	SimpleDefType::boolType : 
+			{
+				as3File_<<indent()<<"if(!"<<"__P__.readBool("<<fieldName<<"))return false;"<<std::endl;
+				break;
+			} 
+		case	SimpleDefType::uint8Type : 
+			{
+				as3File_<<indent()<<"if(!"<<"__P__.readUint8("<<fieldName<<"))return false;"<<std::endl;
+				break;
+			} 
+		case	SimpleDefType::int8Type : 
+			{
+				as3File_<<indent()<<"if(!"<<"__P__.>readInt8("<<fieldName<<"))return false;"<<std::endl;
+				break;
+			} 
+		case	SimpleDefType::uint16Type :
+			{
+				as3File_<<indent()<<"if(!"<<"__P__.readUInt16("<<fieldName<<"))return false;"<<std::endl;
+				break;
+			} 
+		case	SimpleDefType::int16Type :
+			{
+				as3File_<<indent()<<"if(!"<<"__P__.readInt16("<<fieldName<<"))return false;"<<std::endl;
+				break;
+			} 
+		case	SimpleDefType::uint32Type :
+			{
+				as3File_<<indent()<<"if(!"<<"__P__.readUInt32("<<fieldName<<"))return false;"<<std::endl;
+				break;
+			} 
+		case	SimpleDefType::int32Type :
+			{
+				as3File_<<indent()<<"if(!"<<"__P__.readInt32("<<fieldName<<"))return false;"<<std::endl;
+				break;
+			} 
+		case	SimpleDefType::int64Type :
+			{
+				as3File_<<indent()<<"if(!"<<"__P__.readInt64("<<fieldName<<"))return false;"<<std::endl;
+				break;
+			} 
+		case	SimpleDefType::floatType :
+			{
+				as3File_<<indent()<<"if(!"<<"__P__.readFloat("<<fieldName<<"))return false;"<<std::endl;
+				break;
+			} 
+		case	SimpleDefType::stringType :
+			{
+				as3File_<<indent()<<"if(!"<<"__P__.readString("<<fieldName<<"))return false;"<<std::endl;
+				break;
+			}
+		}
+	}
+	else if(t->is_array())
+	{
+		std::string size="_n_"+fieldName+"_array";
+		as3File_<<indent()<<"var "<<size<<":int=0;"<<std::endl;
+		as3File_<<indent()<<"if(!"<<"__P__.readInt16("<<size<<"))return false;"<<std::endl;
+		as3File_<<indent()<<"fieldName.resize( "<<size<<");"<<std::endl;
+		std::string count="_i_"+fieldName+"_";
+		as3File_<<indent()<<"for (var "<<count<<":int=0;"<<count<<"<"<<size<<";"<<count<<"++)"<<std::endl;
+		as3File_<<indent()<<"{"<<std::endl;
+		indent_up();
+		std::string tempAgr=fieldName+"["+count+"]";
+		deSerializeField(((ArrayDefType*)t)->valueDef_,tempAgr);
+		indent_down();
+		as3File_<<indent()<<"}"<<std::endl;
+
+	}else if (t->is_enum())
+	{
+		as3File_<<indent()<<"if(!"<<"__P__.readInt16("<<fieldName<<"))return false;"<<std::endl;
+
+	}else if(t->is_map())
+	{
 	}
 }

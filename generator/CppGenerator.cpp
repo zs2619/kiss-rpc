@@ -161,6 +161,7 @@ void CppGenerator::generateStructSrc()
 			srcFile_<<std::endl;
 			++it_inner;
 		}
+		srcFile_<<indent()<<"return true"<<std::endl;
 		indent_down();
 		srcFile_<<"}// serialize"<<std::endl;
 		
@@ -334,10 +335,10 @@ void CppGenerator::serializeField( DefType* t ,const std::string& fieldName )
 	{
 		srcFile_<<indent()<<"__P__->writeInt16("<<fieldName<<".size());"<<std::endl;
 		std::string temp="_i_"+fieldName+"_";
-		srcFile_<<indent()<<"for (int "<<temp<<"=0;i<"<<fieldName<<".size();"<<temp<<"++)"<<std::endl;
+		srcFile_<<indent()<<"for (int "<<temp<<"=0;"<<temp<<"<"<<fieldName<<".size();"<<temp<<"++)"<<std::endl;
 		srcFile_<<indent()<<"{"<<std::endl;
 		indent_up();
-		std::string tempAgr="fieldName["+temp+"]";
+		std::string tempAgr=fieldName+"["+temp+"]";
 		serializeField(((ArrayDefType*)t)->valueDef_,tempAgr);
 		indent_down();
 		srcFile_<<indent()<<"}"<<std::endl;
