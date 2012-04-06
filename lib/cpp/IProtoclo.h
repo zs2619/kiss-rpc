@@ -12,6 +12,8 @@
 class IProtocol {
 public:
 	virtual ~IProtocol() {}
+	bool writeMsgBegin()=0;
+	bool writeMsgEnd()=0;
 
 	bool writeBool(bool value)=0;
 

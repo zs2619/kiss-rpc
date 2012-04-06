@@ -35,6 +35,9 @@ private:
 	void serializeField( DefType* t ,const std::string& fieldName );
 	void deSerializeField( DefType* t ,const std::string& fieldName );
 
+	void serializeFields( StructDefType* t );
+	void deSerializeFields( StructDefType* t );
+
 	void genServiceStubHeader();
 	void genServiceStubSrc();
 	void genServiceProxyHeader();

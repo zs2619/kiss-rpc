@@ -11,7 +11,10 @@ public interface IProtocol
 {
 public:
 
+	function  writeMsgBegin():void;
+	function  writeMsgEnd():void;
 	/**  Writing functions. */
+	
 	function  writeBool(value:bool):void;
 
 	function  writeUint8( i:uint):void;

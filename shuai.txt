@@ -29,8 +29,9 @@ struct fdfa
 	map<int16,bool> dfd;
 }
 
-//service sha
-//{
-//	ping();
-//	haha(int8 a);
-//}
+service sha
+{
+	ping();
+	haha(int8 a,string h);
+	hehe(string s ,float f);
+}

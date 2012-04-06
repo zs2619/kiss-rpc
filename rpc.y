@@ -142,6 +142,7 @@ FunctionFieldList: FunctionFieldList FunctionField
 		{
 			$$ = new StructDefType;
 		}
+
 FunctionField:	 FieldType tok_identifier Separator
 		{
 			$$= new FieldDefType;

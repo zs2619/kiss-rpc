@@ -90,7 +90,7 @@ void CppGenerator::generateStructHeader()
 		indent_up();
 		//构造 析构函数
 		headerFile_<<indent()<<(*it)->name_<<"();"<<std::endl;
-		headerFile_<<indent()<<"~"<<(*it)->name_<<"();"<<std::endl;
+		headerFile_<<indent()<<"virtual ~"<<(*it)->name_<<"();"<<std::endl;
 
 		//属性
 		std::vector<FieldDefType*>::iterator it_inner=(*it)->members_.begin();
@@ -103,7 +103,7 @@ void CppGenerator::generateStructHeader()
 		//序列化函数
 		headerFile_<<std::endl;
 		headerFile_<<indent()<<"//serialize"<<std::endl;
-		headerFile_<<indent()<<"bool serialize(IProtoclo* __P__); "<<std::endl;
+		headerFile_<<indent()<<"void serialize(IProtoclo* __P__); "<<std::endl;
 		
 		//反序列化函数
 		headerFile_<<std::endl;
@@ -127,7 +127,6 @@ void CppGenerator::generateStructSrc()
 	{
 		//构造 析构函数
 		srcFile_<<indent()<<(*it)->name_<<"::"<<(*it)->name_<<"()"<<std::endl;
-		srcFile_<<indent()<<"virtual ~"<<(*it)->name_<<"::"<<(*it)->name_<<"();"<<std::endl;
 
 		std::vector<FieldDefType*>::iterator it_inner;
 		it_inner=(*it)->members_.begin();
@@ -149,9 +148,9 @@ void CppGenerator::generateStructSrc()
 			}
 			++it_inner;
 		}
-
 		srcFile_<<"{ "<<std::endl;
 		srcFile_<<"} "<<std::endl;
+
 		srcFile_<<indent()<<(*it)->name_<<"::""~"<<(*it)->name_<<"()"<<std::endl;
 		srcFile_<<"{ "<<std::endl;
 		srcFile_<<"} "<<std::endl;
@@ -159,17 +158,10 @@ void CppGenerator::generateStructSrc()
 		//序列化函数
 		srcFile_<<std::endl;
 		srcFile_<<indent()<<"//serialize"<<std::endl;
-		srcFile_<<indent()<<"bool "<<(*it)->name_<<"::serialize(IProtoclo* __P__) "<<std::endl;
+		srcFile_<<indent()<<"void "<<(*it)->name_<<"::serialize(IProtoclo* __P__) "<<std::endl;
 		srcFile_<<"{ "<<std::endl;
-		it_inner=(*it)->members_.begin();
 		indent_up();
-		while(it_inner!=(*it)->members_.end())
-		{
-			serializeField((*it_inner)->type_,(*it_inner)->name_);
-			srcFile_<<std::endl;
-			++it_inner;
-		}
-		srcFile_<<indent()<<"return true"<<std::endl;
+		serializeFields(*it);
 		indent_down();
 		srcFile_<<"}// serialize"<<std::endl;
 		
@@ -366,7 +358,7 @@ void CppGenerator::serializeField( DefType* t ,const std::string& fieldName )
 	}
 	else if(t->is_array())
 	{
-		srcFile_<<indent()<<"__P__->writeInt16("<<fieldName<<".size());"<<std::endl;
+		srcFile_<<indent()<<"__P__->writeUInt16("<<fieldName<<".size());"<<std::endl;
 		std::string temp="_i_"+fieldName+"_";
 		srcFile_<<indent()<<"for (int "<<temp<<"=0;"<<temp<<"<"<<fieldName<<".size();"<<temp<<"++)"<<std::endl;
 		srcFile_<<indent()<<"{"<<std::endl;
@@ -378,11 +370,11 @@ void CppGenerator::serializeField( DefType* t ,const std::string& fieldName )
 
 	}else if (t->is_enum())
 	{
-		srcFile_<<indent()<<"__P__->writeInt16("<<fieldName<<");"<<std::endl;
+		srcFile_<<indent()<<"__P__->writeUInt16("<<fieldName<<");"<<std::endl;
 
 	}else if(t->is_map())
 	{
-		srcFile_<<indent()<<"__P__->writeInt16("<<fieldName<<".size());"<<std::endl;
+		srcFile_<<indent()<<"__P__->writeUInt16("<<fieldName<<".size());"<<std::endl;
 		std::string temp="_it_"+fieldName+"_";
 		srcFile_<<indent()<<typeName(t)<<"::iterator "<<temp<<" = "<<fieldName<<".begin();"<<std::endl;
 		srcFile_<<indent()<<"while("<<temp<<"!="<<fieldName<<".end())"<<std::endl;
@@ -465,7 +457,7 @@ void CppGenerator::deSerializeField( DefType* t ,const std::string& fieldName )
 	{
 		std::string size="_n_"+fieldName+"_array";
 		srcFile_<<indent()<<"int "<<size<<"=0;"<<std::endl;
-		srcFile_<<indent()<<"if(!"<<"__P__->readInt16("<<size<<"))return false;"<<std::endl;
+		srcFile_<<indent()<<"if(!"<<"__P__->readUInt16("<<size<<"))return false;"<<std::endl;
 		srcFile_<<indent()<<"fieldName.resize( "<<size<<");"<<std::endl;
 		std::string count="_i_"+fieldName+"_";
 		srcFile_<<indent()<<"for (int "<<count<<"=0;"<<count<<"<"<<size<<";"<<count<<"++)"<<std::endl;
@@ -478,13 +470,13 @@ void CppGenerator::deSerializeField( DefType* t ,const std::string& fieldName )
 
 	}else if (t->is_enum())
 	{
-		srcFile_<<indent()<<"if(!"<<"__P__->readInt16("<<fieldName<<"))return false;"<<std::endl;
+		srcFile_<<indent()<<"if(!"<<"__P__->readUInt16("<<fieldName<<"))return false;"<<std::endl;
 
 	}else if(t->is_map())
 	{
 		std::string size="_n_"+fieldName+"_map_";
 		srcFile_<<indent()<<"int "<<size<<"=0;"<<std::endl;
-		srcFile_<<indent()<<"__P__->readInt16("<<size<<")return false;"<<std::endl;
+		srcFile_<<indent()<<"__P__->readUInt16("<<size<<")return false;"<<std::endl;
 		std::string count="_i_"+fieldName+"_";
 		srcFile_<<indent()<<"for (int "<<count<<"=0;"<<count<<"<"<<size<<";"<<count<<"++)"<<std::endl;
 		srcFile_<<indent()<<"{"<<std::endl;
@@ -530,10 +522,12 @@ void CppGenerator::genServiceStubHeader()
 		headerFile_<<"public: "<<std::endl;
 		indent_up();
 		//构造 析构函数
-		headerFile_<<indent()<<className<<"();"<<std::endl;
-		headerFile_<<indent()<<"virtual ~"<<className<<"();"<<std::endl;
+		headerFile_<<indent()<<className<<"(IProtoclo* p=NULL):p_(p){}"<<std::endl;
+		headerFile_<<indent()<<"virtual ~"<<className<<"(){}"<<std::endl;
 		//函数声明
 		genFunStubDeclare(*it);
+
+		headerFile_<<indent()<<"IProtoclo* p_;"<<std::endl;
 		indent_down();
 		headerFile_<<"};//class"<<std::endl;
 		headerFile_<<std::endl;
@@ -548,17 +542,21 @@ void CppGenerator::genServiceStubSrc()
 	std::vector<ServiceDefType*>::iterator it_end=program_->services_.defs_.end();
 	while(it!=it_end)
 	{
-		std::vector<FuctionDefType*>::iterator it_inner;
-		it_inner=(*it)->funs_.begin();
+		int i=0;
+		std::vector<FuctionDefType*>::iterator it_inner=(*it)->funs_.begin();
 		while(it_inner!=(*it)->funs_.end())
 		{
 			FuctionDefType*& t=*it_inner;
-			srcFile_<<indent()<<"bool "<<t->name_<<"::"<<t->name_<<"(";
+			srcFile_<<indent()<<"void "<<t->name_<<"::"<<t->name_<<"(";
 			genFunAgrList(srcFile_,t->argrs_);
 			srcFile_<<")"<<std::endl;
 			srcFile_<<indent()<<"{"<<std::endl;
 			indent_up();
 			//序列化
+			srcFile_<<indent()<<"__P__->writeMsgBegin();"<<std::endl;
+			srcFile_<<indent()<<"__P__->writeUInt16("<<i++<<");"<<std::endl;
+			serializeFields(t->argrs_);
+			srcFile_<<indent()<<"__P__->writeMsgEnd();"<<std::endl;
 			indent_down();
 			srcFile_<<indent()<<"}"<<std::endl;
 			++it_inner;
@@ -574,17 +572,21 @@ void CppGenerator::genServiceProxyHeader()
 	while(it!=it_end)
 	{
 		std::string className=(*it)->name_+"Proxy";
-		headerFile_<<"class "<<className<<std::endl;
-		headerFile_<<"{ "<<std::endl;
-		headerFile_<<"public: "<<std::endl;
+		headerFile_<<indent()<<"class "<<className<<std::endl;
+		headerFile_<<indent()<<"{ "<<std::endl;
+		headerFile_<<indent()<<"public: "<<std::endl;
 		indent_up();
 		//构造 析构函数
-		headerFile_<<indent()<<className<<"();"<<std::endl;
-		headerFile_<<indent()<<"virtual ~"<<className<<"();"<<std::endl;
+		headerFile_<<indent()<<className<<"(IProtoclo* p=NULL):p_(p){}"<<std::endl;
+		headerFile_<<indent()<<"virtual ~"<<className<<"(){}"<<std::endl;
 		//函数声明
 		genFunProxyDeclare(*it);
+		//dispatch
+		headerFile_<<indent()<<"bool dispatch(IProtoclo* p);"<<std::endl;
+
+		headerFile_<<indent()<<"IProtoclo* p_;"<<std::endl;
 		indent_down();
-		headerFile_<<"};//class"<<std::endl;
+		headerFile_<<indent()<<"};//class"<<std::endl;
 		headerFile_<<std::endl;
 		++it;
 	}
@@ -593,7 +595,39 @@ void CppGenerator::genServiceProxyHeader()
 
 void CppGenerator::genServiceProxySrc()
 {
+	//dispatch
+	std::vector<ServiceDefType*>::iterator it=program_->services_.defs_.begin();
+	std::vector<ServiceDefType*>::iterator it_end=program_->services_.defs_.end();
+	while(it!=it_end)
+	{
+		std::string className=(*it)->name_+"Proxy";
+		srcFile_<<indent()<<"bool "<<className<<"::dispatch(IProtoclo* p)"<<std::endl;
+		srcFile_<<indent()<<"{"<<std::endl;
+		indent_up();
+		srcFile_<<indent()<<"int id=0;"<<std::endl;
+		srcFile_<<indent()<<"if(!__P__->readUInt16(id)) return false;"<<std::endl;
+		srcFile_<<indent()<<"switch (id);"<<std::endl;
+		srcFile_<<indent()<<"{"<<std::endl;
+		indent_up();
+		int i=0;
+		std::vector<FuctionDefType*>::iterator it_inner=(*it)->funs_.begin();
+		while(it_inner!=(*it)->funs_.end())
+		{
+			srcFile_<<indent()<<"case : "<<i++<<std::endl;
+			srcFile_<<indent()<<"{"<<std::endl;
+			indent_up();
+			srcFile_<<indent()<<"break;"<<std::endl;
+			indent_down();
+			srcFile_<<indent()<<"}"<<std::endl;
+			++it_inner;
+		}
 
+		indent_down();
+		srcFile_<<indent()<<"}//switch"<<std::endl;
+		indent_down();
+		srcFile_<<indent()<<"}//dispatch"<<std::endl;
+		++it;
+	}
 }
 
 void CppGenerator::genFunAgrList( std::ofstream& stream,StructDefType* agrList)
@@ -641,4 +675,15 @@ void CppGenerator::genFunProxyDeclare( ServiceDefType* service )
 		++it_inner;
 	}
 
+}
+
+void CppGenerator::serializeFields( StructDefType* t )
+{
+	std::vector<FieldDefType*>::iterator it_inner=t->members_.begin();
+	while(it_inner!=t->members_.end())
+	{
+		serializeField((*it_inner)->type_,(*it_inner)->name_);
+		srcFile_<<std::endl;
+		++it_inner;
+	}
 }

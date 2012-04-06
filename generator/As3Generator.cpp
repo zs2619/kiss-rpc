@@ -171,7 +171,7 @@ void As3Generator::generateStruct()
 			as3File_<<std::endl;
 			++it_inner;
 		}
-		as3File_<<indent()<<"return true"<<std::endl;
+		as3File_<<indent()<<"return true;"<<std::endl;
 		indent_down();
 		as3File_<<indent()<<"}//serialize "<<std::endl;
 		
@@ -189,7 +189,7 @@ void As3Generator::generateStruct()
 			as3File_<<std::endl;
 			++it_inner;
 		}
-		as3File_<<indent()<<"return true"<<std::endl;
+		as3File_<<indent()<<"return true;"<<std::endl;
 		indent_down();
 		as3File_<<indent()<<"}// deSerialize"<<std::endl;
 
@@ -268,7 +268,7 @@ void As3Generator::serializeField( DefType* t ,const std::string& fieldName )
 	}
 	else if(t->is_array())
 	{
-		as3File_<<indent()<<"__P__.writeInt16("<<fieldName<<".length );"<<std::endl;
+		as3File_<<indent()<<"__P__.writeUInt16("<<fieldName<<".length );"<<std::endl;
 		std::string temp="_i_"+fieldName+"_";
 		as3File_<<indent()<<"for (var  "<<temp<<":int=0;"<<temp<<"<"<<fieldName<<".length;"<<temp<<"++)"<<std::endl;
 		as3File_<<indent()<<"{"<<std::endl;
@@ -280,7 +280,7 @@ void As3Generator::serializeField( DefType* t ,const std::string& fieldName )
 
 	}else if (t->is_enum())
 	{
-		as3File_<<indent()<<"__P__.writeInt16("<<fieldName<<");"<<std::endl;
+		as3File_<<indent()<<"__P__.writeUInt16("<<fieldName<<");"<<std::endl;
 
 	}else if(t->is_map())
 	{
@@ -355,7 +355,7 @@ void As3Generator::deSerializeField( DefType* t ,const std::string& fieldName )
 	{
 		std::string size="_n_"+fieldName+"_array";
 		as3File_<<indent()<<"var "<<size<<":int=0;"<<std::endl;
-		as3File_<<indent()<<"if(!"<<"__P__.readInt16("<<size<<"))return false;"<<std::endl;
+		as3File_<<indent()<<"if(!"<<"__P__.readUInt16("<<size<<"))return false;"<<std::endl;
 		as3File_<<indent()<<"fieldName.resize( "<<size<<");"<<std::endl;
 		std::string count="_i_"+fieldName+"_";
 		as3File_<<indent()<<"for (var "<<count<<":int=0;"<<count<<"<"<<size<<";"<<count<<"++)"<<std::endl;
@@ -368,7 +368,7 @@ void As3Generator::deSerializeField( DefType* t ,const std::string& fieldName )
 
 	}else if (t->is_enum())
 	{
-		as3File_<<indent()<<"if(!"<<"__P__.readInt16("<<fieldName<<"))return false;"<<std::endl;
+		as3File_<<indent()<<"if(!"<<"__P__.readUInt16("<<fieldName<<"))return false;"<<std::endl;
 
 	}else if(t->is_map())
 	{
