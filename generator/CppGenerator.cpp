@@ -18,11 +18,16 @@ void CppGenerator::generateProgram()
 	std::string srcName=program_->outputDir_+program_->fileName_+".cpp";
 	headerFile_.open(headerName.c_str());
 	srcFile_.open(srcName.c_str());
+	// include 
+	srcFile_<<"#include\""<<program_->fileName_+".h"<<"\""<<std::endl;
 	generateEnumHeader();
 	generateEnumSrc();
 
 	generateStructHeader();
 	generateStructSrc();
+
+	generateServiceHeader();
+	generateServiceSrc();
 
 	headerFile_.close();
 	srcFile_.close();
@@ -84,8 +89,8 @@ void CppGenerator::generateStructHeader()
 		headerFile_<<"{ "<<std::endl;
 		indent_up();
 		//构造 析构函数
-		headerFile_<<indent()<<(*it)->name_<<"()"<<std::endl;
-		headerFile_<<indent()<<"~"<<(*it)->name_<<"()"<<std::endl;
+		headerFile_<<indent()<<(*it)->name_<<"();"<<std::endl;
+		headerFile_<<indent()<<"~"<<(*it)->name_<<"();"<<std::endl;
 
 		//属性
 		std::vector<FieldDefType*>::iterator it_inner=(*it)->members_.begin();
@@ -106,7 +111,7 @@ void CppGenerator::generateStructHeader()
 		headerFile_<<indent()<<"bool deSerialize(IProtoclo* __P__);"<<std::endl;
 
 		indent_down();
-		headerFile_<<"} //struct;"<<std::endl;
+		headerFile_<<"} ;//struct"<<std::endl;
 		headerFile_<<std::endl;
 		++it;
 	}
@@ -115,12 +120,15 @@ void CppGenerator::generateStructHeader()
 
 void CppGenerator::generateStructSrc()
 {
+
 	std::vector<StructDefType*>::iterator it=program_->structs_.defs_.begin();
 	std::vector<StructDefType*>::iterator it_end=program_->structs_.defs_.end();
 	while(it!=it_end)
 	{
 		//构造 析构函数
 		srcFile_<<indent()<<(*it)->name_<<"::"<<(*it)->name_<<"()"<<std::endl;
+		srcFile_<<indent()<<"virtual ~"<<(*it)->name_<<"::"<<(*it)->name_<<"();"<<std::endl;
+
 		std::vector<FieldDefType*>::iterator it_inner;
 		it_inner=(*it)->members_.begin();
 		bool frist=true;
@@ -221,19 +229,27 @@ std::string CppGenerator::DefaultValue( DefType* t )
 	return "";
 }
 
-std::string CppGenerator::typeName( DefType* t )
+std::string CppGenerator::typeName(DefType* t,bool isAgr)
 {
 	if(t->is_array())
 	{
 		ArrayDefType* array=(ArrayDefType*)t;
 		std::string temp="std::vetcotr<"; 
 		temp=temp+typeName(array->valueDef_) +"> ";
+		if (isAgr)
+		{
+			temp+="&";
+		}
 		return temp;
 	}else if(t->is_map())
 	{
 		MapDefType* map=(MapDefType*)t;
 		std::string temp="std::map<";
 		temp=temp+typeName(map->keyDef_)+","+typeName(map->valueDef_)+">";
+		if (isAgr)
+		{
+			temp+="&";
+		}
 		return temp;
 	}else if (t->is_simple_type())
 	{
@@ -251,13 +267,30 @@ std::string CppGenerator::typeName( DefType* t )
 
 		case	SimpleDefType::int64Type : return "int46";
 		case	SimpleDefType::floatType : return "float";
-		case	SimpleDefType::stringType : return "std::string";
+		case	SimpleDefType::stringType : 
+			{
+				if (isAgr)
+				{
+					return "std::string&";
+				}
+				else
+				{
+					return "std::string";
+				}
+			}
 		default          : assert(0&&"type error"); return "";
 		}
 	}
 	else if(t->is_struct())
 	{
-		 return t->name_;
+		if (isAgr)
+		{
+			return t->name_+"&";
+		}
+		else
+		{
+			return t->name_;
+		}
 	}
 	else if (t->is_enum())
 	{
@@ -469,6 +502,143 @@ void CppGenerator::deSerializeField( DefType* t ,const std::string& fieldName )
 		srcFile_<<indent()<<fieldName<<"["<<firstValue<<"]="<< secondValue<<std::endl;
 		indent_down();
 		srcFile_<<indent()<<"}"<<std::endl;
+	}
+
+}
+
+void CppGenerator::generateServiceHeader()
+{
+	genServiceStubHeader();
+	genServiceProxyHeader();
+
+}
+void CppGenerator::generateServiceSrc()
+{
+	genServiceStubSrc();
+	genServiceProxySrc();
+}
+
+void CppGenerator::genServiceStubHeader()
+{
+	std::vector<ServiceDefType*>::iterator it=program_->services_.defs_.begin();
+	std::vector<ServiceDefType*>::iterator it_end=program_->services_.defs_.end();
+	while(it!=it_end)
+	{
+		std::string className=(*it)->name_+"Stub";
+		headerFile_<<"class "<<className<<std::endl;
+		headerFile_<<"{ "<<std::endl;
+		headerFile_<<"public: "<<std::endl;
+		indent_up();
+		//构造 析构函数
+		headerFile_<<indent()<<className<<"();"<<std::endl;
+		headerFile_<<indent()<<"virtual ~"<<className<<"();"<<std::endl;
+		//函数声明
+		genFunStubDeclare(*it);
+		indent_down();
+		headerFile_<<"};//class"<<std::endl;
+		headerFile_<<std::endl;
+		++it;
+	}
+}
+
+void CppGenerator::genServiceStubSrc()
+{
+	//构造 析构
+	std::vector<ServiceDefType*>::iterator it=program_->services_.defs_.begin();
+	std::vector<ServiceDefType*>::iterator it_end=program_->services_.defs_.end();
+	while(it!=it_end)
+	{
+		std::vector<FuctionDefType*>::iterator it_inner;
+		it_inner=(*it)->funs_.begin();
+		while(it_inner!=(*it)->funs_.end())
+		{
+			FuctionDefType*& t=*it_inner;
+			srcFile_<<indent()<<"bool "<<t->name_<<"::"<<t->name_<<"(";
+			genFunAgrList(srcFile_,t->argrs_);
+			srcFile_<<")"<<std::endl;
+			srcFile_<<indent()<<"{"<<std::endl;
+			indent_up();
+			//序列化
+			indent_down();
+			srcFile_<<indent()<<"}"<<std::endl;
+			++it_inner;
+		}
+		++it;
+	}
+}
+
+void CppGenerator::genServiceProxyHeader()
+{
+	std::vector<ServiceDefType*>::iterator it=program_->services_.defs_.begin();
+	std::vector<ServiceDefType*>::iterator it_end=program_->services_.defs_.end();
+	while(it!=it_end)
+	{
+		std::string className=(*it)->name_+"Proxy";
+		headerFile_<<"class "<<className<<std::endl;
+		headerFile_<<"{ "<<std::endl;
+		headerFile_<<"public: "<<std::endl;
+		indent_up();
+		//构造 析构函数
+		headerFile_<<indent()<<className<<"();"<<std::endl;
+		headerFile_<<indent()<<"virtual ~"<<className<<"();"<<std::endl;
+		//函数声明
+		genFunProxyDeclare(*it);
+		indent_down();
+		headerFile_<<"};//class"<<std::endl;
+		headerFile_<<std::endl;
+		++it;
+	}
+
+}
+
+void CppGenerator::genServiceProxySrc()
+{
+
+}
+
+void CppGenerator::genFunAgrList( std::ofstream& stream,StructDefType* agrList)
+{
+	std::vector<FieldDefType*>::iterator it_inner=agrList->members_.begin();
+	bool frist=true;
+	while(it_inner!=agrList->members_.end())
+	{
+		FieldDefType*& t=*it_inner;
+		if (frist)
+		{
+			stream<<typeName(t->type_,true)<<"  "<<t->name_;
+			frist=false;
+		}
+		else
+		{
+			stream<<","<<typeName(t->type_,true)<<"  "<<t->name_;
+		}
+		++it_inner;
+	}
+}
+
+void CppGenerator::genFunStubDeclare( ServiceDefType* service )
+{
+	std::vector<FuctionDefType*>::iterator it_inner=service->funs_.begin();
+	while(it_inner!=service->funs_.end())
+	{
+		FuctionDefType*& t=*it_inner;
+		headerFile_<<indent()<<"void "<<t->name_<<"(";
+		genFunAgrList(headerFile_,t->argrs_);
+		headerFile_<<");"<<std::endl;
+		++it_inner;
+	}
+}
+
+void CppGenerator::genFunProxyDeclare( ServiceDefType* service )
+{
+	std::vector<FuctionDefType*>::iterator it_inner=service->funs_.begin();
+	while(it_inner!=service->funs_.end())
+	{
+		FuctionDefType*& t=*it_inner;
+		headerFile_<<indent()<<"virtual bool "<<t->name_<<"(";
+		genFunAgrList(headerFile_,t->argrs_);
+		headerFile_<<")=0;"<<std::endl;
+		++it_inner;
 	}
 
 }

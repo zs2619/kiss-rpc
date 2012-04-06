@@ -49,7 +49,7 @@ std::string As3Generator::DefaultValue( DefType* t )
 	}else if(t->is_map())
 	{
 		MapDefType* map=(MapDefType*)t;
-		std::string temp="new Object";
+		std::string temp="new Dictionary";
 		return temp;
 	}else if (t->is_simple_type())
 	{
@@ -84,7 +84,6 @@ std::string As3Generator::DefaultValue( DefType* t )
 	}
 	assert(0&&"type error"); 
 	return "";
-
 }
 
 std::string As3Generator::typeName( DefType* t )
@@ -98,7 +97,7 @@ std::string As3Generator::typeName( DefType* t )
 	}else if(t->is_map())
 	{
 		MapDefType* map=(MapDefType*)t;
-		std::string temp="Object";
+		std::string temp="Dictionary";
 		return temp;
 	}else if (t->is_simple_type())
 	{
@@ -285,6 +284,7 @@ void As3Generator::serializeField( DefType* t ,const std::string& fieldName )
 
 	}else if(t->is_map())
 	{
+		//todo map
 	}
 }
 
@@ -372,5 +372,6 @@ void As3Generator::deSerializeField( DefType* t ,const std::string& fieldName )
 
 	}else if(t->is_map())
 	{
+		//todo map
 	}
 }

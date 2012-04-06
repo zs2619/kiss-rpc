@@ -124,10 +124,18 @@ Function:	tok_identifier '(' FunctionFieldList ')' Separator
 
 FunctionFieldList: FunctionFieldList FunctionField
 		{
-			$$ = new StructDefType;
+			 $$=$1;
 			if(!$$->addStructValue($2))
 			{
 				yyerror("fun argument repeat: \"%s\"\n", $2);
+			}
+		}
+		|FunctionField
+		{
+			$$ = new StructDefType;
+			if(!$$->addStructValue($1))
+			{
+				yyerror("fun argument repeat: \"%s\"\n", $1);
 			}
 		}
 		|

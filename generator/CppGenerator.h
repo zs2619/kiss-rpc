@@ -25,15 +25,28 @@ private:
 	void generateStructHeader();
 	void generateStructSrc();
 
+	void generateServiceHeader();
+	void generateServiceSrc();
+
 	void defineField(FieldDefType* t);
-	std::string typeName(DefType* t);
+	std::string typeName(DefType* t,bool isAgr=false);
 	std::string DefaultValue( DefType* t );
 
 	void serializeField( DefType* t ,const std::string& fieldName );
 	void deSerializeField( DefType* t ,const std::string& fieldName );
+
+	void genServiceStubHeader();
+	void genServiceStubSrc();
+	void genServiceProxyHeader();
+	void genServiceProxySrc();
+	void genFunAgrList(std::ofstream& stream,StructDefType* agrList);
+	void genFunStubDeclare(ServiceDefType* service);
+	void genFunProxyDeclare(ServiceDefType* service);
+
+
 private:
-	std::ofstream	headerFile_;
-	std::ofstream	srcFile_;
+	std::ofstream	headerFile_;	//<头文件
+	std::ofstream	srcFile_;		//<源文件
 };
 
 #endif
