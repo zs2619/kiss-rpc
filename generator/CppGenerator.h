@@ -42,10 +42,10 @@ private:
 	void genServiceStubSrc();
 	void genServiceProxyHeader();
 	void genServiceProxySrc();
-	void genFunAgrList(std::ofstream& stream,StructDefType* agrList);
+
+	void genFunAgrList(std::ofstream& stream,StructDefType* agrList,bool onlyValue=false);
 	void genFunStubDeclare(ServiceDefType* service);
 	void genFunProxyDeclare(ServiceDefType* service);
-
 
 private:
 	std::ofstream	headerFile_;	//<Í·ÎÄ¼þ

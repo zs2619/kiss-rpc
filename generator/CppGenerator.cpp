@@ -120,14 +120,10 @@ void CppGenerator::generateStructHeader()
 
 void CppGenerator::generateStructSrc()
 {
-
 	std::vector<StructDefType*>::iterator it=program_->structs_.defs_.begin();
 	std::vector<StructDefType*>::iterator it_end=program_->structs_.defs_.end();
 	while(it!=it_end)
 	{
-		//构造 析构函数
-		srcFile_<<indent()<<(*it)->name_<<"::"<<(*it)->name_<<"()"<<std::endl;
-
 		std::vector<FieldDefType*>::iterator it_inner;
 		it_inner=(*it)->members_.begin();
 		bool frist=true;
@@ -582,8 +578,8 @@ void CppGenerator::genServiceProxyHeader()
 		//函数声明
 		genFunProxyDeclare(*it);
 		//dispatch
-		headerFile_<<indent()<<"bool dispatch(IProtoclo* p);"<<std::endl;
-
+		headerFile_<<indent()<<"static bool dispatch(IProtoclo* p);"<<std::endl;
+		headerFile_<<std::endl;
 		headerFile_<<indent()<<"IProtoclo* p_;"<<std::endl;
 		indent_down();
 		headerFile_<<indent()<<"};//class"<<std::endl;
@@ -595,11 +591,11 @@ void CppGenerator::genServiceProxyHeader()
 
 void CppGenerator::genServiceProxySrc()
 {
-	//dispatch
 	std::vector<ServiceDefType*>::iterator it=program_->services_.defs_.begin();
 	std::vector<ServiceDefType*>::iterator it_end=program_->services_.defs_.end();
 	while(it!=it_end)
 	{
+		//dispatch
 		std::string className=(*it)->name_+"Proxy";
 		srcFile_<<indent()<<"bool "<<className<<"::dispatch(IProtoclo* p)"<<std::endl;
 		srcFile_<<indent()<<"{"<<std::endl;
@@ -613,24 +609,45 @@ void CppGenerator::genServiceProxySrc()
 		std::vector<FuctionDefType*>::iterator it_inner=(*it)->funs_.begin();
 		while(it_inner!=(*it)->funs_.end())
 		{
+			FuctionDefType*& t=*it_inner;
 			srcFile_<<indent()<<"case : "<<i++<<std::endl;
 			srcFile_<<indent()<<"{"<<std::endl;
 			indent_up();
-			srcFile_<<indent()<<"break;"<<std::endl;
+			srcFile_<<indent()<<"return recv_"<<t->name_<<"(p);"<<std::endl;
 			indent_down();
 			srcFile_<<indent()<<"}"<<std::endl;
 			++it_inner;
 		}
-
+		srcFile_<<indent()<<"default:"<<std::endl;
+		srcFile_<<indent()<<"{"<<std::endl;
+		srcFile_<<indent()<<"	return false;"<<std::endl;
+		srcFile_<<indent()<<"}"<<std::endl;
 		indent_down();
 		srcFile_<<indent()<<"}//switch"<<std::endl;
 		indent_down();
 		srcFile_<<indent()<<"}//dispatch"<<std::endl;
+		//
+		it_inner=(*it)->funs_.begin();
+		while(it_inner!=(*it)->funs_.end())
+		{
+			FuctionDefType*& t=*it_inner;
+			srcFile_<<indent()<<"bool "<<t->name_<<"::"<<"recv_"<<t->name_<<"(IProtoclo* p)"<<std::endl;
+			srcFile_<<indent()<<"{"<<std::endl;
+			indent_up();
+			//反序列化
+			deSerializeFields(t->argrs_);
+			srcFile_<<indent()<<"return "<<t->name_<<"(";
+			genFunAgrList(srcFile_,t->argrs_,true);
+			srcFile_<<indent()<<");"<<std::endl;
+			indent_down();
+			srcFile_<<indent()<<"}"<<std::endl;
+			++it_inner;
+		}
 		++it;
 	}
 }
 
-void CppGenerator::genFunAgrList( std::ofstream& stream,StructDefType* agrList)
+void CppGenerator::genFunAgrList( std::ofstream& stream,StructDefType* agrList,bool onlyValue)
 {
 	std::vector<FieldDefType*>::iterator it_inner=agrList->members_.begin();
 	bool frist=true;
@@ -639,12 +656,26 @@ void CppGenerator::genFunAgrList( std::ofstream& stream,StructDefType* agrList)
 		FieldDefType*& t=*it_inner;
 		if (frist)
 		{
-			stream<<typeName(t->type_,true)<<"  "<<t->name_;
+			if (onlyValue)
+			{
+				stream<<t->name_;
+			}
+			else
+			{
+				stream<<typeName(t->type_,true)<<"  "<<t->name_;
+			}
 			frist=false;
 		}
 		else
 		{
-			stream<<","<<typeName(t->type_,true)<<"  "<<t->name_;
+			if (onlyValue)
+			{
+				stream<<","<<t->name_;
+			}
+			else
+			{
+				stream<<","<<typeName(t->type_,true)<<"  "<<t->name_;
+			}
 		}
 		++it_inner;
 	}
@@ -674,7 +705,14 @@ void CppGenerator::genFunProxyDeclare( ServiceDefType* service )
 		headerFile_<<")=0;"<<std::endl;
 		++it_inner;
 	}
-
+	headerFile_<<std::endl;
+	it_inner=service->funs_.begin();
+	while(it_inner!=service->funs_.end())
+	{
+		FuctionDefType*& t=*it_inner;
+		headerFile_<<indent()<<"static bool "<<"recv_"<<t->name_<<"(IProtoclo* p);"<<std::endl;;
+		++it_inner;
+	}
 }
 
 void CppGenerator::serializeFields( StructDefType* t )
@@ -686,4 +724,17 @@ void CppGenerator::serializeFields( StructDefType* t )
 		srcFile_<<std::endl;
 		++it_inner;
 	}
+}
+
+void CppGenerator::deSerializeFields( StructDefType* t )
+{
+	std::vector<FieldDefType*>::iterator it_inner=t->members_.begin();
+	while(it_inner!=t->members_.end())
+	{
+		srcFile_<<indent()<<typeName((*it_inner)->type_)<<" "<<(*it_inner)->name_<<";"<<std::endl;
+		deSerializeField((*it_inner)->type_,(*it_inner)->name_);
+		srcFile_<<std::endl;
+		++it_inner;
+	}
+
 }
