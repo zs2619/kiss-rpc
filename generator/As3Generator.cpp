@@ -11,6 +11,7 @@ void As3Generator::generateProgram()
 {
 	generateEnum();
 	generateStruct();
+	generateService();
 }
 
 void As3Generator::generateEnum()
@@ -160,7 +161,7 @@ void As3Generator::generateStruct()
 		//序列化函数
 		as3File_<<std::endl;
 		as3File_<<indent()<<"//serialize"<<std::endl;
-		as3File_<<indent()<<"public bool serialize(IProtoclo __P__) "<<std::endl;
+		as3File_<<indent()<<"public bool serialize(IProtocol __P__) "<<std::endl;
 		as3File_<<indent()<<"{ "<<std::endl;
 		indent_up();
 		//序列化属性
@@ -178,7 +179,7 @@ void As3Generator::generateStruct()
 		//反序列化函数
 		as3File_<<std::endl;
 		as3File_<<indent()<<"//deSerialize"<<std::endl;
-		as3File_<<indent()<<"public bool deSerialize(IProtoclo __P__)"<<std::endl;
+		as3File_<<indent()<<"public bool deSerialize(IProtocol __P__)"<<std::endl;
 		as3File_<<indent()<<"{ "<<std::endl;
 		indent_up();
 		//反序列化属性
@@ -292,7 +293,7 @@ void As3Generator::deSerializeField( DefType* t ,const std::string& fieldName )
 {
 	if (t->is_struct())
 	{
-		as3File_<<indent()<<"if(!"<<fieldName<<".deSerialize(__P__))return false;"<<std::endl;
+		as3File_<<indent()<<fieldName<<".deSerialize(__P__);"<<std::endl;
 	}
 	else if (t->is_simple_type())
 	{
@@ -301,52 +302,52 @@ void As3Generator::deSerializeField( DefType* t ,const std::string& fieldName )
 		{
 		case	SimpleDefType::boolType : 
 			{
-				as3File_<<indent()<<"if(!"<<"__P__.readBool("<<fieldName<<"))return false;"<<std::endl;
+				as3File_<<indent()<<fieldName<<"=__P__.readBool() ;"<<std::endl;
 				break;
 			} 
 		case	SimpleDefType::uint8Type : 
 			{
-				as3File_<<indent()<<"if(!"<<"__P__.readUint8("<<fieldName<<"))return false;"<<std::endl;
+				as3File_<<indent()<<fieldName<<"=__P__.readUint8();"<<std::endl;
 				break;
 			} 
 		case	SimpleDefType::int8Type : 
 			{
-				as3File_<<indent()<<"if(!"<<"__P__.>readInt8("<<fieldName<<"))return false;"<<std::endl;
+				as3File_<<indent()<<fieldName<<"=__P__.>readInt8();"<<std::endl;
 				break;
 			} 
 		case	SimpleDefType::uint16Type :
 			{
-				as3File_<<indent()<<"if(!"<<"__P__.readUInt16("<<fieldName<<"))return false;"<<std::endl;
+				as3File_<<indent()<<fieldName<<"=__P__.readUInt16();"<<std::endl;
 				break;
 			} 
 		case	SimpleDefType::int16Type :
 			{
-				as3File_<<indent()<<"if(!"<<"__P__.readInt16("<<fieldName<<"))return false;"<<std::endl;
+				as3File_<<indent()<<fieldName<<"=__P__.readInt16();"<<std::endl;
 				break;
 			} 
 		case	SimpleDefType::uint32Type :
 			{
-				as3File_<<indent()<<"if(!"<<"__P__.readUInt32("<<fieldName<<"))return false;"<<std::endl;
+				as3File_<<indent()<<fieldName<<"=__P__.readUInt32();"<<std::endl;
 				break;
 			} 
 		case	SimpleDefType::int32Type :
 			{
-				as3File_<<indent()<<"if(!"<<"__P__.readInt32("<<fieldName<<"))return false;"<<std::endl;
+				as3File_<<indent()<<fieldName<<"=__P__.readInt32();"<<std::endl;
 				break;
 			} 
 		case	SimpleDefType::int64Type :
 			{
-				as3File_<<indent()<<"if(!"<<"__P__.readInt64("<<fieldName<<"))return false;"<<std::endl;
+				as3File_<<indent()<<fieldName<<"=__P__.readInt64();"<<std::endl;
 				break;
 			} 
 		case	SimpleDefType::floatType :
 			{
-				as3File_<<indent()<<"if(!"<<"__P__.readFloat("<<fieldName<<"))return false;"<<std::endl;
+				as3File_<<indent()<<fieldName<<"=__P__.readFloat();"<<std::endl;
 				break;
 			} 
 		case	SimpleDefType::stringType :
 			{
-				as3File_<<indent()<<"if(!"<<"__P__.readString("<<fieldName<<"))return false;"<<std::endl;
+				as3File_<<indent()<<fieldName<<"=__P__.readString();"<<std::endl;
 				break;
 			}
 		}
@@ -355,23 +356,168 @@ void As3Generator::deSerializeField( DefType* t ,const std::string& fieldName )
 	{
 		std::string size="_n_"+fieldName+"_array";
 		as3File_<<indent()<<"var "<<size<<":int=0;"<<std::endl;
-		as3File_<<indent()<<"if(!"<<"__P__.readUInt16("<<size<<"))return false;"<<std::endl;
-		as3File_<<indent()<<"fieldName.resize( "<<size<<");"<<std::endl;
+		as3File_<<indent()<<size<<"=__P__.readUInt16();"<<std::endl;
 		std::string count="_i_"+fieldName+"_";
 		as3File_<<indent()<<"for (var "<<count<<":int=0;"<<count<<"<"<<size<<";"<<count<<"++)"<<std::endl;
 		as3File_<<indent()<<"{"<<std::endl;
 		indent_up();
-		std::string tempAgr=fieldName+"["+count+"]";
-		deSerializeField(((ArrayDefType*)t)->valueDef_,tempAgr);
+		std::string valueStr="temp_array_"+fieldName;
+		std::string tempAgr="var "+valueStr+":"+typeName(((ArrayDefType*)t)->valueDef_)
+						+"="+DefaultValue(((ArrayDefType*)t)->valueDef_)+";";
+		as3File_<<indent()<<tempAgr<<std::endl;
+		deSerializeField(((ArrayDefType*)t)->valueDef_,valueStr);
+		as3File_<<indent()<<fieldName<<".push("<<valueStr<<");"<<std::endl;
 		indent_down();
 		as3File_<<indent()<<"}"<<std::endl;
 
 	}else if (t->is_enum())
 	{
-		as3File_<<indent()<<"if(!"<<"__P__.readUInt16("<<fieldName<<"))return false;"<<std::endl;
+		as3File_<<indent()<<fieldName<<"=__P__.readUInt16();"<<std::endl;
 
 	}else if(t->is_map())
 	{
 		//todo map
 	}
+}
+
+void As3Generator::generateService()
+{
+	genServiceStub();
+	genServiceProxy();
+}
+void As3Generator::genFunAgrList( std::ofstream& stream,StructDefType* agrList,bool onlyValue)
+{
+	std::vector<FieldDefType*>::iterator it_inner=agrList->members_.begin();
+	bool frist=true;
+	while(it_inner!=agrList->members_.end())
+	{
+		FieldDefType*& t=*it_inner;
+		if (frist)
+		{
+			if (onlyValue)
+			{
+				stream<<t->name_;
+			}
+			else
+			{
+				stream<<typeName(t->type_)<<"  "<<t->name_;
+			}
+			frist=false;
+		}
+		else
+		{
+			if (onlyValue)
+			{
+				stream<<","<<t->name_;
+			}
+			else
+			{
+				stream<<","<<typeName(t->type_)<<"  "<<t->name_;
+			}
+		}
+		++it_inner;
+	}
+}
+
+
+void As3Generator::serializeFields( StructDefType* t )
+{
+	std::vector<FieldDefType*>::iterator it_inner=t->members_.begin();
+	while(it_inner!=t->members_.end())
+	{
+		serializeField((*it_inner)->type_,(*it_inner)->name_);
+		as3File_<<std::endl;
+		++it_inner;
+	}
+}
+
+void As3Generator::genServiceStub()
+{
+	std::vector<ServiceDefType*>::iterator it=program_->services_.defs_.begin();
+	std::vector<ServiceDefType*>::iterator it_end=program_->services_.defs_.end();
+	while(it!=it_end)
+	{
+		std::string className=(*it)->name_+"Stub";
+		std::string name=program_->outputDir_+className+".as";
+		as3File_.open(name.c_str());
+		as3File_<<"public class"<<className<<std::endl;
+		as3File_<<"{ "<<std::endl;
+		indent_up();
+		//属性
+		as3File_<<indent()<<"public IProtocol __P__;"<<std::endl;
+		//构造函数
+		as3File_<<indent()<<"//construction"<<std::endl;
+		as3File_<<indent()<<"public function "<<className<<"(IProtocol p)"<<std::endl;
+		as3File_<<indent()<<"{ "<<std::endl;
+		indent_up();
+		as3File_<<indent()<<"__P__=p; "<<std::endl;
+		indent_down();
+		as3File_<<indent()<<"} "<<std::endl;
+		//stub 
+		as3File_<<indent()<<"//stub "<<std::endl;
+		int i=0;
+		std::vector<FuctionDefType*>::iterator it_inner=(*it)->funs_.begin();
+		while(it_inner!=(*it)->funs_.end())
+		{
+			FuctionDefType*& t=*it_inner;
+			as3File_<<indent()<<"public void "<<t->name_<<"(";
+			genFunAgrList(as3File_,t->argrs_);
+			as3File_<<")"<<std::endl;
+			as3File_<<indent()<<"{"<<std::endl;
+			indent_up();
+			//序列化
+			as3File_<<indent()<<"__P__->writeMsgBegin();"<<std::endl;
+			as3File_<<indent()<<"__P__->writeUInt16("<<i++<<");"<<std::endl;
+			serializeFields(t->argrs_);
+			as3File_<<indent()<<"__P__->writeMsgEnd();"<<std::endl;
+			indent_down();
+			as3File_<<indent()<<"}"<<std::endl;
+			++it_inner;
+		}
+
+		indent_down();
+		as3File_<<"}//class"<<std::endl;
+		as3File_.close();
+		++it;
+	}
+}
+
+void As3Generator::genServiceProxy()
+{
+	std::vector<ServiceDefType*>::iterator it=program_->services_.defs_.begin();
+	std::vector<ServiceDefType*>::iterator it_end=program_->services_.defs_.end();
+	while(it!=it_end)
+	{
+		std::string className=(*it)->name_+"Proxy";
+		std::string name=program_->outputDir_+className+".as";
+		as3File_.open(name.c_str());
+		as3File_<<"public class"<<className<<std::endl;
+		as3File_<<"{ "<<std::endl;
+		indent_up();
+		//属性
+		as3File_<<indent()<<"public IProtocol __P__;"<<std::endl;
+		//构造函数
+		as3File_<<indent()<<"//construction"<<std::endl;
+		as3File_<<indent()<<"public function "<<className<<"(IProtocol p)"<<std::endl;
+		as3File_<<indent()<<"{ "<<std::endl;
+		indent_up();
+		as3File_<<indent()<<"__P__=p; "<<std::endl;
+		indent_down();
+		as3File_<<indent()<<"} "<<std::endl;
+		//stub 
+		as3File_<<indent()<<"//proxy "<<std::endl;
+		int i=0;
+		std::vector<FuctionDefType*>::iterator it_inner=(*it)->funs_.begin();
+		while(it_inner!=(*it)->funs_.end())
+		{
+			FuctionDefType*& t=*it_inner;
+			++it_inner;
+		}
+
+		indent_down();
+		as3File_<<"} //class"<<std::endl;
+		as3File_.close();
+		++it;
+	}
+
 }

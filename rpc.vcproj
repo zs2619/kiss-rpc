@@ -277,7 +277,7 @@
 					>
 				</File>
 				<File
-					RelativePath=".\lib\cpp\IProtoclo.h"
+					RelativePath=".\lib\cpp\IProtocol.h"
 					>
 				</File>
 			</Filter>
@@ -285,7 +285,7 @@
 				Name="as3"
 				>
 				<File
-					RelativePath=".\lib\as3\IProtoclo.as"
+					RelativePath=".\lib\as3\IProtocol.as"
 					>
 				</File>
 			</Filter>

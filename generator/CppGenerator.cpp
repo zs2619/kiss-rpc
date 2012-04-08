@@ -103,12 +103,12 @@ void CppGenerator::generateStructHeader()
 		//序列化函数
 		headerFile_<<std::endl;
 		headerFile_<<indent()<<"//serialize"<<std::endl;
-		headerFile_<<indent()<<"void serialize(IProtoclo* __P__); "<<std::endl;
+		headerFile_<<indent()<<"void serialize(IProtocol* __P__); "<<std::endl;
 		
 		//反序列化函数
 		headerFile_<<std::endl;
 		headerFile_<<indent()<<"//deSerialize"<<std::endl;
-		headerFile_<<indent()<<"bool deSerialize(IProtoclo* __P__);"<<std::endl;
+		headerFile_<<indent()<<"bool deSerialize(IProtocol* __P__);"<<std::endl;
 
 		indent_down();
 		headerFile_<<"} ;//struct"<<std::endl;
@@ -154,7 +154,7 @@ void CppGenerator::generateStructSrc()
 		//序列化函数
 		srcFile_<<std::endl;
 		srcFile_<<indent()<<"//serialize"<<std::endl;
-		srcFile_<<indent()<<"void "<<(*it)->name_<<"::serialize(IProtoclo* __P__) "<<std::endl;
+		srcFile_<<indent()<<"void "<<(*it)->name_<<"::serialize(IProtocol* __P__) "<<std::endl;
 		srcFile_<<"{ "<<std::endl;
 		indent_up();
 		serializeFields(*it);
@@ -164,7 +164,7 @@ void CppGenerator::generateStructSrc()
 		//反序列化函数
 		srcFile_<<std::endl;
 		srcFile_<<indent()<<"//deSerialize"<<std::endl;
-		srcFile_<<indent()<<"bool "<<(*it)->name_<<"::deSerialize(IProtoclo* __P__)"<<std::endl;
+		srcFile_<<indent()<<"bool "<<(*it)->name_<<"::deSerialize(IProtocol* __P__)"<<std::endl;
 		srcFile_<<"{ "<<std::endl;
 		it_inner=(*it)->members_.begin();
 		indent_up();
@@ -518,12 +518,12 @@ void CppGenerator::genServiceStubHeader()
 		headerFile_<<"public: "<<std::endl;
 		indent_up();
 		//构造 析构函数
-		headerFile_<<indent()<<className<<"(IProtoclo* p=NULL):p_(p){}"<<std::endl;
+		headerFile_<<indent()<<className<<"(IProtocol* p=NULL):p_(p){}"<<std::endl;
 		headerFile_<<indent()<<"virtual ~"<<className<<"(){}"<<std::endl;
 		//函数声明
 		genFunStubDeclare(*it);
 
-		headerFile_<<indent()<<"IProtoclo* p_;"<<std::endl;
+		headerFile_<<indent()<<"IProtocol* p_;"<<std::endl;
 		indent_down();
 		headerFile_<<"};//class"<<std::endl;
 		headerFile_<<std::endl;
@@ -573,14 +573,14 @@ void CppGenerator::genServiceProxyHeader()
 		headerFile_<<indent()<<"public: "<<std::endl;
 		indent_up();
 		//构造 析构函数
-		headerFile_<<indent()<<className<<"(IProtoclo* p=NULL):p_(p){}"<<std::endl;
+		headerFile_<<indent()<<className<<"(IProtocol* p=NULL):p_(p){}"<<std::endl;
 		headerFile_<<indent()<<"virtual ~"<<className<<"(){}"<<std::endl;
 		//函数声明
 		genFunProxyDeclare(*it);
 		//dispatch
-		headerFile_<<indent()<<"static bool dispatch(IProtoclo* p);"<<std::endl;
+		headerFile_<<indent()<<"static bool dispatch(IProtocol* p);"<<std::endl;
 		headerFile_<<std::endl;
-		headerFile_<<indent()<<"IProtoclo* p_;"<<std::endl;
+		headerFile_<<indent()<<"IProtocol* p_;"<<std::endl;
 		indent_down();
 		headerFile_<<indent()<<"};//class"<<std::endl;
 		headerFile_<<std::endl;
@@ -597,7 +597,7 @@ void CppGenerator::genServiceProxySrc()
 	{
 		//dispatch
 		std::string className=(*it)->name_+"Proxy";
-		srcFile_<<indent()<<"bool "<<className<<"::dispatch(IProtoclo* p)"<<std::endl;
+		srcFile_<<indent()<<"bool "<<className<<"::dispatch(IProtocol* p)"<<std::endl;
 		srcFile_<<indent()<<"{"<<std::endl;
 		indent_up();
 		srcFile_<<indent()<<"int id=0;"<<std::endl;
@@ -631,7 +631,7 @@ void CppGenerator::genServiceProxySrc()
 		while(it_inner!=(*it)->funs_.end())
 		{
 			FuctionDefType*& t=*it_inner;
-			srcFile_<<indent()<<"bool "<<t->name_<<"::"<<"recv_"<<t->name_<<"(IProtoclo* p)"<<std::endl;
+			srcFile_<<indent()<<"bool "<<t->name_<<"::"<<"recv_"<<t->name_<<"(IProtocol* p)"<<std::endl;
 			srcFile_<<indent()<<"{"<<std::endl;
 			indent_up();
 			//反序列化
@@ -710,7 +710,7 @@ void CppGenerator::genFunProxyDeclare( ServiceDefType* service )
 	while(it_inner!=service->funs_.end())
 	{
 		FuctionDefType*& t=*it_inner;
-		headerFile_<<indent()<<"static bool "<<"recv_"<<t->name_<<"(IProtoclo* p);"<<std::endl;;
+		headerFile_<<indent()<<"static bool "<<"recv_"<<t->name_<<"(IProtocol* p);"<<std::endl;;
 		++it_inner;
 	}
 }
