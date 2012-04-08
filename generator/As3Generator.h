@@ -23,6 +23,7 @@ public:
 
 	void genServiceStub();
 	void genServiceProxy();
+	void genServiceProxyIf();
 
 	std::string typeName(DefType* t);
 	std::string DefaultValue( DefType* t );
@@ -31,6 +32,7 @@ public:
 
 	void genFunAgrList( std::ofstream& stream,StructDefType* agrList,bool onlyValue=false);
 	void serializeFields( StructDefType* t );
+	void deSerializeFields( StructDefType* t );
 private:
 	std::ofstream	as3File_;
 };

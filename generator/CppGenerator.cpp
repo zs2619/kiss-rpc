@@ -638,7 +638,7 @@ void CppGenerator::genServiceProxySrc()
 			deSerializeFields(t->argrs_);
 			srcFile_<<indent()<<"return "<<t->name_<<"(";
 			genFunAgrList(srcFile_,t->argrs_,true);
-			srcFile_<<indent()<<");"<<std::endl;
+			srcFile_<<");"<<std::endl;
 			indent_down();
 			srcFile_<<indent()<<"}"<<std::endl;
 			++it_inner;
