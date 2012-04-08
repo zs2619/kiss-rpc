@@ -14,12 +14,12 @@ CppGenerator::CppGenerator( Program* pro,const std::string& name ) :Generator(pr
 
 void CppGenerator::generateProgram()
 {
-	std::string headerName=program_->outputDir_+program_->fileName_+".h";
-	std::string srcName=program_->outputDir_+program_->fileName_+".cpp";
+	std::string headerName=program_->outputDir_+program_->baseName_+".h";
+	std::string srcName=program_->outputDir_+program_->baseName_+".cpp";
 	headerFile_.open(headerName.c_str());
 	srcFile_.open(srcName.c_str());
 	// include 
-	srcFile_<<"#include\""<<program_->fileName_+".h"<<"\""<<std::endl;
+	srcFile_<<"#include\""<<program_->baseName_+".h"<<"\""<<std::endl;
 	generateEnumHeader();
 	generateEnumSrc();
 

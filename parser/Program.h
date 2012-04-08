@@ -62,6 +62,7 @@ public:
 	bool addIncludeFile(const std::string& includeName);
 	std::vector<std::string>	include_;
 	std::string			fileName_; //<输入文件名
+	std::string			baseName_; //文件名
 	std::string			inputDir_;	//<输入目录
 	std::string			outputDir_; //<输出文件目录
 };
