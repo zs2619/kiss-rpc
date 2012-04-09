@@ -85,6 +85,7 @@ Header:  Header HeaderDef |
 HeaderDef :tok_include '\"' tok_fileName '\"'
 		{
 			Program::inst()->addIncludeFile(*$3);
+			switchBuf((*$3).c_str());
 		}
 
 DefinitionList: DefinitionList Definition|Definition

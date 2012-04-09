@@ -15,4 +15,5 @@ extern int yylex();
 extern int   yylineno;
 extern char  yytext[];
 extern FILE* yyin;
+extern void switchBuf(const char* s);
 #endif

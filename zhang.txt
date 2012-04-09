@@ -1,1 +1,5 @@
 include "shuai.txt"
+struct god
+{
+	user g;
+}
