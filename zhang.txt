@@ -1,1 +1,5 @@
-include "df.sf"
+include "shuai.txt"
+struct god
+{
+	user g;
+}
