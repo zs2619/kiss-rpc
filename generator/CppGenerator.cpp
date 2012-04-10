@@ -72,9 +72,9 @@ void CppGenerator::generateEnumSrc()
 			srcFile_<<indent()<<"e->addEnumValue(\""<<*it_inner<<"\")"<<";"<<std::endl;
 			++it_inner;
 		}
-		srcFile_<<"EnumMap"<<" Enum("<<(*it)->name_<<")("<<(*it)->name_<<"Init);"<<std::endl;
 		indent_down();
 		srcFile_<<"} "<<std::endl;
+		srcFile_<<"EnumMap"<<" Enum("<<(*it)->name_<<")("<<(*it)->name_<<"Init);"<<std::endl;
 		srcFile_<<std::endl;
 		++it;
 	}
