@@ -8,7 +8,9 @@
 #ifndef		__ENUMMAP_H__
 #define		__ENUMMAP_H__
 
-#define enum(T)	(enum##T)
+#include <vector>
+#include <string>
+#define Enum(T)	(Enum##T)
 
 class EnumMap
 {
@@ -18,20 +20,21 @@ public:
 	{
 		f(this);
 	}
-	int	getIdByName(const std::stirng& name)
+	int	getIdByName(const std::string& name)
 	{
-		for (int i=0;i<v.size();i++)
+		for (size_t i=0;i<v.size();i++)
 		{
-			if (v[i]=name)
+			if (v[i]==name)
 			{
 				return i;
 			}
 		}
 		return -1;
 	}
-	bool addEnumValue(const std::string& v)
+	bool addEnumValue(const std::string& value)
 	{
-		v.push_back(v);
+		v.push_back(value);
+		return true;
 	}
 private:
 	std::vector<std::string>	v;

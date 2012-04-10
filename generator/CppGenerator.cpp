@@ -35,6 +35,7 @@ void CppGenerator::generateProgram()
 
 void CppGenerator::generateEnumHeader()
 {
+	headerFile_<<"#include\"EnumMap.h\""<<std::endl;
 	std::vector<EnumDefType*>::iterator it=program_->enums_.defs_.begin();
 	std::vector<EnumDefType*>::iterator it_end=program_->enums_.defs_.end();
 	while(it!=it_end)
@@ -49,8 +50,8 @@ void CppGenerator::generateEnumHeader()
 			++it_inner;
 		}
 		indent_down();
-		headerFile_<<"} "<<std::endl;
-		headerFile_<<"extern EnumMap enum("<<(*it)->name_<<");"<<std::endl;
+		headerFile_<<"}; "<<std::endl;
+		headerFile_<<"extern EnumMap Enum("<<(*it)->name_<<");"<<std::endl;
 		headerFile_<<std::endl;
 		++it;
 	}
@@ -62,16 +63,16 @@ void CppGenerator::generateEnumSrc()
 	std::vector<EnumDefType*>::iterator it_end=program_->enums_.defs_.end();
 	while(it!=it_end)
 	{
-		srcFile_<<"EnumMap"<<" enum("<<(*it)->name_<<")(enum("<<(*it)->name_<<"Init));"<<std::endl;
 		srcFile_<<"void "<<(*it)->name_<<"Init(EnumMap* e)"<<std::endl;
 		srcFile_<<"{ "<<std::endl;
 		std::vector<std::string>::iterator it_inner=(*it)->defs_.begin();
 		indent_up();
 		while(it_inner!=(*it)->defs_.end())
 		{
-			srcFile_<<indent()<<"e.addEnumValue("<<*it_inner<<")"<<";"<<std::endl;
+			srcFile_<<indent()<<"e->addEnumValue(\""<<*it_inner<<"\")"<<";"<<std::endl;
 			++it_inner;
 		}
+		srcFile_<<"EnumMap"<<" Enum("<<(*it)->name_<<")("<<(*it)->name_<<"Init);"<<std::endl;
 		indent_down();
 		srcFile_<<"} "<<std::endl;
 		srcFile_<<std::endl;
