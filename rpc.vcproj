@@ -317,7 +317,7 @@
 				<Tool
 					Name="VCCustomBuildTool"
 					CommandLine="bison -d -o rpc.tab.cpp rpc.y&#x0D;&#x0A;"
-					Outputs="rpc.tab.cpp rpc.tab.h"
+					Outputs="rpc.tab.cpp rpc.tab.hpp"
 				/>
 			</FileConfiguration>
 		</File>

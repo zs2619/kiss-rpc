@@ -98,6 +98,7 @@ Definition:Struct|Enum|Service
 Service: tok_service tok_identifier '{' Functions '}' Separator
 		{
 			$4->name_=*$2;
+			$4->fileName_=curFileName;
 			if(!Program::inst()->services_.addDef($4))
 			{
 				yyerror("service name repeat: \"%s\"\n", $2);
@@ -157,6 +158,7 @@ FunctionField:	 FieldType tok_identifier Separator
 Struct: tok_struct tok_identifier  '{' StructFieldList '}' Separator
 		{
 			$4->name_=*$2;
+			$4->fileName_=curFileName;
 			if(!Program::inst()->structs_.addDef($4))
 			{
 				yyerror("struct name repeat: \"%s\"\n", $2);
@@ -243,6 +245,7 @@ ValueType: tok_identifier
 Enum: tok_enum	tok_identifier '{'EnumFieldList'}' Separator
 		{
 			$4->name_=*$2;
+			$4->fileName_=curFileName;
 			if(!Program::inst()->enums_.addDef($4))
 			{
 				yyerror("enum name repeat: \"%s\"\n", $2);

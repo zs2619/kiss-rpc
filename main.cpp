@@ -88,9 +88,10 @@ int main(int argc,char** argv)
 		found=0;
 	std::string baseName=fileName.substr(0,found);
 	Program::inst()->baseName_=baseName;
-	Program::inst()->fileName_=fileName;
-	std::string f=Program::inst()->inputDir_+Program::inst()->fileName_;
+	std::string f=Program::inst()->inputDir_+fileName;
+	Program::inst()->fileName_=f;
 	yyin = fopen(f.c_str() , "r" );
+	curFileName=f;
 	if(!yyin)
 	{
 		printf("open fail %d.\n",errno);

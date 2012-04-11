@@ -40,6 +40,11 @@ void CppGenerator::generateEnumHeader()
 	std::vector<EnumDefType*>::iterator it_end=program_->enums_.defs_.end();
 	while(it!=it_end)
 	{
+		if((*it)->fileName_!=program_->fileName_)
+		{
+			++it; continue; 
+		}
+
 		headerFile_<<"enum "<<(*it)->name_<<std::endl;
 		headerFile_<<"{ "<<std::endl;
 		std::vector<std::string>::iterator it_inner=(*it)->defs_.begin();
@@ -63,6 +68,10 @@ void CppGenerator::generateEnumSrc()
 	std::vector<EnumDefType*>::iterator it_end=program_->enums_.defs_.end();
 	while(it!=it_end)
 	{
+		if((*it)->fileName_!=program_->fileName_)
+		{
+			++it; continue; 
+		}
 		srcFile_<<"void "<<(*it)->name_<<"Init(EnumMap* e)"<<std::endl;
 		srcFile_<<"{ "<<std::endl;
 		std::vector<std::string>::iterator it_inner=(*it)->defs_.begin();
@@ -86,6 +95,10 @@ void CppGenerator::generateStructHeader()
 	std::vector<StructDefType*>::iterator it_end=program_->structs_.defs_.end();
 	while(it!=it_end)
 	{
+		if((*it)->fileName_!=program_->fileName_)
+		{
+			++it; continue; 
+		}
 		headerFile_<<"struct "<<(*it)->name_<<std::endl;
 		headerFile_<<"{ "<<std::endl;
 		indent_up();
@@ -125,6 +138,10 @@ void CppGenerator::generateStructSrc()
 	std::vector<StructDefType*>::iterator it_end=program_->structs_.defs_.end();
 	while(it!=it_end)
 	{
+		if((*it)->fileName_!=program_->fileName_)
+		{
+			++it; continue; 
+		}
 		std::vector<FieldDefType*>::iterator it_inner;
 		it_inner=(*it)->members_.begin();
 		bool frist=true;
@@ -513,6 +530,10 @@ void CppGenerator::genServiceStubHeader()
 	std::vector<ServiceDefType*>::iterator it_end=program_->services_.defs_.end();
 	while(it!=it_end)
 	{
+		if((*it)->fileName_!=program_->fileName_)
+		{
+			++it; continue; 
+		}
 		std::string className=(*it)->name_+"Stub";
 		headerFile_<<"class "<<className<<std::endl;
 		headerFile_<<"{ "<<std::endl;
@@ -539,6 +560,10 @@ void CppGenerator::genServiceStubSrc()
 	std::vector<ServiceDefType*>::iterator it_end=program_->services_.defs_.end();
 	while(it!=it_end)
 	{
+		if((*it)->fileName_!=program_->fileName_)
+		{
+			++it; continue; 
+		}
 		int i=0;
 		std::vector<FuctionDefType*>::iterator it_inner=(*it)->funs_.begin();
 		while(it_inner!=(*it)->funs_.end())
@@ -568,6 +593,10 @@ void CppGenerator::genServiceProxyHeader()
 	std::vector<ServiceDefType*>::iterator it_end=program_->services_.defs_.end();
 	while(it!=it_end)
 	{
+		if((*it)->fileName_!=program_->fileName_)
+		{
+			++it; continue; 
+		}
 		std::string className=(*it)->name_+"Proxy";
 		headerFile_<<indent()<<"class "<<className<<std::endl;
 		headerFile_<<indent()<<"{ "<<std::endl;
@@ -596,6 +625,10 @@ void CppGenerator::genServiceProxySrc()
 	std::vector<ServiceDefType*>::iterator it_end=program_->services_.defs_.end();
 	while(it!=it_end)
 	{
+		if((*it)->fileName_!=program_->fileName_)
+		{
+			++it; continue; 
+		}
 		//dispatch
 		std::string className=(*it)->name_+"Proxy";
 		srcFile_<<indent()<<"bool "<<className<<"::dispatch(IProtocol* p)"<<std::endl;

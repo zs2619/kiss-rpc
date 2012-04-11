@@ -20,6 +20,10 @@ void As3Generator::generateEnum()
 	std::vector<EnumDefType*>::iterator it_end=program_->enums_.defs_.end();
 	while(it!=it_end)
 	{
+		if((*it)->fileName_!=program_->fileName_)
+		{
+			++it; continue; 
+		}
 		std::string name=program_->outputDir_+(*it)->name_+".as";
 		as3File_.open(name.c_str());
 		as3File_<<"public class "<<(*it)->name_<<std::endl;
@@ -140,6 +144,10 @@ void As3Generator::generateStruct()
 	std::vector<StructDefType*>::iterator it_end=program_->structs_.defs_.end();
 	while(it!=it_end)
 	{
+		if((*it)->fileName_!=program_->fileName_)
+		{
+			++it; continue; 
+		}
 		std::string name=program_->outputDir_+(*it)->name_+".as";
 		as3File_.open(name.c_str());
 
@@ -438,6 +446,10 @@ void As3Generator::genServiceStub()
 	std::vector<ServiceDefType*>::iterator it_end=program_->services_.defs_.end();
 	while(it!=it_end)
 	{
+		if((*it)->fileName_!=program_->fileName_)
+		{
+			++it; continue; 
+		}
 		std::string className=(*it)->name_+"Stub";
 		std::string name=program_->outputDir_+className+".as";
 		as3File_.open(name.c_str());
@@ -489,6 +501,10 @@ void As3Generator::genServiceProxy()
 	std::vector<ServiceDefType*>::iterator it_end=program_->services_.defs_.end();
 	while(it!=it_end)
 	{
+		if((*it)->fileName_!=program_->fileName_)
+		{
+			++it; continue; 
+		}
 		std::string className=(*it)->name_+"Proxy";
 		std::string name=program_->outputDir_+className+".as";
 		as3File_.open(name.c_str());
@@ -572,6 +588,10 @@ void As3Generator::genServiceProxyIf()
 	std::vector<ServiceDefType*>::iterator it_end=program_->services_.defs_.end();
 	while(it!=it_end)
 	{
+		if((*it)->fileName_!=program_->fileName_)
+		{
+			++it; continue; 
+		}
 		std::string className="I"+(*it)->name_+"Proxy";
 		std::string name=program_->outputDir_+className+".as";
 		as3File_.open(name.c_str());

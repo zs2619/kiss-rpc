@@ -28,6 +28,7 @@ public:
 	virtual bool is_function()   const { return false; }
 
 	std::string name_;
+	std::string fileName_;
 };
 
 class EnumDefType: public DefType

@@ -11,7 +11,13 @@ void reserved_keyword(char* keyword) {
 }
 
 #define MAX_INCLUDE_DEPTH 10
-YY_BUFFER_STATE include_stack[MAX_INCLUDE_DEPTH];
+struct myBuffer
+{
+	std::string		name_;
+	YY_BUFFER_STATE state_;
+};
+
+myBuffer include_stack[MAX_INCLUDE_DEPTH];
 int include_stack_ptr = 0;
 
 void switchBuf(const char* s)
@@ -21,7 +27,10 @@ void switchBuf(const char* s)
 		yyerror( "Includes nested too deeply" );
 	}
      
-	include_stack[include_stack_ptr++] = YY_CURRENT_BUFFER;
+	int i=include_stack_ptr++;
+	include_stack[i].state_ = YY_CURRENT_BUFFER;
+	include_stack[i].name_=curFileName;
+	curFileName=s;
 	yyin = fopen( s, "r" );
 	if(!yyin)
 	{
@@ -90,7 +99,8 @@ symbol        ([:;\,\{\}\(\)\=<>\[\]\"])
              else
                  {
                  yy_delete_buffer( YY_CURRENT_BUFFER );
-                 yy_switch_to_buffer( include_stack[include_stack_ptr] );
+                 yy_switch_to_buffer( include_stack[include_stack_ptr].state_ );
+				 curFileName=include_stack[include_stack_ptr].name_;
                  }
 	}    
 %%
