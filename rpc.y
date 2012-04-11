@@ -192,11 +192,19 @@ Separator : ';'|','|
 
 FieldType: tok_identifier 
 			{
-				$$= new StructDefType;
-				$$->name_=*$1;
-				if(!Program::inst()->structs_.findDefByName($$->name_))
+				if(Program::inst()->structs_.findDefByName(*$1))
 				{
-					yyerror("struct no define: \"%s\"\n", $1);
+					$$= new StructDefType;
+					$$->name_=*$1;
+				}
+				else if(Program::inst()->enums_.findDefByName(*$1))
+				{
+					$$= new EnumDefType;
+					$$->name_=*$1;
+				}
+				else
+				{
+					yyerror("no define: \"%s\"\n", $1);
 				}
 			}
 			| SimpleDefType 

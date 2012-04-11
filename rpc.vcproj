@@ -307,6 +307,16 @@
 					Outputs="lex.yy.cpp"
 				/>
 			</FileConfiguration>
+			<FileConfiguration
+				Name="Release|Win32"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+					Description="flex"
+					CommandLine="flex  -olex.yy.cpp rpc.l"
+					Outputs="lex.yy.cpp"
+				/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath=".\rpc.y"
@@ -317,6 +327,15 @@
 				<Tool
 					Name="VCCustomBuildTool"
 					CommandLine="bison -d -o rpc.tab.cpp rpc.y&#x0D;&#x0A;"
+					Outputs="rpc.tab.cpp rpc.tab.hpp"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Release|Win32"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+					CommandLine="bison -d -o rpc.tab.cpp rpc.y"
 					Outputs="rpc.tab.cpp rpc.tab.hpp"
 				/>
 			</FileConfiguration>

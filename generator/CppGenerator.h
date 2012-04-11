@@ -47,6 +47,8 @@ private:
 	void genFunStubDeclare(ServiceDefType* service);
 	void genFunProxyDeclare(ServiceDefType* service);
 
+	void genIncludeHeader(std::ofstream& stream);
+
 private:
 	std::ofstream	headerFile_;	//<头文件
 	std::ofstream	srcFile_;		//<源文件

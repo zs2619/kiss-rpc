@@ -23,3 +23,14 @@ bool Program::addIncludeFile( const std::string& includeName )
 	include_.push_back(includeName);
 	return true;
 }
+
+bool Program::findDefByName( const std::string& name )
+{
+	if(enums_.findDefByName(name))
+		return true;
+	if(structs_.findDefByName(name))
+		return true;
+	if(services_.findDefByName(name))
+		return true;
+	return false;
+}

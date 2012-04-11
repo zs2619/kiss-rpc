@@ -14,6 +14,7 @@
 class	EnumDefType;
 class	StructDefType;
 class	ServiceDefType;
+class   Program;
 
 template <typename T>
 class DefVector
@@ -33,7 +34,7 @@ public:
 	bool addDef(T	t)
 	{
 		assert(t);
-		if(findDefByName(t->name_))
+		if(Program::inst()->findDefByName(t->name_))
 			return false;
 		defs_.push_back(t);
 		return true;
@@ -58,6 +59,7 @@ public:
 	EnumVector			enums_;
 	StructVector		structs_;
 	ServiceVector		services_;
+	bool findDefByName(const std::string& name);
 
 	bool addIncludeFile(const std::string& includeName);
 	std::vector<std::string>	include_;

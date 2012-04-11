@@ -18,6 +18,9 @@ void CppGenerator::generateProgram()
 	std::string srcName=program_->outputDir_+program_->baseName_+".cpp";
 	headerFile_.open(headerName.c_str());
 	srcFile_.open(srcName.c_str());
+	headerFile_<<"#include \"IProtocol.h\""<<std::endl;
+	headerFile_<<"#include \"Common.h\""<<std::endl;
+	genIncludeHeader(headerFile_);
 	// include 
 	srcFile_<<"#include\""<<program_->baseName_+".h"<<"\""<<std::endl;
 	generateEnumHeader();
@@ -35,6 +38,8 @@ void CppGenerator::generateProgram()
 
 void CppGenerator::generateEnumHeader()
 {
+	if (program_->enums_.defs_.empty())
+		return;
 	headerFile_<<"#include\"EnumMap.h\""<<std::endl;
 	std::vector<EnumDefType*>::iterator it=program_->enums_.defs_.begin();
 	std::vector<EnumDefType*>::iterator it_end=program_->enums_.defs_.end();
@@ -64,6 +69,8 @@ void CppGenerator::generateEnumHeader()
 
 void CppGenerator::generateEnumSrc()
 {
+	if (program_->enums_.defs_.empty())
+		return;
 	std::vector<EnumDefType*>::iterator it=program_->enums_.defs_.begin();
 	std::vector<EnumDefType*>::iterator it_end=program_->enums_.defs_.end();
 	while(it!=it_end)
@@ -91,6 +98,8 @@ void CppGenerator::generateEnumSrc()
 
 void CppGenerator::generateStructHeader()
 {
+	if (program_->structs_.defs_.empty())
+		return;
 	std::vector<StructDefType*>::iterator it=program_->structs_.defs_.begin();
 	std::vector<StructDefType*>::iterator it_end=program_->structs_.defs_.end();
 	while(it!=it_end)
@@ -134,6 +143,8 @@ void CppGenerator::generateStructHeader()
 
 void CppGenerator::generateStructSrc()
 {
+	if (program_->structs_.defs_.empty())
+		return;
 	std::vector<StructDefType*>::iterator it=program_->structs_.defs_.begin();
 	std::vector<StructDefType*>::iterator it_end=program_->structs_.defs_.end();
 	while(it!=it_end)
@@ -526,6 +537,8 @@ void CppGenerator::generateServiceSrc()
 
 void CppGenerator::genServiceStubHeader()
 {
+	if (program_->services_.defs_.empty())
+		return;
 	std::vector<ServiceDefType*>::iterator it=program_->services_.defs_.begin();
 	std::vector<ServiceDefType*>::iterator it_end=program_->services_.defs_.end();
 	while(it!=it_end)
@@ -540,12 +553,12 @@ void CppGenerator::genServiceStubHeader()
 		headerFile_<<"public: "<<std::endl;
 		indent_up();
 		//构造 析构函数
-		headerFile_<<indent()<<className<<"(IProtocol* p=NULL):p_(p){}"<<std::endl;
+		headerFile_<<indent()<<className<<"(IProtocol* p=NULL):__P__(p){}"<<std::endl;
 		headerFile_<<indent()<<"virtual ~"<<className<<"(){}"<<std::endl;
 		//函数声明
 		genFunStubDeclare(*it);
 
-		headerFile_<<indent()<<"IProtocol* p_;"<<std::endl;
+		headerFile_<<indent()<<"IProtocol* __P__;"<<std::endl;
 		indent_down();
 		headerFile_<<"};//class"<<std::endl;
 		headerFile_<<std::endl;
@@ -555,6 +568,8 @@ void CppGenerator::genServiceStubHeader()
 
 void CppGenerator::genServiceStubSrc()
 {
+	if (program_->services_.defs_.empty())
+		return;
 	//构造 析构
 	std::vector<ServiceDefType*>::iterator it=program_->services_.defs_.begin();
 	std::vector<ServiceDefType*>::iterator it_end=program_->services_.defs_.end();
@@ -569,7 +584,7 @@ void CppGenerator::genServiceStubSrc()
 		while(it_inner!=(*it)->funs_.end())
 		{
 			FuctionDefType*& t=*it_inner;
-			srcFile_<<indent()<<"void "<<t->name_<<"::"<<t->name_<<"(";
+			srcFile_<<indent()<<"void "<<(*it)->name_<<+"Stub"<<"::"<<t->name_<<"(";
 			genFunAgrList(srcFile_,t->argrs_);
 			srcFile_<<")"<<std::endl;
 			srcFile_<<indent()<<"{"<<std::endl;
@@ -589,6 +604,8 @@ void CppGenerator::genServiceStubSrc()
 
 void CppGenerator::genServiceProxyHeader()
 {
+	if (program_->services_.defs_.empty())
+		return;
 	std::vector<ServiceDefType*>::iterator it=program_->services_.defs_.begin();
 	std::vector<ServiceDefType*>::iterator it_end=program_->services_.defs_.end();
 	while(it!=it_end)
@@ -603,14 +620,14 @@ void CppGenerator::genServiceProxyHeader()
 		headerFile_<<indent()<<"public: "<<std::endl;
 		indent_up();
 		//构造 析构函数
-		headerFile_<<indent()<<className<<"(IProtocol* p=NULL):p_(p){}"<<std::endl;
+		headerFile_<<indent()<<className<<"(IProtocol* p=NULL):__P__(p){}"<<std::endl;
 		headerFile_<<indent()<<"virtual ~"<<className<<"(){}"<<std::endl;
 		//函数声明
 		genFunProxyDeclare(*it);
 		//dispatch
 		headerFile_<<indent()<<"static bool dispatch(IProtocol* p);"<<std::endl;
 		headerFile_<<std::endl;
-		headerFile_<<indent()<<"IProtocol* p_;"<<std::endl;
+		headerFile_<<indent()<<"IProtocol* __P__;"<<std::endl;
 		indent_down();
 		headerFile_<<indent()<<"};//class"<<std::endl;
 		headerFile_<<std::endl;
@@ -621,6 +638,8 @@ void CppGenerator::genServiceProxyHeader()
 
 void CppGenerator::genServiceProxySrc()
 {
+	if (program_->services_.defs_.empty())
+		return;
 	std::vector<ServiceDefType*>::iterator it=program_->services_.defs_.begin();
 	std::vector<ServiceDefType*>::iterator it_end=program_->services_.defs_.end();
 	while(it!=it_end)
@@ -631,7 +650,7 @@ void CppGenerator::genServiceProxySrc()
 		}
 		//dispatch
 		std::string className=(*it)->name_+"Proxy";
-		srcFile_<<indent()<<"bool "<<className<<"::dispatch(IProtocol* p)"<<std::endl;
+		srcFile_<<indent()<<"bool "<<className<<"::dispatch(IProtocol* __P__)"<<std::endl;
 		srcFile_<<indent()<<"{"<<std::endl;
 		indent_up();
 		srcFile_<<indent()<<"int id=0;"<<std::endl;
@@ -644,10 +663,10 @@ void CppGenerator::genServiceProxySrc()
 		while(it_inner!=(*it)->funs_.end())
 		{
 			FuctionDefType*& t=*it_inner;
-			srcFile_<<indent()<<"case : "<<i++<<std::endl;
+			srcFile_<<indent()<<"case  "<<i++<<" :"<<std::endl;
 			srcFile_<<indent()<<"{"<<std::endl;
 			indent_up();
-			srcFile_<<indent()<<"return recv_"<<t->name_<<"(p);"<<std::endl;
+			srcFile_<<indent()<<"return recv_"<<t->name_<<"(__P__);"<<std::endl;
 			indent_down();
 			srcFile_<<indent()<<"}"<<std::endl;
 			++it_inner;
@@ -665,7 +684,7 @@ void CppGenerator::genServiceProxySrc()
 		while(it_inner!=(*it)->funs_.end())
 		{
 			FuctionDefType*& t=*it_inner;
-			srcFile_<<indent()<<"bool "<<t->name_<<"::"<<"recv_"<<t->name_<<"(IProtocol* p)"<<std::endl;
+			srcFile_<<indent()<<"bool "<<className<<"::"<<"recv_"<<t->name_<<"(IProtocol* __P__)"<<std::endl;
 			srcFile_<<indent()<<"{"<<std::endl;
 			indent_up();
 			//反序列化
@@ -771,4 +790,18 @@ void CppGenerator::deSerializeFields( StructDefType* t )
 		++it_inner;
 	}
 
+}
+
+void CppGenerator::genIncludeHeader( std::ofstream& stream )
+{
+	std::vector<std::string>::iterator it=	program_->include_.begin();
+	while(it!=program_->include_.end())
+	{
+		size_t found=(*it).find(".");
+		if (found==std::string::npos)
+			found=0;
+		std::string baseName=(*it).substr(0,found);
+		stream<<"#include \""<<baseName<<".h\""<<std::endl;
+		++it;
+	}
 }
