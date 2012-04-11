@@ -63,6 +63,7 @@ int main(int argc,char** argv)
       } else if (strcmp(argv[i], "-i") == 0)
 	  {
 		Program::inst()->inputDir_=argv[++i];
+		Program::inst()->inputDir_+="/";
 	  }
 	  else if (strcmp(argv[i], "-gen") == 0)
 	  {
@@ -87,14 +88,19 @@ int main(int argc,char** argv)
 		found=0;
 	std::string baseName=fileName.substr(0,found);
 	Program::inst()->baseName_=baseName;
-	Program::inst()->fileName_=fileName;
-
-	yyin = fopen(Program::inst()->fileName_.c_str() , "r" );
-	assert(yyin);
-	try {
+	std::string f=Program::inst()->inputDir_+Program::inst()->fileName_=fileName;
+	yyin = fopen(f.c_str() , "r" );
+	if(!yyin)
+	{
+		printf("open fail %d.\n",errno);
+		return 0;
+	}
+	try
+	{
 		if (yyparse() != 0) 
 		{
 			printf("Parser error .");
+			return 0;
 		}
 	} catch (std::string x) {
 		printf(x.c_str());

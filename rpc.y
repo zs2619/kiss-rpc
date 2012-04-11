@@ -86,7 +86,8 @@ HeaderDef :tok_include '\"' tok_fileName '\"'
 		{
 			if(Program::inst()->addIncludeFile(*$3))
 			{
-				switchBuf((*$3).c_str());
+
+				switchBuf((Program::inst()->inputDir_+(*$3)).c_str());
 			}
 		}
 

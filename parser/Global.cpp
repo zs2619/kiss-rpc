@@ -7,6 +7,7 @@
 //==============================================
 #include <stdio.h>
 #include <stdarg.h>
+#include <stdlib.h>
 #include "global.h"
 void yyerror(const char* fmt, ...) {
 	va_list args;
@@ -21,4 +22,5 @@ void yyerror(const char* fmt, ...) {
 	va_end(args);
 
 	fprintf(stderr, "\n");
+	exit(1);
 }
