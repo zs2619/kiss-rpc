@@ -395,7 +395,7 @@ void CppGenerator::serializeField( DefType* t ,const std::string& fieldName )
 
 	}else if (t->is_enum())
 	{
-		srcFile_<<indent()<<"__P__->writeUInt16("<<fieldName<<");"<<std::endl;
+		srcFile_<<indent()<<"__P__->writeUInt16((uint16)"<<fieldName<<");"<<std::endl;
 
 	}else if(t->is_map())
 	{
@@ -495,7 +495,7 @@ void CppGenerator::deSerializeField( DefType* t ,const std::string& fieldName )
 
 	}else if (t->is_enum())
 	{
-		srcFile_<<indent()<<"if(!"<<"__P__->readUInt16("<<fieldName<<"))return false;"<<std::endl;
+		srcFile_<<indent()<<"if(!"<<"__P__->readUInt16((uint16&)"<<fieldName<<"))return false;"<<std::endl;
 
 	}else if(t->is_map())
 	{
@@ -625,7 +625,7 @@ void CppGenerator::genServiceProxyHeader()
 		//函数声明
 		genFunProxyDeclare(*it);
 		//dispatch
-		headerFile_<<indent()<<"static bool dispatch(IProtocol* p);"<<std::endl;
+		headerFile_<<indent()<<"static bool dispatch(IProtocol* p,"<<className<<"* __C__);"<<std::endl;
 		headerFile_<<std::endl;
 		headerFile_<<indent()<<"IProtocol* __P__;"<<std::endl;
 		indent_down();
@@ -650,12 +650,12 @@ void CppGenerator::genServiceProxySrc()
 		}
 		//dispatch
 		std::string className=(*it)->name_+"Proxy";
-		srcFile_<<indent()<<"bool "<<className<<"::dispatch(IProtocol* __P__)"<<std::endl;
+		srcFile_<<indent()<<"bool "<<className<<"::dispatch(IProtocol* __P__,"<<className<<"* __C__)"<<std::endl;
 		srcFile_<<indent()<<"{"<<std::endl;
 		indent_up();
-		srcFile_<<indent()<<"int id=0;"<<std::endl;
+		srcFile_<<indent()<<"uint16 id=0;"<<std::endl;
 		srcFile_<<indent()<<"if(!__P__->readUInt16(id)) return false;"<<std::endl;
-		srcFile_<<indent()<<"switch (id);"<<std::endl;
+		srcFile_<<indent()<<"switch (id)"<<std::endl;
 		srcFile_<<indent()<<"{"<<std::endl;
 		indent_up();
 		int i=0;
@@ -666,7 +666,7 @@ void CppGenerator::genServiceProxySrc()
 			srcFile_<<indent()<<"case  "<<i++<<" :"<<std::endl;
 			srcFile_<<indent()<<"{"<<std::endl;
 			indent_up();
-			srcFile_<<indent()<<"return recv_"<<t->name_<<"(__P__);"<<std::endl;
+			srcFile_<<indent()<<"return recv_"<<t->name_<<"(__P__,__C__);"<<std::endl;
 			indent_down();
 			srcFile_<<indent()<<"}"<<std::endl;
 			++it_inner;
@@ -684,12 +684,12 @@ void CppGenerator::genServiceProxySrc()
 		while(it_inner!=(*it)->funs_.end())
 		{
 			FuctionDefType*& t=*it_inner;
-			srcFile_<<indent()<<"bool "<<className<<"::"<<"recv_"<<t->name_<<"(IProtocol* __P__)"<<std::endl;
+			srcFile_<<indent()<<"bool "<<className<<"::"<<"recv_"<<t->name_<<"(IProtocol* __P__,"<<className<<"* __C__)"<<std::endl;
 			srcFile_<<indent()<<"{"<<std::endl;
 			indent_up();
 			//反序列化
 			deSerializeFields(t->argrs_);
-			srcFile_<<indent()<<"return "<<t->name_<<"(";
+			srcFile_<<indent()<<"return __C__->"<<t->name_<<"(";
 			genFunAgrList(srcFile_,t->argrs_,true);
 			srcFile_<<");"<<std::endl;
 			indent_down();
@@ -758,12 +758,13 @@ void CppGenerator::genFunProxyDeclare( ServiceDefType* service )
 		headerFile_<<")=0;"<<std::endl;
 		++it_inner;
 	}
+	std::string className=service->name_+"Proxy";
 	headerFile_<<std::endl;
 	it_inner=service->funs_.begin();
 	while(it_inner!=service->funs_.end())
 	{
 		FuctionDefType*& t=*it_inner;
-		headerFile_<<indent()<<"static bool "<<"recv_"<<t->name_<<"(IProtocol* p);"<<std::endl;;
+		headerFile_<<indent()<<"static bool "<<"recv_"<<t->name_<<"(IProtocol* p,"<<className<<"* __C__);"<<std::endl;;
 		++it_inner;
 	}
 }
