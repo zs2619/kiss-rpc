@@ -18,11 +18,16 @@ void CppGenerator::generateProgram()
 	std::string srcName=program_->outputDir_+program_->baseName_+".cpp";
 	headerFile_.open(headerName.c_str());
 	srcFile_.open(srcName.c_str());
+	headerFile_<<"#ifndef	__"<<program_->baseName_<<"_H__"<<std::endl;
+	headerFile_<<"#define	__"<<program_->baseName_<<"_H__"<<std::endl;
+	headerFile_<<std::endl;
+	// include 
 	headerFile_<<"#include \"IProtocol.h\""<<std::endl;
 	headerFile_<<"#include \"Common.h\""<<std::endl;
 	genIncludeHeader(headerFile_);
-	// include 
 	srcFile_<<"#include\""<<program_->baseName_+".h"<<"\""<<std::endl;
+	headerFile_<<std::endl;
+
 	generateEnumHeader();
 	generateEnumSrc();
 
@@ -31,6 +36,7 @@ void CppGenerator::generateProgram()
 
 	generateServiceHeader();
 	generateServiceSrc();
+	headerFile_<<"#endif"<<std::endl;
 
 	headerFile_.close();
 	srcFile_.close();
