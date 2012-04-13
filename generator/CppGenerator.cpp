@@ -158,7 +158,8 @@ void CppGenerator::generateStructSrc()
 		if((*it)->fileName_!=program_->fileName_)
 		{
 			++it; continue; 
-		}
+		}	
+		srcFile_<<indent()<<(*it)->name_<<"::"<<(*it)->name_<<"()"<<std::endl;
 		std::vector<FieldDefType*>::iterator it_inner;
 		it_inner=(*it)->members_.begin();
 		bool frist=true;
@@ -288,7 +289,7 @@ std::string CppGenerator::typeName(DefType* t,bool isAgr)
 		case	SimpleDefType::uint32Type : return "uint32";
 		case	SimpleDefType::int32Type : return "int32";
 
-		case	SimpleDefType::int64Type : return "int46";
+		case	SimpleDefType::int64Type : return "int64";
 		case	SimpleDefType::floatType : return "float";
 		case	SimpleDefType::stringType : 
 			{
