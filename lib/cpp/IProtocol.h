@@ -15,45 +15,113 @@ public:
 	virtual ~IProtocol() {}
 	virtual bool writeMsgBegin()=0;
 	virtual bool writeMsgEnd()=0;
+	virtual bool read(int8* data,uint32 len)=0;
+	virtual bool write(int8* data,uint32 size)=0;
 
-	virtual bool writeBool(bool value)=0;
+	virtual bool writeBool(bool value)
+	{
+		uint8 i=value?1:0;
+		return write((int8*)&i,1);
+	}
 
-	virtual bool writeUint8( uint8 i)=0;
-	virtual bool writeInt8( int8 i)=0;
+	virtual bool writeUint8( uint8 i)
+	{
+		return write((int8*)&i,1);
+	}
+	virtual bool writeInt8( int8 i)
+	{
+		return write((int8*)&i,1);
+	}
 
-	virtual bool writeUInt16( uint16 i) =0;
-	virtual bool writeInt16( int16 i) =0;
+	virtual bool writeUInt16( uint16 i) 
+	{
+		return write((int8*)&i,2);
+	}
+	virtual bool writeInt16( int16 i)
+	{
+		return write((int8*)&i,2);
+	}
 
-	virtual bool writeUInt32( uint32 i) =0;
-	virtual bool writeInt32( int32 i)=0;
+	virtual bool writeUInt32( uint32 i)
+	{
+		return	write((int8*)&i,4);
+	}
+	virtual bool writeInt32( int32 i)
+	{
+		return write((int8*)&i,4);
+	}
 
-	virtual bool writeInt64( int64 i)=0;
+	virtual bool writeInt64( int64 i)
+	{
+		return write((int8*)&i,8);
+	}
 
-	virtual bool writeFloat(float f)=0;
+	virtual bool writeFloat(float f)
+	{
+		return write((int8*)&f,4);
+	}
 
-	virtual bool writeString(const std::string& str)=0;
+	virtual bool writeString(const std::string& str)
+	{
+		if(write((int8*)str.length(),2))
+		{
+			write((int8*)str.c_str(),str.length());
+		}
+		return false;
+	}
+	virtual bool writeBin(const std::string& str)
+	{
+		return writeString(str);
+	}
 
-	virtual bool writeBin(const char* buf)=0;
 	/** Reading functions */
+	virtual bool readBool(bool& value)
+	{
+		return read((int8*)&value,1);
+	}
 
-	virtual bool readBool(bool& value)=0;
+	virtual bool readUint8(uint8& i)
+	{
+		return read((int8*)&i,1);
+	}
+	virtual bool readint8(int8& i)
+	{
+		return read((int8*)&i,1);
+	}
 
-	virtual bool readUint8(uint8& i)=0;
-	virtual bool readint8(int8& i)=0;
+	virtual bool readUInt16(uint16& i)
+	{
+		return read((int8*)&i,2);
+	}
+	virtual bool readInt16(int16& i)
+	{
+		return read((int8*)&i,2);
+	}
 
-	virtual bool readUInt16(uint16& i)=0;
-	virtual bool readInt16(int16& i)=0;
+	virtual bool readUInt32(uint32& i)
+	{
+		return read((int8*)&i,4);
+	}
+	virtual bool readInt32(int32& i)
+	{
+		return read((int8*)&i,4);
+	}
 
-	virtual bool readUInt32(uint32& i)=0;
-	virtual bool readInt32(int32& i)=0;
-
-	virtual bool readInt64(int64& i)=0;
-
-	virtual bool readFloat(float& f)=0;
+	virtual bool readInt64(int64& i)
+	{
+		return read((int8*)&i,8);
+	}
+	virtual bool readFloat(float& f)
+	{
+		return read((int8*)&f,4);
+	}
 
 	virtual bool readString(std::string& str)=0;
 
-	virtual bool readBin(char buf)=0;
+	virtual bool readBin(std::string& str)
+	{
+		return readString(str);
+	}
 };
 
 #endif 
