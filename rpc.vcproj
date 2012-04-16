@@ -277,6 +277,14 @@
 					>
 				</File>
 				<File
+					RelativePath=".\lib\cpp\IBinProtocol.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\lib\cpp\IBinProtocol.h"
+					>
+				</File>
+				<File
 					RelativePath=".\lib\cpp\IProtocol.h"
 					>
 				</File>
@@ -313,7 +321,7 @@
 				<Tool
 					Name="VCCustomBuildTool"
 					Description="flex"
-					CommandLine="flex  -olex.yy.cpp rpc.l"
+					CommandLine="flex  -olex.yy.cpp rpc.l&#x0D;&#x0A;"
 					Outputs="lex.yy.cpp"
 				/>
 			</FileConfiguration>
@@ -335,7 +343,7 @@
 				>
 				<Tool
 					Name="VCCustomBuildTool"
-					CommandLine="bison -d -o rpc.tab.cpp rpc.y"
+					CommandLine="bison -d -o rpc.tab.cpp rpc.y&#x0D;&#x0A;"
 					Outputs="rpc.tab.cpp rpc.tab.hpp"
 				/>
 			</FileConfiguration>

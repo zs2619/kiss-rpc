@@ -33,6 +33,7 @@ public:
 
 	virtual bool writeString(const std::string& str)=0;
 
+	virtual bool writeBin(const char* buf)=0;
 	/** Reading functions */
 
 	virtual bool readBool(bool& value)=0;
@@ -51,6 +52,8 @@ public:
 	virtual bool readFloat(float& f)=0;
 
 	virtual bool readString(std::string& str)=0;
+
+	virtual bool readBin(char buf)=0;
 };
 
 #endif 

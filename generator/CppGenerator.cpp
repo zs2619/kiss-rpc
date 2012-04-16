@@ -39,7 +39,7 @@ void CppGenerator::generateProgram()
 	headerFile_<<"#endif"<<std::endl;
 
 	headerFile_.close();
-	srcFile_.close();
+	ifFile_.close();
 }
 
 void CppGenerator::generateEnumHeader()
@@ -631,6 +631,8 @@ void CppGenerator::genServiceProxyHeader()
 		headerFile_<<indent()<<"virtual ~"<<className<<"(){}"<<std::endl;
 		//函数声明
 		genFunProxyDeclare(*it);
+		//接口
+		genInterfaceDeclare(*it);
 		//dispatch
 		headerFile_<<indent()<<"static bool dispatch(IProtocol* p,"<<className<<"* __C__);"<<std::endl;
 		headerFile_<<std::endl;
@@ -812,4 +814,20 @@ void CppGenerator::genIncludeHeader( std::ofstream& stream )
 		stream<<"#include \""<<baseName<<".h\""<<std::endl;
 		++it;
 	}
+}
+
+void CppGenerator::genInterfaceDeclare( ServiceDefType* service )
+{
+	std::string IFName=program_->outputDir_+program_->baseName_+"IF.h";
+	ifFile_.open(IFName.c_str());
+	std::vector<FuctionDefType*>::iterator it_inner=service->funs_.begin();
+	while(it_inner!=service->funs_.end())
+	{
+		FuctionDefType*& t=*it_inner;
+		ifFile_<<indent()<<"virtual bool "<<t->name_<<"(";
+		genFunAgrList(ifFile_,t->argrs_);
+		ifFile_<<");"<<std::endl;
+		++it_inner;
+	}
+	srcFile_.close();
 }

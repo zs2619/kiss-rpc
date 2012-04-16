@@ -49,9 +49,12 @@ private:
 
 	void genIncludeHeader(std::ofstream& stream);
 
+	void genInterfaceDeclare(ServiceDefType* service);
+
 private:
 	std::ofstream	headerFile_;	//<头文件
 	std::ofstream	srcFile_;		//<源文件
+	std::ofstream	ifFile_;		//<接口文件
 };
 
 #endif
