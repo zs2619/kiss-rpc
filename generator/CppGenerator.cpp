@@ -39,7 +39,7 @@ void CppGenerator::generateProgram()
 	headerFile_<<"#endif"<<std::endl;
 
 	headerFile_.close();
-	ifFile_.close();
+	srcFile_.close();
 }
 
 void CppGenerator::generateEnumHeader()
@@ -829,5 +829,5 @@ void CppGenerator::genInterfaceDeclare( ServiceDefType* service )
 		ifFile_<<");"<<std::endl;
 		++it_inner;
 	}
-	srcFile_.close();
+	ifFile_.close();
 }
