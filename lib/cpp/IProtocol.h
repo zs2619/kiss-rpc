@@ -38,8 +38,8 @@ public:
 
 	virtual bool readBool(bool& value)=0;
 
-	virtual bool readUint8(uint8 i)=0;
-	virtual bool readint8(int8 i)=0;
+	virtual bool readUint8(uint8& i)=0;
+	virtual bool readint8(int8& i)=0;
 
 	virtual bool readUInt16(uint16& i)=0;
 	virtual bool readInt16(int16& i)=0;

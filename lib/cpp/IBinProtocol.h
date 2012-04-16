@@ -72,8 +72,8 @@ public:
 				curLen_+=str.length();
 				return true;
 			}
-			return false;
 		}
+		return false;
 	}
 	virtual bool writeBin(const std::string& str)
 	{
@@ -138,7 +138,9 @@ public:
 		if(read((int8*)len,2))
 		{
 			str=std::string((const char*)buf_+curLen_,len);
+			return true;
 		}
+		return false;
 	}
 	virtual bool readBin(std::string& str)
 	{
