@@ -65,7 +65,7 @@ public:
 	{
 		if(write((int8*)str.length(),2))
 		{
-			write((int8*)str.c_str(),str.length());
+			return write((int8*)str.c_str(),str.length());
 		}
 		return false;
 	}

@@ -16,15 +16,15 @@ public:
 	IBinProtocol (int8* buf,uint32 len):buf_(buf),len_(len),curLen_(0){}
 	~IBinProtocol(){}
 
-	virtual bool writeMsgBegin() { }
-	virtual bool writeMsgEnd()   { }
+	virtual bool writeMsgBegin() {return true; }
+	virtual bool writeMsgEnd()   { return true; }
 
-	bool write(int8* data,uint32 size)
+	bool write(int8* data,uint32 len)
 	{
-		if((len_-curLen_)>=size)
+		if((len_-curLen_)>=len)
 		{
-			memcpy(buf_+curLen_,(int8*)&data,size);
-			curLen_+=size;
+			memcpy(buf_+curLen_,(int8*)&data,len);
+			curLen_+=len;
 			return true;
 		}
 		return false;
@@ -35,6 +35,17 @@ public:
 		if((len_-curLen_)>=len)
 		{
 			memcpy(data,buf_+curLen_,len);
+			curLen_+=len;
+			return true;
+		}
+		return false;
+	}
+	virtual bool readString(std::string& str)
+	{
+		uint16	len=0;
+		if (read((int8*)&len,2))
+		{
+			str=std::string((char*)buf_+curLen_,len);
 			curLen_+=len;
 			return true;
 		}
