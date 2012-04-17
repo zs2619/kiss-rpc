@@ -63,7 +63,8 @@ public:
 
 	virtual bool writeString(const std::string& str)
 	{
-		if(write((int8*)str.length(),2))
+		uint16 len=str.length();
+		if(write((int8*)&len,2))
 		{
 			return write((int8*)str.c_str(),str.length());
 		}
