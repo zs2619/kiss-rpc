@@ -21,6 +21,8 @@ public:
 
 	bool write(int8* data,uint32 len)
 	{
+		if (len==0)
+			return true;
 		if((len_-curLen_)>=len)
 		{
 			memcpy(buf_+curLen_,(int8*)&data,len);
@@ -32,6 +34,8 @@ public:
 
 	bool read(int8* data,uint32 len)
 	{
+		if (len==0)
+			return true;
 		if((len_-curLen_)>=len)
 		{
 			memcpy(data,buf_+curLen_,len);

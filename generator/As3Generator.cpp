@@ -26,8 +26,11 @@ void As3Generator::generateEnum()
 		}
 		std::string name=program_->outputDir_+(*it)->name_+".as";
 		as3File_.open(name.c_str());
-		as3File_<<"public class "<<(*it)->name_<<std::endl;
-		as3File_<<"{"<<std::endl;
+		as3File_<<indent()<<"package com.rpc"<<std::endl;
+		as3File_<<indent()<<"{"<<std::endl;
+		indent_up();
+		as3File_<<indent()<<"public class "<<(*it)->name_<<std::endl;
+		as3File_<<indent()<<"{"<<std::endl;
 		indent_up();
 		int i=0;
 		std::vector<std::string>::iterator it_inner=(*it)->defs_.begin();
@@ -38,7 +41,9 @@ void As3Generator::generateEnum()
 			++it_inner;
 		}
 		indent_down();
-		as3File_<<"}"<<std::endl;
+		as3File_<<indent()<<"}//class"<<std::endl;
+		indent_down();
+		as3File_<<indent()<<"}//package"<<std::endl;
 		as3File_.close();
 		++it;
 	}
@@ -150,9 +155,11 @@ void As3Generator::generateStruct()
 		}
 		std::string name=program_->outputDir_+(*it)->name_+".as";
 		as3File_.open(name.c_str());
-
-		as3File_<<"public class"<<(*it)->name_<<std::endl;
-		as3File_<<"{ "<<std::endl;
+		as3File_<<indent()<<"package com.rpc"<<std::endl;
+		as3File_<<indent()<<"{"<<std::endl;
+		indent_up();
+		as3File_<<indent()<<"public class"<<(*it)->name_<<std::endl;
+		as3File_<<indent()<<"{ "<<std::endl;
 
 		//ÊôÐÔ
 		indent_up();
@@ -203,8 +210,9 @@ void As3Generator::generateStruct()
 		as3File_<<indent()<<"}// deSerialize"<<std::endl;
 
 		indent_down();
-
-		as3File_<<"}//class"<<std::endl;
+		as3File_<<indent()<<"}//class"<<std::endl;
+		indent_down();
+		as3File_<<indent()<<"}//package"<<std::endl;
 		as3File_.close();
 		++it;
 	}
@@ -453,8 +461,11 @@ void As3Generator::genServiceStub()
 		std::string className=(*it)->name_+"Stub";
 		std::string name=program_->outputDir_+className+".as";
 		as3File_.open(name.c_str());
-		as3File_<<"public class"<<className<<std::endl;
-		as3File_<<"{ "<<std::endl;
+		as3File_<<indent()<<"package com.rpc"<<std::endl;
+		as3File_<<indent()<<"{"<<std::endl;
+		indent_up();
+		as3File_<<indent()<<"public class"<<className<<std::endl;
+		as3File_<<indent()<<"{ "<<std::endl;
 		indent_up();
 		//ÊôÐÔ
 		as3File_<<indent()<<"public IProtocol __P__;"<<std::endl;
@@ -489,7 +500,9 @@ void As3Generator::genServiceStub()
 		}
 
 		indent_down();
-		as3File_<<"}//class"<<std::endl;
+		as3File_<<indent()<<"}//class"<<std::endl;
+		indent_down();
+		as3File_<<indent()<<"}//package"<<std::endl;
 		as3File_.close();
 		++it;
 	}
@@ -508,8 +521,11 @@ void As3Generator::genServiceProxy()
 		std::string className=(*it)->name_+"Proxy";
 		std::string name=program_->outputDir_+className+".as";
 		as3File_.open(name.c_str());
-		as3File_<<"public class"<<className<<std::endl;
-		as3File_<<"{ "<<std::endl;
+		as3File_<<indent()<<"package com.rpc"<<std::endl;
+		as3File_<<indent()<<"{"<<std::endl;
+		indent_up();
+		as3File_<<indent()<<"public class"<<className<<std::endl;
+		as3File_<<indent()<<"{ "<<std::endl;
 		indent_up();
 		//ÊôÐÔ
 		std::string IFName="I"+(*it)->name_+"Proxy";
@@ -575,7 +591,9 @@ void As3Generator::genServiceProxy()
 		}
 
 		indent_down();
-		as3File_<<"} //class"<<std::endl;
+		as3File_<<indent()<<"} //class"<<std::endl;
+		indent_down();
+		as3File_<<indent()<<"} //package"<<std::endl;
 		as3File_.close();
 		++it;
 	}
@@ -595,8 +613,11 @@ void As3Generator::genServiceProxyIf()
 		std::string className="I"+(*it)->name_+"Proxy";
 		std::string name=program_->outputDir_+className+".as";
 		as3File_.open(name.c_str());
-		as3File_<<"public interface "<<className<<std::endl;
-		as3File_<<"{ "<<std::endl;
+		as3File_<<indent()<<"package com.rpc"<<std::endl;
+		as3File_<<indent()<<"{"<<std::endl;
+		indent_up();
+		as3File_<<indent()<<"public interface "<<className<<std::endl;
+		as3File_<<indent()<<"{ "<<std::endl;
 		indent_up();
 		//interface 
 		as3File_<<indent()<<"//interface "<<std::endl;
@@ -611,7 +632,9 @@ void As3Generator::genServiceProxyIf()
 			++it_inner;
 		}
 		indent_down();
-		as3File_<<"} //class"<<std::endl;
+		as3File_<<indent()<<"} //class"<<std::endl;
+		indent_down();
+		as3File_<<indent()<<"} //package"<<std::endl;
 		as3File_.close();
 		++it;
 	}
