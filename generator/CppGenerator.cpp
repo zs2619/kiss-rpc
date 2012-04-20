@@ -166,7 +166,7 @@ void CppGenerator::generateStructSrc()
 		while(it_inner!=(*it)->members_.end())
 		{
 			FieldDefType*& t=*it_inner;
-			if (t->type_->is_enum()||t->type_->is_simple_type())
+			if (t->type_->is_enum()||(t->type_->is_simple_type()&&((SimpleDefType*)(t->type_))->t_!=SimpleDefType::stringType))
 			{
 				if (frist)
 				{
@@ -328,7 +328,7 @@ void CppGenerator::serializeField( DefType* t ,const std::string& fieldName )
 {
 	if (t->is_struct())
 	{
-		srcFile_<<indent()<<fieldName<<"->serialize(__P__);"<<std::endl;
+		srcFile_<<indent()<<fieldName<<".serialize(__P__);"<<std::endl;
 	}
 	else if (t->is_simple_type())
 	{
@@ -426,7 +426,7 @@ void CppGenerator::deSerializeField( DefType* t ,const std::string& fieldName )
 {
 	if (t->is_struct())
 	{
-		srcFile_<<indent()<<"if(!"<<fieldName<<"->deSerialize(__P__))return false;"<<std::endl;
+		srcFile_<<indent()<<"if(!"<<fieldName<<".deSerialize(__P__))return false;"<<std::endl;
 	}
 	else if (t->is_simple_type())
 	{

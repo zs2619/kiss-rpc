@@ -95,7 +95,7 @@ DefinitionList: DefinitionList Definition|Definition
 
 Definition:Struct|Enum|Service
 
-Service: tok_service tok_identifier '{' Functions '}' Separator
+Service: tok_service tok_identifier '{' Functions '}' ';'
 		{
 			$4->name_=*$2;
 			$4->fileName_=curFileName;
@@ -155,7 +155,7 @@ FunctionField:	 FieldType tok_identifier Separator
 			$$->name_=*$2;
 		}
 
-Struct: tok_struct tok_identifier  '{' StructFieldList '}' Separator
+Struct: tok_struct tok_identifier  '{' StructFieldList '}' ';'
 		{
 			$4->name_=*$2;
 			$4->fileName_=curFileName;
@@ -250,7 +250,7 @@ ValueType: tok_identifier
 			 $$= $1;
 		 }
 
-Enum: tok_enum	tok_identifier '{'EnumFieldList'}' Separator
+Enum: tok_enum	tok_identifier '{'EnumFieldList'}' ';'
 		{
 			$4->name_=*$2;
 			$4->fileName_=curFileName;
