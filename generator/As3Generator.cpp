@@ -176,7 +176,7 @@ void As3Generator::generateStruct()
 		//序列化函数
 		as3File_<<std::endl;
 		as3File_<<indent()<<"//serialize"<<std::endl;
-		as3File_<<indent()<<"public bool serialize(__P__:IProtocol) "<<std::endl;
+		as3File_<<indent()<<"public function serialize(__P__:IProtocol):Boolean "<<std::endl;
 		as3File_<<indent()<<"{ "<<std::endl;
 		indent_up();
 		//序列化属性
@@ -194,7 +194,7 @@ void As3Generator::generateStruct()
 		//反序列化函数
 		as3File_<<std::endl;
 		as3File_<<indent()<<"//deSerialize"<<std::endl;
-		as3File_<<indent()<<"public bool deSerialize(__P__:IProtocol)"<<std::endl;
+		as3File_<<indent()<<"public function deSerialize(__P__:IProtocol):Boolean"<<std::endl;
 		as3File_<<indent()<<"{ "<<std::endl;
 		indent_up();
 		//反序列化属性

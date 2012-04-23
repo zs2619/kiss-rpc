@@ -247,7 +247,9 @@ std::string CppGenerator::DefaultValue( DefType* t )
 		}
 	}else if (t->is_enum())
 	{
-		 return "0";
+		std::string temp("(0)");
+		temp=t->name_+temp;
+		return temp;
 	}
 	assert(0&&"type error"); 
 	return "";
