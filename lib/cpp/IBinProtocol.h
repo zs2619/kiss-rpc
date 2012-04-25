@@ -25,7 +25,7 @@ public:
 			return true;
 		if((len_-curLen_)>=len)
 		{
-			memcpy(buf_+curLen_,(int8*)&data,len);
+			memcpy(buf_+curLen_,(int8*)data,len);
 			curLen_+=len;
 			return true;
 		}

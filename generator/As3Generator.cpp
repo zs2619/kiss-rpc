@@ -490,7 +490,7 @@ void As3Generator::genServiceStub()
 			as3File_<<indent()<<"{"<<std::endl;
 			indent_up();
 			//序列化
-			as3File_<<indent()<<"trace("<<t->name_<<");"<<std::endl;
+			as3File_<<indent()<<"trace(\""<<t->name_<<"\");"<<std::endl;
 			as3File_<<indent()<<"__P__.writeMsgBegin();"<<std::endl;
 			as3File_<<indent()<<"__P__.writeUInt16("<<i++<<");"<<std::endl;
 			serializeFields(t->argrs_);
@@ -581,7 +581,7 @@ void As3Generator::genServiceProxy()
 			as3File_<<indent()<<"private function "<<"recv_"<<t->name_<<"(__P__:IProtocol):Boolean"<<std::endl;
 			as3File_<<indent()<<"{"<<std::endl;
 			indent_up();
-			as3File_<<indent()<<"trace("<<t->name_<<");"<<std::endl;
+			as3File_<<indent()<<"trace(\""<<t->name_<<"\");"<<std::endl;
 			//反序列化
 			deSerializeFields(t->argrs_);
 			as3File_<<indent()<<"return __I__."<<t->name_<<"(";
