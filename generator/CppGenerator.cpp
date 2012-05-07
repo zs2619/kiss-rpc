@@ -260,7 +260,7 @@ std::string CppGenerator::typeName(DefType* t,bool isAgr)
 	if(t->is_array())
 	{
 		ArrayDefType* array=(ArrayDefType*)t;
-		std::string temp="std::vetcotr<"; 
+		std::string temp="std::vector<"; 
 		temp=temp+typeName(array->valueDef_) +"> ";
 		if (isAgr)
 		{
@@ -394,7 +394,7 @@ void CppGenerator::serializeField( DefType* t ,const std::string& fieldName )
 	{
 		srcFile_<<indent()<<"__P__->writeUInt16("<<fieldName<<".size());"<<std::endl;
 		std::string temp="_i_"+fieldName+"_";
-		srcFile_<<indent()<<"for (int "<<temp<<"=0;"<<temp<<"<"<<fieldName<<".size();"<<temp<<"++)"<<std::endl;
+		srcFile_<<indent()<<"for (size_t "<<temp<<"=0;"<<temp<<"<"<<fieldName<<".size();"<<temp<<"++)"<<std::endl;
 		srcFile_<<indent()<<"{"<<std::endl;
 		indent_up();
 		std::string tempAgr=fieldName+"["+temp+"]";
@@ -490,14 +490,14 @@ void CppGenerator::deSerializeField( DefType* t ,const std::string& fieldName )
 	else if(t->is_array())
 	{
 		std::string size="_n_"+fieldName+"_array";
-		srcFile_<<indent()<<"int "<<size<<"=0;"<<std::endl;
+		srcFile_<<indent()<<"uint16 "<<size<<"=0;"<<std::endl;
 		srcFile_<<indent()<<"if(!"<<"__P__->readUInt16("<<size<<"))return false;"<<std::endl;
-		srcFile_<<indent()<<"fieldName.resize( "<<size<<");"<<std::endl;
+		srcFile_<<indent()<<fieldName<<".resize( "<<size<<");"<<std::endl;
 		std::string count="_i_"+fieldName+"_";
-		srcFile_<<indent()<<"for (int "<<count<<"=0;"<<count<<"<"<<size<<";"<<count<<"++)"<<std::endl;
+		srcFile_<<indent()<<"for (size_t "<<count<<"=0;"<<count<<"<"<<size<<";"<<count<<"++)"<<std::endl;
 		srcFile_<<indent()<<"{"<<std::endl;
 		indent_up();
-		std::string tempAgr="fieldName["+count+"]";
+		std::string tempAgr=fieldName+"["+count+"]";
 		deSerializeField(((ArrayDefType*)t)->valueDef_,tempAgr);
 		indent_down();
 		srcFile_<<indent()<<"}"<<std::endl;

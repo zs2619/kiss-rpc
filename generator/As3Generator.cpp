@@ -53,7 +53,7 @@ std::string As3Generator::DefaultValue( DefType* t )
 	if(t->is_array())
 	{
 		ArrayDefType* array=(ArrayDefType*)t;
-		std::string temp=" new Vetcotr.<"; 
+		std::string temp=" new Vector.<"; 
 		temp=temp+typeName(array->valueDef_) +"> ";
 		return temp;
 	}else if(t->is_map())
@@ -101,7 +101,7 @@ std::string As3Generator::typeName( DefType* t )
 	if(t->is_array())
 	{
 		ArrayDefType* array=(ArrayDefType*)t;
-		std::string temp="Vetcotr.<"; 
+		std::string temp="Vector.<"; 
 		temp=temp+typeName(array->valueDef_) +"> ";
 		return temp;
 	}else if(t->is_map())
