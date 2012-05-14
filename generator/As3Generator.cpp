@@ -648,15 +648,15 @@ void As3Generator::deSerializeFields( StructDefType* t )
 	std::vector<FieldDefType*>::iterator it_inner=t->members_.begin();
 	while(it_inner!=t->members_.end())
 	{
-		if((*it_inner)->type_->is_struct())
-		{
+		/*if((*it_inner)->type_->is_struct())
+		{*/
 			as3File_<<indent()<<"var "<<(*it_inner)->name_<<":"<<typeName((*it_inner)->type_)
 				<<"= new "<<typeName((*it_inner)->type_) <<";"<<std::endl;
-		}
+		/*}
 		else
 		{
 			as3File_<<indent()<<"var "<<(*it_inner)->name_<<":"<<typeName((*it_inner)->type_)<<";"<<std::endl;
-		}
+		}*/
 		
 		deSerializeField((*it_inner)->type_,(*it_inner)->name_);
 		as3File_<<std::endl;
