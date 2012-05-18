@@ -328,7 +328,7 @@ void As3Generator::deSerializeField( DefType* t ,const std::string& fieldName )
 			} 
 		case	SimpleDefType::int8Type : 
 			{
-				as3File_<<indent()<<fieldName<<"=__P__.>readInt8();"<<std::endl;
+				as3File_<<indent()<<fieldName<<"=__P__.readInt8();"<<std::endl;
 				break;
 			} 
 		case	SimpleDefType::uint16Type :
