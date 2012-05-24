@@ -344,7 +344,7 @@ void CppGenerator::serializeField( DefType* t ,const std::string& fieldName )
 			} 
 		case	SimpleDefType::uint8Type : 
 			{
-				srcFile_<<indent()<<"__P__->writeUint8("<<fieldName<<");"<<std::endl;
+				srcFile_<<indent()<<"__P__->writeUInt8("<<fieldName<<");"<<std::endl;
 				break;
 			} 
 		case	SimpleDefType::int8Type : 
@@ -442,7 +442,7 @@ void CppGenerator::deSerializeField( DefType* t ,const std::string& fieldName )
 			} 
 		case	SimpleDefType::uint8Type : 
 			{
-				srcFile_<<indent()<<"if(!"<<"__P__->readUint8("<<fieldName<<"))return false;"<<std::endl;
+				srcFile_<<indent()<<"if(!"<<"__P__->readUInt8("<<fieldName<<"))return false;"<<std::endl;
 				break;
 			} 
 		case	SimpleDefType::int8Type : 

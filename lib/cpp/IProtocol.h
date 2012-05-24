@@ -24,7 +24,7 @@ public:
 		return write((int8*)&i,1);
 	}
 
-	virtual bool writeUint8( uint8 i)
+	virtual bool writeUInt8( uint8 i)
 	{
 		return write((int8*)&i,1);
 	}
@@ -81,11 +81,11 @@ public:
 		return read((int8*)&value,1);
 	}
 
-	virtual bool readUint8(uint8& i)
+	virtual bool readUInt8(uint8& i)
 	{
 		return read((int8*)&i,1);
 	}
-	virtual bool readint8(int8& i)
+	virtual bool readInt8(int8& i)
 	{
 		return read((int8*)&i,1);
 	}
