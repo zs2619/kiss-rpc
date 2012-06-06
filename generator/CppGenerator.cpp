@@ -404,7 +404,7 @@ void CppGenerator::serializeField( DefType* t ,const std::string& fieldName )
 
 	}else if (t->is_enum())
 	{
-		srcFile_<<indent()<<"__P__->writeUInt16((uint16)"<<fieldName<<");"<<std::endl;
+		srcFile_<<indent()<<"__P__->writeInt16((int16)"<<fieldName<<");"<<std::endl;
 
 	}else if(t->is_map())
 	{
@@ -504,7 +504,10 @@ void CppGenerator::deSerializeField( DefType* t ,const std::string& fieldName )
 
 	}else if (t->is_enum())
 	{
-		srcFile_<<indent()<<"if(!"<<"__P__->readUInt16((uint16&)"<<fieldName<<"))return false;"<<std::endl;
+		std::string tempName=" __temp_enum__"+fieldName;
+		srcFile_<<indent()<<"int16 "<<tempName<<" =0;"<<std::endl;
+		srcFile_<<indent()<<"if(!"<<"__P__->readInt16((int16&)"<<tempName<<"))return false;"<<std::endl;
+		srcFile_<<indent()<<fieldName<<"=("<<typeName(t)<<")"<<tempName<<";"<<std::endl;
 
 	}else if(t->is_map())
 	{

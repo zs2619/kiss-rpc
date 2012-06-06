@@ -297,7 +297,7 @@ void As3Generator::serializeField( DefType* t ,const std::string& fieldName )
 
 	}else if (t->is_enum())
 	{
-		as3File_<<indent()<<"__P__.writeUInt16("<<fieldName<<");"<<std::endl;
+		as3File_<<indent()<<"__P__.writeInt16("<<fieldName<<");"<<std::endl;
 
 	}else if(t->is_map())
 	{
@@ -388,7 +388,7 @@ void As3Generator::deSerializeField( DefType* t ,const std::string& fieldName )
 
 	}else if (t->is_enum())
 	{
-		as3File_<<indent()<<fieldName<<"=__P__.readUInt16();"<<std::endl;
+		as3File_<<indent()<<fieldName<<"=__P__.readInt16();"<<std::endl;
 
 	}else if(t->is_map())
 	{
