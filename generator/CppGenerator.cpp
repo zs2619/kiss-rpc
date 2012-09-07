@@ -564,6 +564,19 @@ void CppGenerator::genServiceStubHeader()
 		headerFile_<<"{ "<<std::endl;
 		headerFile_<<"public: "<<std::endl;
 		indent_up();
+
+		headerFile_<<indent()<<"enum {"<<std::endl;
+		indent_up();
+		std::vector<FuctionDefType*>::iterator it_inner=(*it)->funs_.begin();
+		while(it_inner!=(*it)->funs_.end())
+		{
+			FuctionDefType*& t=*it_inner;
+			headerFile_<<indent()<<t->name_<<"_Id,"<<std::endl;
+			++it_inner;
+		}
+		indent_down();
+		headerFile_<<indent()<<"};"<<std::endl;
+
 		//构造 析构函数
 		headerFile_<<indent()<<className<<"(IProtocol* p=NULL):__P__(p){}"<<std::endl;
 		headerFile_<<indent()<<"virtual ~"<<className<<"(){}"<<std::endl;
