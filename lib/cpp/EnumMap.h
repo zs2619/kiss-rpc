@@ -36,6 +36,7 @@ public:
 		v.push_back(value);
 		return true;
 	}
+	std::vector<std::string>& getEnumMap(){return v;}
 private:
 	std::vector<std::string>	v;
 };
