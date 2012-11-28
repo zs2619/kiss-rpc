@@ -33,6 +33,8 @@ private:
 	std::string DefaultValue( DefType* t );
 
 	void serializeField( DefType* t ,const std::string& fieldName );
+	void serializeJsonField( DefType* t ,const std::string& key, const std::string& value);
+	void serializeJsonFields( StructDefType* t );
 	void deSerializeField( DefType* t ,const std::string& fieldName );
 
 	void serializeFields( StructDefType* t );
@@ -50,7 +52,6 @@ private:
 	void genIncludeHeader(std::ofstream& stream);
 
 	void genInterfaceDeclare(ServiceDefType* service);
-
 private:
 	std::ofstream	headerFile_;	//<头文件
 	std::ofstream	srcFile_;		//<源文件

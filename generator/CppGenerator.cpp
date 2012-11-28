@@ -139,6 +139,14 @@ void CppGenerator::generateStructHeader()
 		headerFile_<<indent()<<"//deSerialize"<<std::endl;
 		headerFile_<<indent()<<"bool deSerialize(IProtocol* __P__);"<<std::endl;
 
+		//json序列化
+		if(Program::inst()->json_)
+		{
+			headerFile_<<std::endl;
+			headerFile_<<indent()<<"//serialize json"<<std::endl;
+			headerFile_<<indent()<<"void serializeJson(std::stringstream& __json__);"<<std::endl;
+		}
+
 		indent_down();
 		headerFile_<<"} ;//struct"<<std::endl;
 		headerFile_<<std::endl;
@@ -214,6 +222,17 @@ void CppGenerator::generateStructSrc()
 		indent_down();
 
 		srcFile_<<"}//deSerialize "<<std::endl;
+
+		//序列化json
+		srcFile_<<std::endl;
+		srcFile_<<indent()<<"//serialize"<<std::endl;
+		srcFile_<<indent()<<"void "<<(*it)->name_<<"::serializeJson(std::stringstream& __json__)"<<std::endl;
+		srcFile_<<"{ "<<std::endl;
+		it_inner=(*it)->members_.begin();
+		indent_up();
+		serializeJsonFields(*it);
+		indent_down();
+		srcFile_<<"}// serializeJson"<<std::endl;
 
 		srcFile_<<std::endl;
 		++it;
@@ -326,6 +345,118 @@ std::string CppGenerator::typeName(DefType* t,bool isAgr)
 	return "";
 }
 
+void CppGenerator::serializeJsonField( DefType* t ,const std::string& key, const std::string& value)
+{
+	if (t->is_struct())
+	{
+		indent_up();
+		srcFile_<<indent()<<key<<".serializeJson(__json__)";
+		indent_down();
+	}
+	else if (t->is_simple_type())
+	{
+		SimpleDefType* s=(SimpleDefType*)t;
+		switch (s->t_)
+		{
+		case	SimpleDefType::boolType : 
+			{
+				srcFile_<<indent()<<"__json__<<\"\\\""<<key<<"\\\":\""<<"<<("<<value<<"?\"true\":\"false\")";
+				break;
+			} 
+		case	SimpleDefType::uint8Type : 
+			{
+				srcFile_<<indent()<<"__json__<<\"\\\""<<key<<"\\\":\""<<"<<"<<value;
+				break;
+			} 
+		case	SimpleDefType::int8Type : 
+			{
+				srcFile_<<indent()<<"__json__<<\"\\\""<<key<<"\\\":\""<<"<<"<<value;
+				break;
+			} 
+		case	SimpleDefType::uint16Type :
+			{
+				srcFile_<<indent()<<"__json__<<\"\\\""<<key<<"\\\":\""<<"<<"<<value;
+				break;
+			} 
+		case	SimpleDefType::int16Type :
+			{
+				srcFile_<<indent()<<"__json__<<\"\\\""<<key<<"\\\":\""<<"<<"<<value;
+				break;
+			} 
+		case	SimpleDefType::uint32Type :
+			{
+				srcFile_<<indent()<<"__json__<<\"\\\""<<key<<"\\\":\""<<"<<"<<value;
+				break;
+			} 
+		case	SimpleDefType::int32Type :
+			{
+				srcFile_<<indent()<<"__json__<<\"\\\""<<key<<"\\\":\""<<"<<"<<value;
+				break;
+			} 
+		case	SimpleDefType::int64Type :
+			{
+				srcFile_<<indent()<<"__json__<<\"\\\""<<key<<"\\\":\""<<"<<"<<value;
+				break;
+			} 
+		case	SimpleDefType::floatType :
+			{
+				srcFile_<<indent()<<"__json__<<\"\\\""<<key<<"\\\":\""<<"<<"<<value;
+				break;
+			} 
+		case	SimpleDefType::stringType :
+			{
+				srcFile_<<indent()<<"__json__<<\"\\\""<<key<<"\\\":\\\"\""<<"<<"<<value<<"<<\"\\\"\"";
+				break;
+			}
+		}
+	}
+	else if(t->is_array())
+	{
+		srcFile_<<indent()<<"__json__<<\""<<key<<":[\""<<std::endl;
+		indent_up();
+		std::string temp="_i_"+key+"_";
+		std::string tempAgr=key+"["+temp+"]";
+		srcFile_<<indent()<<"for (size_t "<<temp<<"=0;"<<temp<<"<"<<key<<".size();"<<temp<<"++)"<<std::endl;
+		srcFile_<<indent()<<"{"<<std::endl;
+		indent_up();
+		srcFile_<<indent()<<"if("<<temp<<"==("<<key<<".size()-1))"<<std::endl;
+		srcFile_<<indent()<<"{"<<std::endl;
+		indent_up();
+		DefType* valueDef=((ArrayDefType*)t)->valueDef_;
+		if (!valueDef->is_struct())
+		{
+			srcFile_<<indent()<<"__json__<<\""<<"{\";"<<std::endl;
+		}
+		serializeJsonField(valueDef,key,tempAgr);
+		srcFile_<<";"<<std::endl;
+		if (!valueDef->is_struct())
+		{
+			srcFile_<<indent()<<"__json__<<\""<<"}\";"<<std::endl;
+		}
+
+		indent_down();
+		srcFile_<<indent()<<"}else"<<std::endl;
+		srcFile_<<indent()<<"{"<<std::endl;
+		indent_up();
+		if (!valueDef->is_struct())
+		{
+			srcFile_<<indent()<<"__json__<<\""<<"{\";"<<std::endl;
+		}
+		serializeJsonField(valueDef,key,tempAgr);
+		srcFile_<<"<<\",\";"<<std::endl;
+		if (!valueDef->is_struct())
+		{
+			srcFile_<<indent()<<"__json__<<\""<<"}\";"<<std::endl;
+		}
+		indent_down();
+		srcFile_<<indent()<<"}"<<std::endl;
+
+		indent_down();
+		srcFile_<<indent()<<"}"<<std::endl;
+		indent_down();
+		srcFile_<<indent()<<"__json__<<\"]\"";
+	}
+}
 void CppGenerator::serializeField( DefType* t ,const std::string& fieldName )
 {
 	if (t->is_struct())
@@ -806,6 +937,37 @@ void CppGenerator::serializeFields( StructDefType* t )
 		++it_inner;
 	}
 }
+void CppGenerator::serializeJsonFields( StructDefType* t )
+{
+	srcFile_<<indent()<<"__json__<<\"{\";"<<std::endl;
+	indent_up();
+	std::vector<FieldDefType*>::iterator it_inner=t->members_.begin();
+	for (size_t i=0;i<t->members_.size();i++)
+	{
+		FieldDefType* fdt=(t->members_)[i];
+		if (i==(t->members_.size()-1))
+		{
+			if ((fdt->type_)->is_struct())
+			{
+				srcFile_<<indent()<<"__json__<<\"\\\""<<fdt->name_<<"\\\":\";"<<std::endl;
+			}
+			serializeJsonField(fdt->type_,fdt->name_,fdt->name_);
+			srcFile_<<";"<<std::endl;
+		}
+		else 
+		{
+			if ((fdt->type_)->is_struct())
+			{
+				srcFile_<<indent()<<"__json__<<\"\\\""<<fdt->name_<<"\\\":\";"<<std::endl;
+			}
+			serializeJsonField(fdt->type_,fdt->name_,fdt->name_);
+			srcFile_<<"<<\",\";"<<std::endl;
+		}
+	}
+	indent_down();
+	srcFile_<<indent()<<"__json__<<\"}\";"<<std::endl;
+}
+
 
 void CppGenerator::deSerializeFields( StructDefType* t )
 {

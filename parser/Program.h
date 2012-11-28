@@ -55,6 +55,7 @@ public:
 		static Program p;
 		return &p;
 	}
+	Program():json_(false){}
 
 	EnumVector			enums_;
 	StructVector		structs_;
@@ -67,5 +68,6 @@ public:
 	std::string			baseName_; //文件名
 	std::string			inputDir_;	//<输入目录
 	std::string			outputDir_; //<输出文件目录
+	bool				json_;		//<序列化json
 };
 #endif

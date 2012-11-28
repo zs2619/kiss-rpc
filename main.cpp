@@ -69,6 +69,10 @@ int main(int argc,char** argv)
 	  {
 		  genStr=argv[++i];
 	  }
+	  else if (strcmp(argv[i], "-json") ==0 )
+	  {
+		  Program::inst()->json_=true;
+	  }
 	}
 	if (argv[i] == NULL) {
 		fprintf(stderr, "Missing file name\n");
