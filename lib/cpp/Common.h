@@ -21,4 +21,9 @@ typedef signed	 int 	int32;
 
 typedef signed	 long long 	int64;
 typedef unsigned long  long uint64;
+
+#include <string>
+#include <map>
+#include <sstream>
+#include <vector>
 #endif
