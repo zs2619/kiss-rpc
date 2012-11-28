@@ -30,6 +30,7 @@ void usage()
   fprintf(stderr, "  -o dir     output file directory\n");
   fprintf(stderr, "  -i dir     input  file directory\n");
   fprintf(stderr, "  -gen STR   cpp;as3 Generate code .\n");
+  fprintf(stderr, "  -json		cpp serialize json.\n");
   exit(0);
 }
 void split(std::string& s, const std::string& delim,std::vector< std::string >& ret)
