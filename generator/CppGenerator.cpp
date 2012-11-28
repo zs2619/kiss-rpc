@@ -223,16 +223,19 @@ void CppGenerator::generateStructSrc()
 
 		srcFile_<<"}//deSerialize "<<std::endl;
 
-		//序列化json
-		srcFile_<<std::endl;
-		srcFile_<<indent()<<"//serialize"<<std::endl;
-		srcFile_<<indent()<<"void "<<(*it)->name_<<"::serializeJson(std::stringstream& __json__)"<<std::endl;
-		srcFile_<<"{ "<<std::endl;
-		it_inner=(*it)->members_.begin();
-		indent_up();
-		serializeJsonFields(*it);
-		indent_down();
-		srcFile_<<"}// serializeJson"<<std::endl;
+		if (Program::inst()->json_)
+		{
+			//序列化json
+			srcFile_<<std::endl;
+			srcFile_<<indent()<<"//serialize"<<std::endl;
+			srcFile_<<indent()<<"void "<<(*it)->name_<<"::serializeJson(std::stringstream& __json__)"<<std::endl;
+			srcFile_<<"{ "<<std::endl;
+			it_inner=(*it)->members_.begin();
+			indent_up();
+			serializeJsonFields(*it);
+			indent_down();
+			srcFile_<<"}// serializeJson"<<std::endl;
+		}
 
 		srcFile_<<std::endl;
 		++it;
