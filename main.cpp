@@ -10,7 +10,13 @@
 #include <string>
 #include <assert.h>
 #include <stdarg.h>
-#include <direct.h>
+#include <errno.h>
+
+#if defined(WIN32)
+	#include <direct.h>
+#else 
+	#include <sys/stat.h>
+#endif
 
 #include "parser/Global.h"
 extern int yyparse();
@@ -60,7 +66,12 @@ int main(int argc,char** argv)
 	  {
 		Program::inst()->outputDir_=argv[++i];
 		Program::inst()->outputDir_+="/";
-		mkdir(Program::inst()->outputDir_.c_str());
+
+#if defined(WIN32)
+		_mkdir(Program::inst()->outputDir_.c_str());
+#else 
+		mkdir(Program::inst()->outputDir_.c_str(), 0777);
+#endif
       } else if (strcmp(argv[i], "-i") == 0)
 	  {
 		Program::inst()->inputDir_=argv[++i];

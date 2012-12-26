@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
-#include "global.h"
+#include "Global.h"
 std::string curFileName;
 void yyerror(const char* fmt, ...) {
 	va_list args;

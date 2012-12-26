@@ -11,10 +11,10 @@
 
 #include <vector>
 #include <assert.h>
+#include <string>
 class	EnumDefType;
 class	StructDefType;
 class	ServiceDefType;
-class   Program;
 
 template <typename T>
 class DefVector
@@ -22,7 +22,7 @@ class DefVector
 public:
 	bool findDefByName(const std::string& name)
 	{
-		std::vector<T>::iterator it=defs_.begin();
+		typename std::vector<T>::iterator it=defs_.begin();
 		while(it!=defs_.end())
 		{
 			if((*it)->name_==name)
@@ -31,14 +31,7 @@ public:
 		}
 		return false;
 	}
-	bool addDef(T	t)
-	{
-		assert(t);
-		if(Program::inst()->findDefByName(t->name_))
-			return false;
-		defs_.push_back(t);
-		return true;
-	}
+	bool addDef(T	t);
 
 	std::vector<T>   defs_;
 };
@@ -70,4 +63,14 @@ public:
 	std::string			outputDir_; //<输出文件目录
 	bool				json_;		//<序列化json
 };
+
+template <typename T>
+bool DefVector<T>::addDef(T	t)
+{
+	assert(t);
+	if(Program::inst()->findDefByName(t->name_))
+		return false;
+	defs_.push_back(t);
+	return true;
+}
 #endif
