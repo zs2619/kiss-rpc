@@ -101,14 +101,14 @@ Service: tok_service tok_identifier '{' Functions '}' ';'
 			$4->fileName_=curFileName;
 			if(!Program::inst()->services_.addDef($4))
 			{
-				yyerror("service name repeat: \"%s\"\n", $2);
+				yyerror("service name repeat: \"%s\"\n", (*$2).c_str());
 			}
 		}
 Functions: Functions Function 
 		{
 			if(!$$->addFunciton($2))
 			{
-				yyerror("fun name repeat: \"%s\"\n", $2->name_);
+				yyerror("fun name repeat: \"%s\"\n", $2->name_.c_str());
 			}
 		}
 		|Function 
@@ -116,7 +116,7 @@ Functions: Functions Function
 			$$=new ServiceDefType;
 			if(!$$->addFunciton($1))
 			{
-				yyerror("fun name repeat: \"%s\"\n", $1->name_);
+				yyerror("fun name repeat: \"%s\"\n", $1->name_.c_str());
 			}
 		}
 
@@ -132,7 +132,7 @@ FunctionFieldList: FunctionFieldList FunctionField
 			 $$=$1;
 			if(!$$->addStructValue($2))
 			{
-				yyerror("fun argument repeat: \"%s\"\n", $2);
+				yyerror("fun argument repeat: \"%s\"\n", (*$2).name_.c_str());
 			}
 		}
 		|FunctionField
@@ -140,7 +140,7 @@ FunctionFieldList: FunctionFieldList FunctionField
 			$$ = new StructDefType;
 			if(!$$->addStructValue($1))
 			{
-				yyerror("fun argument repeat: \"%s\"\n", $1);
+				yyerror("fun argument repeat: \"%s\"\n", (*$1).name_.c_str());
 			}
 		}
 		|
@@ -161,7 +161,7 @@ Struct: tok_struct tok_identifier  '{' StructFieldList '}' ';'
 			$4->fileName_=curFileName;
 			if(!Program::inst()->structs_.addDef($4))
 			{
-				yyerror("struct name repeat: \"%s\"\n", $2);
+				yyerror("struct name repeat: \"%s\"\n", (*$2).c_str());
 			}
 		}
 StructFieldList: StructFieldList	StructField
@@ -169,7 +169,7 @@ StructFieldList: StructFieldList	StructField
 			 $$=$1;
 			if(!$$->addStructValue($2))
 			{
-				yyerror("struct value repeat: \"%s\"\n", $1);
+				yyerror("struct value repeat: \"%s\"\n", (*$1).name_.c_str());
 			}
 		 }
 		|StructField
@@ -178,7 +178,7 @@ StructFieldList: StructFieldList	StructField
 
 			if(!$$->addStructValue($1))
 			{
-				yyerror("struct value repeat: \"%s\"\n", $1);
+				yyerror("struct value repeat: \"%s\"\n", (*$1).name_.c_str());
 			}
 		}
 StructField: FieldType tok_identifier Separator
@@ -204,7 +204,7 @@ FieldType: tok_identifier
 				}
 				else
 				{
-					yyerror("no define: \"%s\"\n", $1);
+					yyerror("no define: \"%s\"\n", (*$1).c_str());
 				}
 			}
 			| SimpleDefType 
@@ -242,7 +242,7 @@ ValueType: tok_identifier
 			 $$->name_=*$1;
 			 if(!Program::inst()->structs_.findDefByName($$->name_))
 			 {
-				yyerror("struct no define: \"%s\"\n", $1);
+				yyerror("struct no define: \"%s\"\n", (*$1).c_str());
 			 }
 		 }
 		 |SimpleDefType 
@@ -256,7 +256,7 @@ Enum: tok_enum	tok_identifier '{'EnumFieldList'}' ';'
 			$4->fileName_=curFileName;
 			if(!Program::inst()->enums_.addDef($4))
 			{
-				yyerror("enum name repeat: \"%s\"\n", $2);
+				yyerror("enum name repeat: \"%s\"\n", (*$2).c_str());
 			}
 		}
 EnumFieldList: EnumFieldList EnumValue 
@@ -264,7 +264,7 @@ EnumFieldList: EnumFieldList EnumValue
 			$$=$1;
 			if(!$$->addEnumValue(*$2))
 			{
-				yyerror("enum value repeat: \"%s\"\n", $2);
+				yyerror("enum value repeat: \"%s\"\n", (*$2).c_str());
 			}
 		}
 		|EnumValue
@@ -272,7 +272,7 @@ EnumFieldList: EnumFieldList EnumValue
 			$$ = new EnumDefType;
 			if(!$$->addEnumValue(*$1))
 			{
-				yyerror("enum value repeat: \"%s\"\n", $1);
+				yyerror("enum value repeat: \"%s\"\n", (*$1).c_str());
 			}
 		}
 EnumValue:tok_identifier ','
