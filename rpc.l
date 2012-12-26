@@ -38,7 +38,7 @@ void switchBuf(const char* s)
 	}
 
 	yy_switch_to_buffer( yy_create_buffer( yyin, YY_BUF_SIZE ) );
-	BEGIN(INITIAL);
+	BEGIN(0);
 }
      
 %}

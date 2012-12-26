@@ -11,6 +11,8 @@
 #include <assert.h>
 #include <stdarg.h>
 #include <errno.h>
+#include <string.h>
+#include <stdlib.h>
 
 #if defined(WIN32)
 	#include <direct.h>
