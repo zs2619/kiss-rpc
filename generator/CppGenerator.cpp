@@ -319,7 +319,7 @@ std::string CppGenerator::typeName(DefType* t,bool isAgr)
 			{
 				if (isAgr)
 				{
-					return "std::string&";
+					return "const std::string&";
 				}
 				else
 				{
@@ -462,6 +462,10 @@ void CppGenerator::serializeJsonField( DefType* t ,const std::string& key, const
 		srcFile_<<indent()<<"}//for"<<std::endl;
 		indent_down();
 		srcFile_<<indent()<<"__json__<<\"]\"";
+	} 
+	else if (t->is_enum())
+	{
+		srcFile_<<indent()<<"__json__<<\"\\\""<<key<<"\\\":\""<<"<<int32("<<value<<")";
 	}
 }
 void CppGenerator::serializeField( DefType* t ,const std::string& fieldName )
@@ -962,7 +966,6 @@ void CppGenerator::serializeJsonFields( StructDefType* t )
 			serializeJsonField(fdt->type_,fdt->name_,fdt->name_);
 			if ((fdt->type_)->is_struct())
 			{
-				srcFile_<<std::endl<<indent()<<"__json__<<;"<<std::endl;
 				indent_down();
 			}
 			else
