@@ -20,16 +20,16 @@ template <typename T>
 class DefVector
 {
 public:
-	bool findDefByName(const std::string& name)
+	T findDefByName(const std::string& name)
 	{
 		typename std::vector<T>::iterator it=defs_.begin();
 		while(it!=defs_.end())
 		{
 			if((*it)->name_==name)
-				return true;
+				return *it;
 			++it;
 		}
-		return false;
+		return NULL;
 	}
 	bool addDef(T	t);
 

@@ -6,6 +6,7 @@
 */
 //==============================================
 #include "CppGenerator.h"
+#include "../md5.h"
 
 CppGenerator::CppGenerator( Program* pro,const std::string& name ) :Generator(pro,name)
 {
@@ -120,6 +121,8 @@ void CppGenerator::generateStructHeader()
 		//构造 析构函数
 		headerFile_<<indent()<<(*it)->name_<<"();"<<std::endl;
 		headerFile_<<indent()<<"virtual ~"<<(*it)->name_<<"();"<<std::endl;
+		//fingerprint
+		headerFile_<<indent()<<"static const char* strFingerprint;"<<std::endl;
 
 		//属性
 		std::vector<FieldDefType*>::iterator it_inner=(*it)->members_.begin();
@@ -159,6 +162,7 @@ void CppGenerator::generateStructSrc()
 {
 	if (program_->structs_.defs_.empty())
 		return;
+
 	std::vector<StructDefType*>::iterator it=program_->structs_.defs_.begin();
 	std::vector<StructDefType*>::iterator it_end=program_->structs_.defs_.end();
 	while(it!=it_end)
@@ -167,6 +171,9 @@ void CppGenerator::generateStructSrc()
 		{
 			++it; continue; 
 		}	
+		//fingerprint
+		srcFile_<<indent()<<"const char* "<<(*it)->name_<<"::"<<"strFingerprint=\""<<md5((*it)->getFingerPrint())<<"\""<<std::endl;
+
 		srcFile_<<indent()<<(*it)->name_<<"::"<<(*it)->name_<<"()"<<std::endl;
 		std::vector<FieldDefType*>::iterator it_inner;
 		it_inner=(*it)->members_.begin();
@@ -707,6 +714,9 @@ void CppGenerator::genServiceStubHeader()
 		headerFile_<<"public: "<<std::endl;
 		indent_up();
 
+		//fingerprint
+		headerFile_<<indent()<<"static const char* strFingerprint;"<<std::endl;
+
 		headerFile_<<indent()<<"enum {"<<std::endl;
 		indent_up();
 		std::vector<FuctionDefType*>::iterator it_inner=(*it)->funs_.begin();
@@ -746,6 +756,8 @@ void CppGenerator::genServiceStubSrc()
 		{
 			++it; continue; 
 		}
+		//fingerprint
+		srcFile_<<indent()<<"const char* "<<(*it)->name_<<"Stub::"<<"strFingerprint=\""<<md5((*it)->getFingerPrint())<<"\""<<std::endl;
 		int i=0;
 		std::vector<FuctionDefType*>::iterator it_inner=(*it)->funs_.begin();
 		while(it_inner!=(*it)->funs_.end())
@@ -786,6 +798,10 @@ void CppGenerator::genServiceProxyHeader()
 		headerFile_<<indent()<<"{ "<<std::endl;
 		headerFile_<<indent()<<"public: "<<std::endl;
 		indent_up();
+
+		//fingerprint
+		headerFile_<<indent()<<"static const char* strFingerprint;"<<std::endl;
+
 		//构造 析构函数
 		headerFile_<<indent()<<className<<"(IProtocol* p=NULL):__P__(p){}"<<std::endl;
 		headerFile_<<indent()<<"virtual ~"<<className<<"(){}"<<std::endl;
@@ -817,6 +833,8 @@ void CppGenerator::genServiceProxySrc()
 		{
 			++it; continue; 
 		}
+		//fingerprint
+		srcFile_<<indent()<<"const char* "<<(*it)->name_<<"Proxy::"<<"strFingerprint=\""<<md5((*it)->getFingerPrint())<<"\""<<std::endl;
 		//dispatch
 		std::string className=(*it)->name_+"Proxy";
 		srcFile_<<indent()<<"bool "<<className<<"::dispatch(IProtocol* __P__,"<<className<<"* __C__)"<<std::endl;

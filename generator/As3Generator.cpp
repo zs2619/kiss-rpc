@@ -6,6 +6,7 @@
 */
 //==============================================
 #include "As3Generator.h"
+#include "../md5.h"
 
 void As3Generator::generateProgram()
 {
@@ -163,6 +164,8 @@ void As3Generator::generateStruct()
 
 		//属性
 		indent_up();
+		as3File_<<indent()<<"public static const strFingerprint:String=\""<<md5((*it)->getFingerPrint())<<"\";"<<std::endl;
+
 		as3File_<<indent()<<"//prop"<<std::endl;
 		std::vector<FieldDefType*>::iterator it_inner=(*it)->members_.begin();
 		while(it_inner!=(*it)->members_.end())
@@ -467,6 +470,8 @@ void As3Generator::genServiceStub()
 		as3File_<<indent()<<"public class "<<className<<std::endl;
 		as3File_<<indent()<<"{ "<<std::endl;
 		indent_up();
+
+		as3File_<<indent()<<"public const static strFingerprint:String=\""<<md5((*it)->getFingerPrint())<<"\";"<<std::endl;
 		//属性
 		as3File_<<indent()<<"public var __P__:IProtocol ;"<<std::endl;
 		//构造函数
@@ -528,6 +533,7 @@ void As3Generator::genServiceProxy()
 		as3File_<<indent()<<"public class "<<className<<std::endl;
 		as3File_<<indent()<<"{ "<<std::endl;
 		indent_up();
+		as3File_<<indent()<<"public static const strFingerprint:String=\""<<md5((*it)->getFingerPrint())<<"\";"<<std::endl;
 		//属性
 		std::string IFName="I"+(*it)->name_+"Proxy";
 		as3File_<<indent()<<"public var __I__:"<<IFName <<" ;"<<std::endl;
@@ -621,6 +627,7 @@ void As3Generator::genServiceProxyIf()
 		as3File_<<indent()<<"public interface "<<className<<std::endl;
 		as3File_<<indent()<<"{ "<<std::endl;
 		indent_up();
+		as3File_<<indent()<<"public static const strFingerprint:String=\""<<md5((*it)->getFingerPrint())<<"\";"<<std::endl;
 		//interface 
 		as3File_<<indent()<<"//interface "<<std::endl;
 		int i=0;
