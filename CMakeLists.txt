@@ -16,6 +16,7 @@ SET(HEADER_FILES
 	generator/CppGenerator.h
 	generator/Generator.h
 	rpc.tab.hpp
+	md5.h
 	)
 SET(SRC_FILES
 	parser/DefType.cpp
@@ -26,6 +27,7 @@ SET(SRC_FILES
 	generator/Generator.cpp
 	lex.yy.cpp 
  	rpc.tab.cpp
+	md5.cpp
 	main.cpp
 	)
 ADD_EXECUTABLE(rpc ${SRC_FILES} )
