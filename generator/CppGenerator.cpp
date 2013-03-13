@@ -172,7 +172,7 @@ void CppGenerator::generateStructSrc()
 			++it; continue; 
 		}	
 		//fingerprint
-		srcFile_<<indent()<<"const char* "<<(*it)->name_<<"::"<<"strFingerprint=\""<<md5((*it)->getFingerPrint())<<"\""<<std::endl;
+		srcFile_<<indent()<<"const char* "<<(*it)->name_<<"::"<<"strFingerprint=\""<<md5((*it)->getFingerPrint())<<"\";"<<std::endl;
 
 		srcFile_<<indent()<<(*it)->name_<<"::"<<(*it)->name_<<"()"<<std::endl;
 		std::vector<FieldDefType*>::iterator it_inner;
@@ -757,7 +757,7 @@ void CppGenerator::genServiceStubSrc()
 			++it; continue; 
 		}
 		//fingerprint
-		srcFile_<<indent()<<"const char* "<<(*it)->name_<<"Stub::"<<"strFingerprint=\""<<md5((*it)->getFingerPrint())<<"\""<<std::endl;
+		srcFile_<<indent()<<"const char* "<<(*it)->name_<<"Stub::"<<"strFingerprint=\""<<md5((*it)->getFingerPrint())<<"\";"<<std::endl;
 		int i=0;
 		std::vector<FuctionDefType*>::iterator it_inner=(*it)->funs_.begin();
 		while(it_inner!=(*it)->funs_.end())
@@ -834,7 +834,7 @@ void CppGenerator::genServiceProxySrc()
 			++it; continue; 
 		}
 		//fingerprint
-		srcFile_<<indent()<<"const char* "<<(*it)->name_<<"Proxy::"<<"strFingerprint=\""<<md5((*it)->getFingerPrint())<<"\""<<std::endl;
+		srcFile_<<indent()<<"const char* "<<(*it)->name_<<"Proxy::"<<"strFingerprint=\""<<md5((*it)->getFingerPrint())<<"\";"<<std::endl;
 		//dispatch
 		std::string className=(*it)->name_+"Proxy";
 		srcFile_<<indent()<<"bool "<<className<<"::dispatch(IProtocol* __P__,"<<className<<"* __C__)"<<std::endl;

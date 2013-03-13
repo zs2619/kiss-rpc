@@ -627,7 +627,6 @@ void As3Generator::genServiceProxyIf()
 		as3File_<<indent()<<"public interface "<<className<<std::endl;
 		as3File_<<indent()<<"{ "<<std::endl;
 		indent_up();
-		as3File_<<indent()<<"public static const strFingerprint:String=\""<<md5((*it)->getFingerPrint())<<"\";"<<std::endl;
 		//interface 
 		as3File_<<indent()<<"//interface "<<std::endl;
 		int i=0;
