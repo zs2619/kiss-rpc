@@ -471,7 +471,7 @@ void As3Generator::genServiceStub()
 		as3File_<<indent()<<"{ "<<std::endl;
 		indent_up();
 
-		as3File_<<indent()<<"public const static strFingerprint:String=\""<<md5((*it)->getFingerPrint())<<"\";"<<std::endl;
+		as3File_<<indent()<<"public static const  strFingerprint:String=\""<<md5((*it)->getFingerPrint())<<"\";"<<std::endl;
 		//属性
 		as3File_<<indent()<<"public var __P__:IProtocol ;"<<std::endl;
 		//构造函数
