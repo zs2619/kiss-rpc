@@ -978,7 +978,7 @@ void CppGenerator::serializeJsonFields( StructDefType* t )
 		{
 			if ((fdt->type_)->is_struct())
 			{
-				srcFile_<<indent()<<"__json__<<\"\\\"\\\""<<fdt->name_<<"\\\"\\\":\";"<<std::endl;
+				srcFile_<<indent()<<"__json__<<\"\\\""<<fdt->name_<<"\\\":\";"<<std::endl;
 				indent_up();
 			}
 			serializeJsonField(fdt->type_,fdt->name_,fdt->name_);
