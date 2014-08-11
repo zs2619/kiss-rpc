@@ -26,7 +26,9 @@ extern FILE* yyin;
 #include "generator/Generator.h"
 #include "generator/As3Generator.h"
 #include "generator/CppGenerator.h"
+#include "generator/CSharpGenerator.h"
 #include "parser/Program.h"
+
 
 /**		照抄thrift 
 		前端和后端有引用 以后需要重构!!!!
@@ -139,6 +141,10 @@ int main(int argc,char** argv)
 		{
 			Generator* as3=new As3Generator(Program::inst(),"as3");
 			as3->generateProgram();
+		}else if(*it=="cs")
+		{
+			Generator* cs=new CSharpGenerator(Program::inst(),"cs");
+			cs->generateProgram();
 		}
 		++it;
 	}

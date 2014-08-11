@@ -30,6 +30,12 @@
     <Filter Include="lib\as3">
       <UniqueIdentifier>{fc7ea889-88b7-45f2-b4a3-398a85221cf0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="generator\cshape">
+      <UniqueIdentifier>{2b88631d-a57c-4cff-b277-8f6cb0ec0384}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lib\cshape">
+      <UniqueIdentifier>{036c0cd5-0883-4547-ab0f-2bff077d13f2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="generator\Generator.cpp">
@@ -63,6 +69,9 @@
       <Filter>parser\src</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="generator\CSharpGenerator.cpp">
+      <Filter>generator\cshape</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="generator\Generator.h">
@@ -101,10 +110,16 @@
     <ClInclude Include="md5.h">
       <Filter>parser\include</Filter>
     </ClInclude>
+    <ClInclude Include="generator\CSharpGenerator.h">
+      <Filter>generator\cshape</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="lib\as3\IProtocol.as">
       <Filter>lib\as3</Filter>
+    </None>
+    <None Include="lib\csharp\IProtocol.cs">
+      <Filter>lib\cshape</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

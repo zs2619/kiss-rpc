@@ -97,6 +97,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="generator\CSharpGenerator.cpp" />
     <ClCompile Include="generator\Generator.cpp" />
     <ClCompile Include="generator\CppGenerator.cpp" />
     <ClCompile Include="generator\As3Generator.cpp" />
@@ -113,6 +114,7 @@
     <ClCompile Include="md5.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="generator\CSharpGenerator.h" />
     <ClInclude Include="generator\Generator.h" />
     <ClInclude Include="generator\CppGenerator.h" />
     <ClInclude Include="generator\As3Generator.h" />
@@ -146,6 +148,7 @@
 </Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">rpc.tab.cpp rpc.tab.hpp;%(Outputs)</Outputs>
     </CustomBuild>
+    <None Include="lib\csharp\IProtocol.cs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
