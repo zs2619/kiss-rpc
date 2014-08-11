@@ -1,0 +1,114 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="generator">
+      <UniqueIdentifier>{89108f8a-2ffe-464d-9dd9-6a266d23e666}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="generator\cpp">
+      <UniqueIdentifier>{0fb4b862-e5d3-41cb-acda-4348ad0e0e0f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="generator\as3">
+      <UniqueIdentifier>{23f67e2c-e045-4fca-9955-945fd33cd46f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="parser">
+      <UniqueIdentifier>{fc723bf5-3d75-4ab7-8f8d-0075a5d3d030}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="parser\include">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="parser\src">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="lib">
+      <UniqueIdentifier>{03b02734-4f66-4780-93d0-6ed6c4de5e85}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lib\cpp">
+      <UniqueIdentifier>{81fa1209-c89b-4c4e-90ef-68d75d143038}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lib\as3">
+      <UniqueIdentifier>{fc7ea889-88b7-45f2-b4a3-398a85221cf0}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="generator\Generator.cpp">
+      <Filter>generator</Filter>
+    </ClCompile>
+    <ClCompile Include="generator\CppGenerator.cpp">
+      <Filter>generator\cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="generator\As3Generator.cpp">
+      <Filter>generator\as3</Filter>
+    </ClCompile>
+    <ClCompile Include="parser\DefType.cpp">
+      <Filter>parser\src</Filter>
+    </ClCompile>
+    <ClCompile Include="parser\Global.cpp">
+      <Filter>parser\src</Filter>
+    </ClCompile>
+    <ClCompile Include="lex.yy.cpp">
+      <Filter>parser\src</Filter>
+    </ClCompile>
+    <ClCompile Include="parser\Program.cpp">
+      <Filter>parser\src</Filter>
+    </ClCompile>
+    <ClCompile Include="rpc.tab.cpp">
+      <Filter>parser\src</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\cpp\IBinProtocol.cpp">
+      <Filter>lib\cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="md5.cpp">
+      <Filter>parser\src</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="generator\Generator.h">
+      <Filter>generator</Filter>
+    </ClInclude>
+    <ClInclude Include="generator\CppGenerator.h">
+      <Filter>generator\cpp</Filter>
+    </ClInclude>
+    <ClInclude Include="generator\As3Generator.h">
+      <Filter>generator\as3</Filter>
+    </ClInclude>
+    <ClInclude Include="parser\DefType.h">
+      <Filter>parser\include</Filter>
+    </ClInclude>
+    <ClInclude Include="parser\Global.h">
+      <Filter>parser\include</Filter>
+    </ClInclude>
+    <ClInclude Include="parser\Program.h">
+      <Filter>parser\include</Filter>
+    </ClInclude>
+    <ClInclude Include="rpc.tab.hpp">
+      <Filter>parser\include</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\cpp\Common.h">
+      <Filter>lib\cpp</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\cpp\EnumMap.h">
+      <Filter>lib\cpp</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\cpp\IBinProtocol.h">
+      <Filter>lib\cpp</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\cpp\IProtocol.h">
+      <Filter>lib\cpp</Filter>
+    </ClInclude>
+    <ClInclude Include="md5.h">
+      <Filter>parser\include</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="lib\as3\IProtocol.as">
+      <Filter>lib\as3</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="rpc.l" />
+    <CustomBuild Include="rpc.y" />
+  </ItemGroup>
+</Project>
