@@ -1,3 +1,7 @@
+%option noyywrap
+%option lex-compat
+%option never-interactive
+
 identifier    ([a-zA-Z_][a-zA-Z_0-9]*)
 fileName	  ([a-zA-Z_0-9\.]*)
 %{
@@ -42,8 +46,7 @@ void switchBuf(const char* s)
 }
      
 %}
-%option noyywrap
-%option lex-compat
+
 
 whitespace    ([ \t\r\n]*)
 sillycomm     ("/*""*"*"*/")
