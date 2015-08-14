@@ -103,6 +103,7 @@
     <ClCompile Include="generator\Generator.cpp" />
     <ClCompile Include="generator\CppGenerator.cpp" />
     <ClCompile Include="generator\As3Generator.cpp" />
+    <ClCompile Include="generator\GoGenerator.cpp" />
     <ClCompile Include="parser\DefType.cpp" />
     <ClCompile Include="parser\Global.cpp" />
     <ClCompile Include="lex.yy.cpp">
@@ -120,6 +121,8 @@
     <ClInclude Include="generator\Generator.h" />
     <ClInclude Include="generator\CppGenerator.h" />
     <ClInclude Include="generator\As3Generator.h" />
+    <ClInclude Include="generator\GoGenerator.h" />
+    <ClInclude Include="misc.h" />
     <ClInclude Include="parser\DefType.h" />
     <ClInclude Include="parser\Global.h" />
     <ClInclude Include="parser\Program.h" />

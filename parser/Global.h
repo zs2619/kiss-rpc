@@ -11,6 +11,9 @@
 
 #include <string>
 
+extern int yyparse();
+extern FILE* yyin;
+
 void yyerror(const char* fmt, ...);
 extern int yylex();
 extern int   yylineno;

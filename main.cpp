@@ -14,21 +14,16 @@
 #include <string.h>
 #include <stdlib.h>
 
-#if defined(WIN32)
-	#include <direct.h>
-#else 
-	#include <sys/stat.h>
-#endif
 
 #include "parser/Global.h"
-extern int yyparse();
-extern FILE* yyin;
 #include "generator/Generator.h"
 #include "generator/As3Generator.h"
 #include "generator/CppGenerator.h"
 #include "generator/CSharpGenerator.h"
+#include "generator/GoGenerator.h"
 #include "parser/Program.h"
 
+#include "misc.h"
 
 /**		照抄thrift 
 		前端和后端有引用 以后需要重构!!!!
@@ -71,11 +66,8 @@ int main(int argc,char** argv)
 		Program::inst()->outputDir_=argv[++i];
 		Program::inst()->outputDir_+="/";
 
-#if defined(WIN32)
-		_mkdir(Program::inst()->outputDir_.c_str());
-#else 
-		mkdir(Program::inst()->outputDir_.c_str(), 0777);
-#endif
+		misc::mkdir(Program::inst()->outputDir_.c_str());
+
       } else if (strcmp(argv[i], "-i") == 0)
 	  {
 		Program::inst()->inputDir_=argv[++i];
@@ -127,26 +119,28 @@ int main(int argc,char** argv)
 	} catch (std::string x) {
 		printf(x.c_str());
 	}
-	/**后端生成代码*/
 
-	std::vector<std::string>::iterator it= gen.begin();
-	while(it!=gen.end())
+	/**后端生成代码*/
+	for (auto& it:gen)
 	{
-		if (*it=="cpp")
+		if (it=="cpp")
 		{
 			Generator* cpp=new CppGenerator(Program::inst(),"cpp");
 			cpp->generateProgram();
 		}
-		else if(*it=="as3")
+		else if(it=="as3")
 		{
 			Generator* as3=new As3Generator(Program::inst(),"as3");
 			as3->generateProgram();
-		}else if(*it=="cs")
+		}else if(it=="cs")
 		{
 			Generator* cs=new CSharpGenerator(Program::inst(),"cs");
 			cs->generateProgram();
+		}else if(it=="go")
+		{
+			Generator* go=new GoGenerator(Program::inst(),"go");
+			go->generateProgram();
 		}
-		++it;
 	}
 	return 0;
 }

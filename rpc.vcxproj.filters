@@ -36,6 +36,9 @@
     <Filter Include="lib\cshape">
       <UniqueIdentifier>{036c0cd5-0883-4547-ab0f-2bff077d13f2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="generator\go">
+      <UniqueIdentifier>{04646b62-e317-4059-9900-9dfd985aa8c2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="generator\Generator.cpp">
@@ -71,6 +74,9 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="generator\CSharpGenerator.cpp">
       <Filter>generator\cshape</Filter>
+    </ClCompile>
+    <ClCompile Include="generator\GoGenerator.cpp">
+      <Filter>generator\go</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -113,6 +119,10 @@
     <ClInclude Include="generator\CSharpGenerator.h">
       <Filter>generator\cshape</Filter>
     </ClInclude>
+    <ClInclude Include="generator\GoGenerator.h">
+      <Filter>generator\go</Filter>
+    </ClInclude>
+    <ClInclude Include="misc.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="lib\as3\IProtocol.as">
