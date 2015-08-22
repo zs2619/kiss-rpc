@@ -24,6 +24,12 @@ private:
 	void	generateService();
 
 private:
+	std::string typeName(DefType* t);
+	void serializeField( DefType* t ,const std::string& fieldName );
+	void deSerializeField( DefType* t ,const std::string& fieldName );
+
+private:
+
 	std::ofstream	goFile_;
 };
 
