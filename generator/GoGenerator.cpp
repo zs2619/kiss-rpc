@@ -8,6 +8,7 @@
 #include "GoGenerator.h"
 #include "../md5.h"
 #include "../misc.h"
+#include <sstream>
 
 GoGenerator::GoGenerator( Program* pro,const std::string& name ) :Generator(pro,name)
 {
@@ -23,11 +24,14 @@ void GoGenerator::generateProgram()
 
 void GoGenerator::generateEnum()
 {
+	if (program_->enums_.defs_.empty())
+		return;
+
 	for(auto& it :program_->enums_.defs_)
 	{
 		if(it->fileName_!=program_->fileName_)
 		{
-			//这个代码是啥意思来 忘了?
+			 //包含头文件 不生成代码
 			 continue; 
 		}
 		//创建目录
@@ -36,7 +40,7 @@ void GoGenerator::generateEnum()
 
 		std::string name=dirName+it->name_+".go";
 		goFile_.open(name.c_str());
-		goFile_<<indent()<<"package "<<it->name_<<std::endl;
+		goFile_<<indent()<<"package "<<"rpc"<<std::endl;
 		goFile_<<indent()<<"const ("<<std::endl;
 		indent_up();
 
@@ -59,22 +63,21 @@ void GoGenerator::generateEnum()
 
 void GoGenerator::generateStruct()
 {
-	std::string name=program_->outputDir_+program_->baseName_+".go";
-	goFile_.open(name.c_str());
-	goFile_<<indent()<<"package "<<program_->baseName_<<std::endl;
-	//import package
-	goFile_<<"import("<<std::endl;
-	goFile_<<" \"IProtocol\""<<std::endl;
-	goFile_<<")"<<std::endl;
-
+	if (program_->structs_.defs_.empty())
+		return;
 
 	for(auto& it :program_->structs_.defs_)
 	{
 		if(it->fileName_!=program_->fileName_)
 		{
-			//这个代码是啥意思来 忘了?
+			//包含头文件 不生成代码
 			continue; 
 		}
+
+		std::string name=program_->outputDir_+it->name_+".go";
+		goFile_.open(name.c_str());
+		goFile_<<indent()<<"package "<<"rpc"<<std::endl;
+
 		///struct 
 		//fingerprint
 		goFile_<<std::endl;
@@ -99,22 +102,22 @@ void GoGenerator::generateStruct()
 		goFile_<<"}"<<std::endl;
 
 		//struct 序列化
-		goFile_<<indent()<<"func (this *"<<it->name_<<") Serialize(IProtocol __P__){"<<std::endl;
+		goFile_<<indent()<<"func (this *"<<it->name_<<") Serialize( __P__ IProtocol){"<<std::endl;
 		indent_up();
 		for(auto& inner:it->members_)
 		{
-			serializeField(inner->type_,inner->name_);
+			serializeField(inner->type_,"this."+inner->name_,"__P__");
 			goFile_<<std::endl;
 		}
 		indent_down();
 		goFile_<<"}"<<std::endl;
 
 		//struct 反序列化
-		goFile_<<indent()<<"func (this *"<<it->name_<<") DeSerialize(IProtocol __P__) bool{"<<std::endl;
+		goFile_<<indent()<<"func (this *"<<it->name_<<") DeSerialize( __P__ IProtocol) bool{"<<std::endl;
 		indent_up();
 		for(auto& inner:it->members_)
 		{
-			deSerializeField(inner->type_,inner->name_);
+			deSerializeField(inner->type_,"this."+inner->name_);
 			goFile_<<std::endl;
 		}
 		goFile_<<indent()<<"return true"<<std::endl;
@@ -123,21 +126,201 @@ void GoGenerator::generateStruct()
 		goFile_<<"}"<<std::endl;
 
 		goFile_<<std::endl;
+		goFile_.close();
 	}
-	goFile_.close();
 }
 
 void GoGenerator::generateService()
 {
+	genServiceStub();
+	genServiceProxy();
+}
+void GoGenerator::genServiceStub()
+{
+	if (program_->services_.defs_.empty())
+		return;
+	std::string fileName=program_->outputDir_+program_->baseName_+"Stub.go";
+	goFile_.open(fileName.c_str());
+	goFile_<<indent()<<"package "<<"rpc"<<std::endl;
+	goFile_<<std::endl;
+	for (auto& it:program_->services_.defs_)
+	{
+		if(it->fileName_!=program_->fileName_)
+		{
+			 //包含头文件 不生成代码
+			continue; 
+		}
+		//
+		goFile_<<indent()<<"const "<<it->name_<<"_"<<"strFingerprintStub=\""<<md5(it->getFingerPrint())<<"\""<<std::endl;
+		std::string ifName=it->name_+"Stub";
+		goFile_<<indent()<<"type "<<ifName<<" struct {"<<std::endl;
+		indent_up();
+		goFile_<<indent()<<"__P__ IProtocol"<<std::endl;
+		indent_down();
+		goFile_<<indent()<<"}"<<std::endl;
+		goFile_<<std::endl;
+		
+		//get id
+		goFile_<<indent()<<"func (this *"<<it->name_<<"Stub) GetFingerprint() string{"<<std::endl;
+		indent_up();
+		goFile_<<indent()<<"return "<<it->name_<<"_"<<"strFingerprintStub"<<std::endl;
+		indent_down();
+		goFile_<<indent()<<"}"<<std::endl;
+		
+		//stub func
+		int i=0;
+		for(auto& inner:it->funs_)
+		{
+			goFile_<<indent()<<"func (this *"<<it->name_<<"Stub) "<<inner->name_<<" (";
+			genFunAgrList(goFile_,inner->argrs_);
+			goFile_<<") {"<<std::endl;
+			indent_up();
+			goFile_<<std::endl;
+			goFile_<<indent()<<"this.__P__.WriteMsgBegin()"<<std::endl;
+			goFile_<<std::endl;
+			goFile_<<indent()<<"this.__P__.WriteUInt16("<<i++<<")"<<std::endl;
+			serializeFields(inner->argrs_);
+			goFile_<<std::endl;
+			goFile_<<indent()<<"this.__P__.WriteMsgEnd()"<<std::endl;
+			indent_down();
+			goFile_<<indent()<<"}"<<std::endl;
+		}
+
+		goFile_<<indent()<<std::endl;
+
+	}
+	goFile_.close();
+}
+void GoGenerator::genServiceProxy()
+{
+	if (program_->services_.defs_.empty())
+		return;
+
+	//接口文件
+	std::string fileName=program_->outputDir_+"I"+program_->baseName_+"Proxy.go";
+	goFile_.open(fileName.c_str());
+	goFile_<<indent()<<"package "<<"rpc"<<std::endl;
+	goFile_<<std::endl;
+	for (auto& it:program_->services_.defs_)
+	{
+		if(it->fileName_!=program_->fileName_)
+		{
+			//包含头文件 不生成代码
+			continue; 
+		}
+		std::string ifName="I"+it->name_+"Proxy";
+		goFile_<<indent()<<"type "<<ifName<<" interface {"<<std::endl;
+		indent_up();
+		for(auto& inner:it->funs_)
+		{
+			goFile_<<indent()<<inner->name_<<" (";
+			genFunAgrList(goFile_,inner->argrs_);
+			goFile_<<") bool";
+			goFile_<<std::endl;
+		}
+		indent_down();
+		goFile_<<indent()<<"}"<<std::endl;
+		goFile_<<std::endl;
+	}
+	goFile_.close();
+
+	//
+	fileName=program_->outputDir_+program_->baseName_+"Proxy.go";
+	goFile_.open(fileName.c_str());
+	goFile_<<indent()<<"package "<<"rpc"<<std::endl;
+	goFile_<<std::endl;
+	for (auto& it:program_->services_.defs_)
+	{
+		if(it->fileName_!=program_->fileName_)
+		{
+			//包含头文件 不生成代码
+			continue; 
+		}
+		std::string ifName=it->name_+"Proxy";
+		goFile_<<indent()<<"const "<<it->name_<<"_"<<"strFingerprintProxy=\""<<md5(it->getFingerPrint())<<"\""<<std::endl;
+		goFile_<<indent()<<"type "<<ifName<<" struct {"<<std::endl;
+		indent_up();
+		goFile_<<indent()<<"__I__ I"<<ifName<<std::endl;
+		indent_down();
+		goFile_<<indent()<<"}"<<std::endl;
+		goFile_<<std::endl;
+
+		//get id
+		goFile_<<indent()<<"func (this *"<<it->name_<<"Proxy) GetFingerprint() string{"<<std::endl;
+		indent_up();
+		goFile_<<indent()<<"return "<<it->name_<<"_"<<"strFingerprintProxy"<<std::endl;
+		indent_down();
+		goFile_<<indent()<<"}"<<std::endl;
+
+		//dispatch
+		goFile_<<indent()<<"func (this *"<<it->name_<<"Proxy) "<<"Dispatch"<<"(";
+		goFile_<<" __P__ IProtocol";
+		goFile_<<") bool {"<<std::endl;
+		indent_up();
+		goFile_<<indent()<<"id :=__P__.ReadUInt16()"<<std::endl;
+		goFile_<<indent()<<"switch id {"<<std::endl;
+		int i=0;
+		for(auto& it:it->funs_)
+		{
+			goFile_<<indent()<<"case "<<i++<<":"<<std::endl;
+			indent_up();
+			goFile_<<indent()<<"return "<<"this.recv_"<<it->name_<<"(__P__)"<<std::endl;
+			indent_down();
+		}
+		goFile_<<indent()<<"default:"<<std::endl;
+		goFile_<<indent()<<"	return false"<<std::endl;
+
+
+		goFile_<<indent()<<"}//switch "<<std::endl;
+
+		indent_down();
+		goFile_<<indent()<<"}//dispatch func"<<std::endl;
+
+		//func 
+		for(auto& inner:it->funs_)
+		{
+			goFile_<<indent()<<"func (this *"<<it->name_<<"Proxy) "<<"recv_"<<inner->name_<<" (";
+			goFile_<<" __P__ IProtocol ";
+			goFile_<<") bool {"<<std::endl;
+			indent_up();
+			goFile_<<std::endl;
+			deSerializeFields(inner->argrs_);
+
+			goFile_<<indent()<<"return this.__I__."<<inner->name_<<"(";
+			genFunAgrList(goFile_,inner->argrs_,true);
+			goFile_<<")"<<std::endl;
+
+			indent_down();
+			goFile_<<indent()<<"}"<<std::endl;
+		}
+
+	}
+	goFile_.close();
+
 
 }
-
-
-void GoGenerator::deSerializeField( DefType* t ,const std::string& fieldName )
+void GoGenerator::deSerializeFields( StructDefType* t )
+{
+	for (auto& it :t->members_)
+	{
+		goFile_<<indent()<<"var "<<it->name_<<" "<<typeName(it->type_)<<std::endl;
+		deSerializeField(it->type_,it->name_);
+		goFile_<<std::endl;
+	}
+}
+void GoGenerator::serializeFields( StructDefType* t )
+{
+	for (auto it:t->members_)
+	{
+		serializeField(it->type_,it->name_,"this.__P__");
+		goFile_<<std::endl;
+	}
+} 
+void GoGenerator::serializeField( DefType* t ,const std::string& fieldName ,const std::string& inner)
 {
 	if (t->is_struct())
 	{
-		goFile_<<indent()<<"if !"<<fieldName<<".deSerialize(__P__) {return false};"<<std::endl;
+		goFile_<<indent()<<fieldName<<".Serialize("<<inner<<")"<<std::endl;
 	}
 	else if (t->is_simple_type())
 	{
@@ -146,65 +329,182 @@ void GoGenerator::deSerializeField( DefType* t ,const std::string& fieldName )
 		{
 		case	SimpleDefType::boolType : 
 			{
-				goFile_<<indent()<<"if !"<<"__P__->readBool("<<fieldName<<") {return false};"<<std::endl;
+				goFile_<<indent()<<inner<<".WriteBool("<<fieldName<<")"<<std::endl;
 				break;
 			} 
 		case	SimpleDefType::uint8Type : 
 			{
-				goFile_<<indent()<<"if !"<<"__P__->readUInt8("<<fieldName<<") {return false};"<<std::endl;
+				goFile_<<indent()<<inner<<".WriteUInt8("<<fieldName<<")"<<std::endl;
 				break;
 			} 
 		case	SimpleDefType::int8Type : 
 			{
-				goFile_<<indent()<<"if !"<<"__P__->readInt8("<<fieldName<<") {return false};"<<std::endl;
+				goFile_<<indent()<<inner<<".WriteInt8("<<fieldName<<")"<<std::endl;
 				break;
 			} 
 		case	SimpleDefType::uint16Type :
 			{
-				goFile_<<indent()<<"if !"<<"__P__->readUInt16("<<fieldName<<") {return false};"<<std::endl;
+				goFile_<<indent()<<inner<<".WriteUInt16("<<fieldName<<")"<<std::endl;
 				break;
 			} 
 		case	SimpleDefType::int16Type :
 			{
-				goFile_<<indent()<<"if !"<<"__P__->readInt16("<<fieldName<<") {return false}"<<std::endl;
+				goFile_<<indent()<<inner<<".WriteInt16("<<fieldName<<")"<<std::endl;
 				break;
 			} 
 		case	SimpleDefType::uint32Type :
 			{
-				goFile_<<indent()<<"if !"<<"__P__->readUInt32("<<fieldName<<") {return false};"<<std::endl;
+				goFile_<<indent()<<inner<<".WriteUInt32("<<fieldName<<")"<<std::endl;
 				break;
 			} 
 		case	SimpleDefType::int32Type :
 			{
-				goFile_<<indent()<<"if !"<<"__P__->readInt32("<<fieldName<<") {return false};"<<std::endl;
+				goFile_<<indent()<<inner<<".WriteInt32("<<fieldName<<")"<<std::endl;
 				break;
 			} 
 		case	SimpleDefType::int64Type :
 			{
-				goFile_<<indent()<<"if !"<<"__P__->readInt64("<<fieldName<<") {return false};"<<std::endl;
+				goFile_<<indent()<<inner<<".WriteInt64("<<fieldName<<")"<<std::endl;
 				break;
 			} 
 		case	SimpleDefType::floatType :
 			{
-				goFile_<<indent()<<"if !"<<"__P__->readFloat("<<fieldName<<") {return false};"<<std::endl;
+				goFile_<<indent()<<inner<<".WriteFloat("<<fieldName<<")"<<std::endl;
 				break;
 			} 
 		case	SimpleDefType::stringType :
 			{
-				goFile_<<indent()<<"if !"<<"__P__->readString("<<fieldName<<") {return false};"<<std::endl;
+				goFile_<<indent()<<inner<<".WriteString("<<fieldName<<")"<<std::endl;
+				break;
+			}
+
+		}
+	}
+	else if(t->is_array())
+	{
+		goFile_<<indent()<<inner<<".WriteUInt16(uint16(len("<<fieldName<<")))"<<std::endl;
+		goFile_<<indent()<<"for _ ,v := range "<<fieldName<<" {"<<std::endl;
+		indent_up();
+		serializeField(((ArrayDefType*)t)->valueDef_,"v",inner);
+		indent_down();
+		goFile_<<indent()<<"}"<<std::endl;
+
+	}else if (t->is_enum())
+	{
+		goFile_<<indent()<<inner<<".WriteInt16("<<fieldName<<")"<<std::endl;
+
+	}else if(t->is_map())
+	{
+	}
+}
+
+
+void GoGenerator::genFunAgrList( std::ofstream& stream,StructDefType* agrList,bool onlyValue)
+{
+	bool frist=true;
+	for (auto& it:agrList->members_)
+	{
+		if (frist)
+		{
+			if (onlyValue)
+			{
+				stream<<it->name_;
+			} 
+			else
+			{
+				stream<<" "<<it->name_<<"  "<<typeName(it->type_);
+			}
+			frist=false;
+		}
+		else
+		{
+			if (onlyValue)
+			{
+				stream<<", "<<it->name_;
+			} 
+			else
+			{
+				stream<<", "<<it->name_<<"  "<<typeName(it->type_);
+			}
+		}
+	}
+}
+
+
+
+void GoGenerator::deSerializeField( DefType* t ,const std::string& fieldName )
+{
+	if (t->is_struct())
+	{
+		goFile_<<indent()<<fieldName<<".DeSerialize(__P__)"<<std::endl;
+	}
+	else if (t->is_simple_type())
+	{
+		SimpleDefType* s=(SimpleDefType*)t;
+		switch (s->t_)
+		{
+		case	SimpleDefType::boolType : 
+			{
+				goFile_<<indent()<<fieldName<<"=__P__.ReadBool()"<<std::endl;
+				break;
+			} 
+		case	SimpleDefType::uint8Type : 
+			{
+				goFile_<<indent()<<fieldName<<"=__P__.ReadUInt8() "<<std::endl;
+				break;
+			} 
+		case	SimpleDefType::int8Type : 
+			{
+				goFile_<<indent()<<fieldName<<"=__P__.ReadInt8()"<<std::endl;
+				break;
+			} 
+		case	SimpleDefType::uint16Type :
+			{
+				goFile_<<indent()<<fieldName<<"=__P__.ReadUInt16()"<<std::endl;
+				break;
+			} 
+		case	SimpleDefType::int16Type :
+			{
+				goFile_<<indent()<<fieldName<<"=__P__.ReadInt16()"<<std::endl;
+				break;
+			} 
+		case	SimpleDefType::uint32Type :
+			{
+				goFile_<<indent()<<fieldName<<"=__P__.ReadUInt32()"<<std::endl;
+				break;
+			} 
+		case	SimpleDefType::int32Type :
+			{
+				goFile_<<indent()<<fieldName<<"=__P__.ReadInt32()"<<std::endl;
+				break;
+			} 
+		case	SimpleDefType::int64Type :
+			{
+				goFile_<<indent()<<fieldName<<"=__P__.ReadInt64()"<<std::endl;
+				break;
+			} 
+		case	SimpleDefType::floatType :
+			{
+				goFile_<<indent()<<fieldName<<"=__P__.ReadFloat()"<<std::endl;
+				break;
+			} 
+		case	SimpleDefType::stringType :
+			{
+				goFile_<<indent()<<fieldName<<"=__P__.ReadString()"<<std::endl;
 				break;
 			}
 		}
 	}
 	else if(t->is_array())
 	{
-		std::string size="_n_"+fieldName+"_array";
-		goFile_<<indent()<<size<<" :=0;"<<std::endl;
-		goFile_<<indent()<<"if !"<<"__P__->readUInt16("<<size<<") {return false};"<<std::endl;
+		static int i=0;
+		std::stringstream str;
+		str<<"_n_"<<i<<"_array";
+		goFile_<<indent()<<str.str()<<":=__P__.ReadUInt16()"<<std::endl;
+		std::stringstream count;count<<"_i_"<<i<<"_";
+		i++;
 
-		goFile_<<indent()<<fieldName<<".resize( "<<size<<");"<<std::endl;
-		std::string count="_i_"+fieldName+"_";
-		goFile_<<indent()<<"for (size_t "<<count<<"=0;"<<count<<"<"<<size<<";"<<count<<"++){"<<std::endl;
+		goFile_<<indent()<<"for "<<count.str()<<":=0; "<<"uint16("<<count.str()<<")<"<<str.str()<<"; "<<count.str()<<"++ {"<<std::endl;
 		indent_up();
 		goFile_<<indent()<<"var tmp "<<typeName(((ArrayDefType*)t)->valueDef_)<<std::endl;
 		deSerializeField(((ArrayDefType*)t)->valueDef_,"tmp");
@@ -214,10 +514,7 @@ void GoGenerator::deSerializeField( DefType* t ,const std::string& fieldName )
 
 	}else if (t->is_enum())
 	{
-		std::string tempName=" __temp_enum__"+fieldName;
-		goFile_<<indent()<<"int16 "<<tempName<<" =0;"<<std::endl;
-		goFile_<<indent()<<"if(!"<<"__P__->readInt16((int16&)"<<tempName<<")) {return false};"<<std::endl;
-		goFile_<<indent()<<fieldName<<"=("<<typeName(t)<<")"<<tempName<<";"<<std::endl;
+		goFile_<<indent()<<fieldName<<"=__P__.ReadInt16()"<<std::endl;
 
 	}else if(t->is_map())
 	{
@@ -225,88 +522,6 @@ void GoGenerator::deSerializeField( DefType* t ,const std::string& fieldName )
 }
 
 
-void GoGenerator::serializeField( DefType* t ,const std::string& fieldName )
-{
-	if (t->is_struct())
-	{
-		goFile_<<indent()<<fieldName<<".serialize(__P__);"<<std::endl;
-	}
-	else if (t->is_simple_type())
-	{
-		SimpleDefType* s=(SimpleDefType*)t;
-		switch (s->t_)
-		{
-		case	SimpleDefType::boolType : 
-			{
-				goFile_<<indent()<<"__P__.writeBool("<<fieldName<<");"<<std::endl;
-				break;
-			} 
-		case	SimpleDefType::uint8Type : 
-			{
-				goFile_<<indent()<<"__P__.writeUInt8("<<fieldName<<");"<<std::endl;
-				break;
-			} 
-		case	SimpleDefType::int8Type : 
-			{
-				goFile_<<indent()<<"__P__.writeInt8("<<fieldName<<");"<<std::endl;
-				break;
-			} 
-		case	SimpleDefType::uint16Type :
-			{
-				goFile_<<indent()<<"__P__.writeUInt16("<<fieldName<<");"<<std::endl;
-				break;
-			} 
-		case	SimpleDefType::int16Type :
-			{
-				goFile_<<indent()<<"__P__.writeInt16("<<fieldName<<");"<<std::endl;
-				break;
-			} 
-		case	SimpleDefType::uint32Type :
-			{
-				goFile_<<indent()<<"__P__.writeUInt32("<<fieldName<<");"<<std::endl;
-				break;
-			} 
-		case	SimpleDefType::int32Type :
-			{
-				goFile_<<indent()<<"__P__.writeInt32("<<fieldName<<");"<<std::endl;
-				break;
-			} 
-		case	SimpleDefType::int64Type :
-			{
-				goFile_<<indent()<<"__P__.writeInt64("<<fieldName<<");"<<std::endl;
-				break;
-			} 
-		case	SimpleDefType::floatType :
-			{
-				goFile_<<indent()<<"__P__.writeFloat("<<fieldName<<");"<<std::endl;
-				break;
-			} 
-		case	SimpleDefType::stringType :
-			{
-				goFile_<<indent()<<"__P__.writeString("<<fieldName<<");"<<std::endl;
-				break;
-			}
-
-		}
-	}
-	else if(t->is_array())
-	{
-		goFile_<<indent()<<"__P__.writeUInt16("<<fieldName<<".size());"<<std::endl;
-
-		goFile_<<indent()<<"for i,v :range "<<fieldName<<" {"<<std::endl;
-		indent_up();
-		serializeField(((ArrayDefType*)t)->valueDef_,"v");
-		indent_down();
-		goFile_<<indent()<<"}"<<std::endl;
-
-	}else if (t->is_enum())
-	{
-		goFile_<<indent()<<"__P__.writeInt16("<<fieldName<<");"<<std::endl;
-
-	}else if(t->is_map())
-	{
-	}
-}
 std::string GoGenerator::typeName(DefType* t)
 {
 	if(t->is_array())

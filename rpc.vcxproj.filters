@@ -39,6 +39,9 @@
     <Filter Include="generator\go">
       <UniqueIdentifier>{04646b62-e317-4059-9900-9dfd985aa8c2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="lib\go">
+      <UniqueIdentifier>{c7088765-0bc8-4982-a20d-ff7dce1803d4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="generator\Generator.cpp">
@@ -130,6 +133,18 @@
     </None>
     <None Include="lib\csharp\IProtocol.cs">
       <Filter>lib\cshape</Filter>
+    </None>
+    <None Include="lib\as3\BigInt.as">
+      <Filter>lib\as3</Filter>
+    </None>
+    <None Include="lib\as3\Protocol.as">
+      <Filter>lib\as3</Filter>
+    </None>
+    <None Include="lib\csharp\Protocol.cs">
+      <Filter>lib\cshape</Filter>
+    </None>
+    <None Include="lib\go\IProtocol.go">
+      <Filter>lib\go</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

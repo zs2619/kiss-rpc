@@ -25,8 +25,13 @@ private:
 
 private:
 	std::string typeName(DefType* t);
-	void serializeField( DefType* t ,const std::string& fieldName );
+	void serializeField( DefType* t ,const std::string& fieldName ,const std::string& inner);
 	void deSerializeField( DefType* t ,const std::string& fieldName );
+	void deSerializeFields( StructDefType* t );
+	void genServiceStub();
+	void genServiceProxy();
+	void genFunAgrList(std::ofstream& stream,StructDefType* agrList,bool onlyValue=false);
+	void serializeFields( StructDefType* t );
 
 private:
 

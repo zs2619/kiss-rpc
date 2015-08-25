@@ -134,6 +134,7 @@
     <ClInclude Include="md5.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="lib\as3\BigInt.as" />
     <None Include="lib\as3\IProtocol.as" />
     <CustomBuild Include="rpc.l">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">flex</Message>
@@ -153,7 +154,10 @@
 </Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">rpc.tab.cpp rpc.tab.hpp;%(Outputs)</Outputs>
     </CustomBuild>
+    <None Include="lib\as3\Protocol.as" />
     <None Include="lib\csharp\IProtocol.cs" />
+    <None Include="lib\csharp\Protocol.cs" />
+    <None Include="lib\go\IProtocol.go" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

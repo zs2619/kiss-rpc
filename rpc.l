@@ -76,6 +76,15 @@ symbol        ([:;\,\{\}\(\)\=<>\[\]\"])
 "service"           { return tok_service;          }
 
 "dynamic"            { reserved_keyword(yytext); }
+"make"				 { reserved_keyword(yytext); }
+"go"				 { reserved_keyword(yytext); }
+"chan"				 { reserved_keyword(yytext); }
+"new"				 { reserved_keyword(yytext); }
+"type"				 { reserved_keyword(yytext); }
+"func"				 { reserved_keyword(yytext); }
+"range"				 { reserved_keyword(yytext); }
+"import"			 { reserved_keyword(yytext); }
+"interface"			 { reserved_keyword(yytext); }
 "as"				 { reserved_keyword(yytext); }
 "int"				 { reserved_keyword(yytext); }
 "uint"				 { reserved_keyword(yytext); }
