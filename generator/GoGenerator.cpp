@@ -9,6 +9,14 @@
 #include "../md5.h"
 #include "../misc.h"
 #include <sstream>
+#include <locale>
+static std::string setInitialUpper(std::string str)
+{
+	if (str.empty())
+		return "";
+	str[0]=::toupper(str[0]);
+	return str;
+}
 
 GoGenerator::GoGenerator( Program* pro,const std::string& name ) :Generator(pro,name)
 {
@@ -49,7 +57,7 @@ void GoGenerator::generateEnum()
 		{
 			if (flag)
 			{
-				goFile_<<indent()<<inner<<" =iota "<<std::endl;
+				goFile_<<indent()<<setInitialUpper(inner)<<" =iota "<<std::endl;
 				flag=false;
 			}
 			goFile_<<indent()<<inner<<std::endl;
@@ -88,7 +96,7 @@ void GoGenerator::generateStruct()
 		//ÊôÐÔ
 		for(auto& inner:it->members_)
 		{
-			goFile_<<indent()<<inner->name_<<" "<<typeName(inner->type_)<<std::endl;
+			goFile_<<indent()<<setInitialUpper(inner->name_)<<" "<<typeName(inner->type_)<<std::endl;
 		}
 
 		indent_down();
@@ -106,7 +114,7 @@ void GoGenerator::generateStruct()
 		indent_up();
 		for(auto& inner:it->members_)
 		{
-			serializeField(inner->type_,"this."+inner->name_,"__P__");
+			serializeField(inner->type_,"this."+setInitialUpper(inner->name_),"__P__");
 			goFile_<<std::endl;
 		}
 		indent_down();
@@ -117,7 +125,7 @@ void GoGenerator::generateStruct()
 		indent_up();
 		for(auto& inner:it->members_)
 		{
-			deSerializeField(inner->type_,"this."+inner->name_);
+			deSerializeField(inner->type_,"this."+setInitialUpper(inner->name_));
 			goFile_<<std::endl;
 		}
 		goFile_<<indent()<<"return true"<<std::endl;
