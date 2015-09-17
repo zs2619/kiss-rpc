@@ -146,6 +146,9 @@
     <None Include="lib\go\IProtocol.go">
       <Filter>lib\go</Filter>
     </None>
+    <None Include="lib\go\Protocol.go">
+      <Filter>lib\go</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="rpc.l" />

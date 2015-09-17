@@ -158,6 +158,7 @@
     <None Include="lib\csharp\IProtocol.cs" />
     <None Include="lib\csharp\Protocol.cs" />
     <None Include="lib\go\IProtocol.go" />
+    <None Include="lib\go\Protocol.go" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -110,18 +110,18 @@ void GoGenerator::generateStruct()
 		goFile_<<"}"<<std::endl;
 
 		//struct 序列化
-		goFile_<<indent()<<"func (this *"<<it->name_<<") Serialize( __P__ IProtocol){"<<std::endl;
+		goFile_<<indent()<<"func (this *"<<it->name_<<") Serialize( P__ IProtocol){"<<std::endl;
 		indent_up();
 		for(auto& inner:it->members_)
 		{
-			serializeField(inner->type_,"this."+setInitialUpper(inner->name_),"__P__");
+			serializeField(inner->type_,"this."+setInitialUpper(inner->name_),"P__");
 			goFile_<<std::endl;
 		}
 		indent_down();
 		goFile_<<"}"<<std::endl;
 
 		//struct 反序列化
-		goFile_<<indent()<<"func (this *"<<it->name_<<") DeSerialize( __P__ IProtocol) bool{"<<std::endl;
+		goFile_<<indent()<<"func (this *"<<it->name_<<") DeSerialize( P__ IProtocol) bool{"<<std::endl;
 		indent_up();
 		for(auto& inner:it->members_)
 		{
@@ -163,7 +163,7 @@ void GoGenerator::genServiceStub()
 		std::string ifName=it->name_+"Stub";
 		goFile_<<indent()<<"type "<<ifName<<" struct {"<<std::endl;
 		indent_up();
-		goFile_<<indent()<<"__P__ IProtocol"<<std::endl;
+		goFile_<<indent()<<"P__ IProtocol"<<std::endl;
 		indent_down();
 		goFile_<<indent()<<"}"<<std::endl;
 		goFile_<<std::endl;
@@ -179,17 +179,17 @@ void GoGenerator::genServiceStub()
 		int i=0;
 		for(auto& inner:it->funs_)
 		{
-			goFile_<<indent()<<"func (this *"<<it->name_<<"Stub) "<<inner->name_<<" (";
+			goFile_<<indent()<<"func (this *"<<it->name_<<"Stub) "<<setInitialUpper(inner->name_)<<" (";
 			genFunAgrList(goFile_,inner->argrs_);
 			goFile_<<") {"<<std::endl;
 			indent_up();
 			goFile_<<std::endl;
-			goFile_<<indent()<<"this.__P__.WriteMsgBegin()"<<std::endl;
+			goFile_<<indent()<<"this.P__.WriteMsgBegin()"<<std::endl;
 			goFile_<<std::endl;
-			goFile_<<indent()<<"this.__P__.WriteUInt16("<<i++<<")"<<std::endl;
+			goFile_<<indent()<<"this.P__.WriteUInt16("<<i++<<")"<<std::endl;
 			serializeFields(inner->argrs_);
 			goFile_<<std::endl;
-			goFile_<<indent()<<"this.__P__.WriteMsgEnd()"<<std::endl;
+			goFile_<<indent()<<"this.P__.WriteMsgEnd()"<<std::endl;
 			indent_down();
 			goFile_<<indent()<<"}"<<std::endl;
 		}
@@ -221,7 +221,7 @@ void GoGenerator::genServiceProxy()
 		indent_up();
 		for(auto& inner:it->funs_)
 		{
-			goFile_<<indent()<<inner->name_<<" (";
+			goFile_<<indent()<<setInitialUpper(inner->name_)<<" (";
 			genFunAgrList(goFile_,inner->argrs_);
 			goFile_<<") bool";
 			goFile_<<std::endl;
@@ -248,7 +248,7 @@ void GoGenerator::genServiceProxy()
 		goFile_<<indent()<<"const "<<it->name_<<"_"<<"strFingerprintProxy=\""<<md5(it->getFingerPrint())<<"\""<<std::endl;
 		goFile_<<indent()<<"type "<<ifName<<" struct {"<<std::endl;
 		indent_up();
-		goFile_<<indent()<<"__I__ I"<<ifName<<std::endl;
+		goFile_<<indent()<<"I__ I"<<ifName<<std::endl;
 		indent_down();
 		goFile_<<indent()<<"}"<<std::endl;
 		goFile_<<std::endl;
@@ -262,17 +262,17 @@ void GoGenerator::genServiceProxy()
 
 		//dispatch
 		goFile_<<indent()<<"func (this *"<<it->name_<<"Proxy) "<<"Dispatch"<<"(";
-		goFile_<<" __P__ IProtocol";
+		goFile_<<" P__ IProtocol";
 		goFile_<<") bool {"<<std::endl;
 		indent_up();
-		goFile_<<indent()<<"id :=__P__.ReadUInt16()"<<std::endl;
+		goFile_<<indent()<<"id :=P__.ReadUInt16()"<<std::endl;
 		goFile_<<indent()<<"switch id {"<<std::endl;
 		int i=0;
 		for(auto& it:it->funs_)
 		{
 			goFile_<<indent()<<"case "<<i++<<":"<<std::endl;
 			indent_up();
-			goFile_<<indent()<<"return "<<"this.recv_"<<it->name_<<"(__P__)"<<std::endl;
+			goFile_<<indent()<<"return "<<"this.recv_"<<it->name_<<"(P__)"<<std::endl;
 			indent_down();
 		}
 		goFile_<<indent()<<"default:"<<std::endl;
@@ -288,13 +288,13 @@ void GoGenerator::genServiceProxy()
 		for(auto& inner:it->funs_)
 		{
 			goFile_<<indent()<<"func (this *"<<it->name_<<"Proxy) "<<"recv_"<<inner->name_<<" (";
-			goFile_<<" __P__ IProtocol ";
+			goFile_<<" P__ IProtocol ";
 			goFile_<<") bool {"<<std::endl;
 			indent_up();
 			goFile_<<std::endl;
 			deSerializeFields(inner->argrs_);
 
-			goFile_<<indent()<<"return this.__I__."<<inner->name_<<"(";
+			goFile_<<indent()<<"return this.I__."<<setInitialUpper(inner->name_)<<"(";
 			genFunAgrList(goFile_,inner->argrs_,true);
 			goFile_<<")"<<std::endl;
 
@@ -320,7 +320,7 @@ void GoGenerator::serializeFields( StructDefType* t )
 {
 	for (auto it:t->members_)
 	{
-		serializeField(it->type_,it->name_,"this.__P__");
+		serializeField(it->type_,it->name_,"this.P__");
 		goFile_<<std::endl;
 	}
 } 
@@ -444,7 +444,7 @@ void GoGenerator::deSerializeField( DefType* t ,const std::string& fieldName )
 {
 	if (t->is_struct())
 	{
-		goFile_<<indent()<<fieldName<<".DeSerialize(__P__)"<<std::endl;
+		goFile_<<indent()<<fieldName<<".DeSerialize(P__)"<<std::endl;
 	}
 	else if (t->is_simple_type())
 	{
@@ -453,52 +453,52 @@ void GoGenerator::deSerializeField( DefType* t ,const std::string& fieldName )
 		{
 		case	SimpleDefType::boolType : 
 			{
-				goFile_<<indent()<<fieldName<<"=__P__.ReadBool()"<<std::endl;
+				goFile_<<indent()<<fieldName<<"=P__.ReadBool()"<<std::endl;
 				break;
 			} 
 		case	SimpleDefType::uint8Type : 
 			{
-				goFile_<<indent()<<fieldName<<"=__P__.ReadUInt8() "<<std::endl;
+				goFile_<<indent()<<fieldName<<"=P__.ReadUInt8() "<<std::endl;
 				break;
 			} 
 		case	SimpleDefType::int8Type : 
 			{
-				goFile_<<indent()<<fieldName<<"=__P__.ReadInt8()"<<std::endl;
+				goFile_<<indent()<<fieldName<<"=P__.ReadInt8()"<<std::endl;
 				break;
 			} 
 		case	SimpleDefType::uint16Type :
 			{
-				goFile_<<indent()<<fieldName<<"=__P__.ReadUInt16()"<<std::endl;
+				goFile_<<indent()<<fieldName<<"=P__.ReadUInt16()"<<std::endl;
 				break;
 			} 
 		case	SimpleDefType::int16Type :
 			{
-				goFile_<<indent()<<fieldName<<"=__P__.ReadInt16()"<<std::endl;
+				goFile_<<indent()<<fieldName<<"=P__.ReadInt16()"<<std::endl;
 				break;
 			} 
 		case	SimpleDefType::uint32Type :
 			{
-				goFile_<<indent()<<fieldName<<"=__P__.ReadUInt32()"<<std::endl;
+				goFile_<<indent()<<fieldName<<"=P__.ReadUInt32()"<<std::endl;
 				break;
 			} 
 		case	SimpleDefType::int32Type :
 			{
-				goFile_<<indent()<<fieldName<<"=__P__.ReadInt32()"<<std::endl;
+				goFile_<<indent()<<fieldName<<"=P__.ReadInt32()"<<std::endl;
 				break;
 			} 
 		case	SimpleDefType::int64Type :
 			{
-				goFile_<<indent()<<fieldName<<"=__P__.ReadInt64()"<<std::endl;
+				goFile_<<indent()<<fieldName<<"=P__.ReadInt64()"<<std::endl;
 				break;
 			} 
 		case	SimpleDefType::floatType :
 			{
-				goFile_<<indent()<<fieldName<<"=__P__.ReadFloat()"<<std::endl;
+				goFile_<<indent()<<fieldName<<"=P__.ReadFloat()"<<std::endl;
 				break;
 			} 
 		case	SimpleDefType::stringType :
 			{
-				goFile_<<indent()<<fieldName<<"=__P__.ReadString()"<<std::endl;
+				goFile_<<indent()<<fieldName<<"=P__.ReadString()"<<std::endl;
 				break;
 			}
 		}
@@ -508,7 +508,7 @@ void GoGenerator::deSerializeField( DefType* t ,const std::string& fieldName )
 		static int i=0;
 		std::stringstream str;
 		str<<"_n_"<<i<<"_array";
-		goFile_<<indent()<<str.str()<<":=__P__.ReadUInt16()"<<std::endl;
+		goFile_<<indent()<<str.str()<<":=P__.ReadUInt16()"<<std::endl;
 		std::stringstream count;count<<"_i_"<<i<<"_";
 		i++;
 
@@ -522,7 +522,7 @@ void GoGenerator::deSerializeField( DefType* t ,const std::string& fieldName )
 
 	}else if (t->is_enum())
 	{
-		goFile_<<indent()<<fieldName<<"=__P__.ReadInt16()"<<std::endl;
+		goFile_<<indent()<<fieldName<<"=P__.ReadInt16()"<<std::endl;
 
 	}else if(t->is_map())
 	{
