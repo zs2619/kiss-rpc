@@ -11,15 +11,18 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
+	"sync"
 )
 
 type Protocol struct {
-	Rpc     *RpcSession
-	RecvBuf *bytes.Buffer
-	SendBuf *bytes.Buffer
+	sync.Mutex //可能会在不同一个协程中
+	Rpc        *RpcSession
+	RecvBuf    *bytes.Buffer
+	SendBuf    *bytes.Buffer
 }
 
 func (this *Protocol) WriteMsgBegin() {
+	this.Lock()
 	this.SendBuf.Reset()
 }
 func (this *Protocol) WriteMsgEnd() {
@@ -28,6 +31,7 @@ func (this *Protocol) WriteMsgEnd() {
 	binary.Write(buf, binary.LittleEndian, uint16(this.SendBuf.Len()))
 	buf.Write(this.SendBuf.Bytes())
 	this.Rpc.Send(buf)
+	this.Unlock()
 }
 
 /**  Writing functions. */
