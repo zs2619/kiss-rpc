@@ -96,7 +96,7 @@ void GoGenerator::generateStruct()
 		//ÊôÐÔ
 		for(auto& inner:it->members_)
 		{
-			goFile_<<indent()<<setInitialUpper(inner->name_)<<" "<<typeName(inner->type_)<<std::endl;
+			goFile_<<indent()<<setInitialUpper(inner->name_)<<" "<<typeName(inner->type_)<<" `name:\""<<inner->name_<<"\"`"<<std::endl;
 		}
 
 		indent_down();

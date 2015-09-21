@@ -15,7 +15,7 @@ void CSharpGenerator::generateProgram()
 	csharpFile_<<indent()<<"using UnityEngine;"<<std::endl;
 	csharpFile_<<indent()<<"using System;"<<std::endl;
 	csharpFile_<<indent()<<"using System.Collections.Generic;"<<std::endl;
-	csharpFile_<<indent()<<"namespace com.rpc"<<std::endl;
+	csharpFile_<<indent()<<"namespace ComRpc"<<std::endl;
 	csharpFile_<<indent()<<"{"<<std::endl;
 
 	generateEnum();
@@ -38,7 +38,7 @@ void CSharpGenerator::generateEnum()
 			++it; continue; 
 		}
 		indent_up();
-		csharpFile_<<indent()<<"public enum "<<(*it)->name_<<" : uint "<<std::endl;
+		csharpFile_<<indent()<<"public enum "<<(*it)->name_<<std::endl;
 		csharpFile_<<indent()<<"{"<<std::endl;
 		indent_up();
 		std::vector<std::string>::iterator it_inner=(*it)->defs_.begin();
@@ -218,7 +218,7 @@ std::string CSharpGenerator::typeName( DefType* t )
 	}
 	else if (t->is_enum())
 	{
-		return "uint";
+		return t->name_;
 	}
 	assert(0&&"type error"); 
 	return "";
@@ -395,7 +395,7 @@ void CSharpGenerator::deSerializeField( DefType* t ,const std::string& fieldName
 
 	}else if (t->is_enum())
 	{
-		csharpFile_<<indent()<<fieldName<<"=(uint)__P__.readInt16();"<<std::endl;
+		csharpFile_<<indent()<<fieldName<<"=("<<t->name_<<")__P__.readInt16();"<<std::endl;
 
 	}else if(t->is_map())
 	{
@@ -582,7 +582,7 @@ void CSharpGenerator::genServiceProxyIf()
 		ifFile_.open(name.c_str());
 		ifFile_<<indent()<<"using System;"<<std::endl;
 		ifFile_<<indent()<<"using System.Collections.Generic;"<<std::endl;
-		ifFile_<<indent()<<"namespace com.rpc"<<std::endl;
+		ifFile_<<indent()<<"namespace ComRpc"<<std::endl;
 		ifFile_<<indent()<<"{"<<std::endl;
 		indent_up();
 		ifFile_<<indent()<<"public interface "<<className<<std::endl;
