@@ -48,10 +48,9 @@ void GoGenerator::generateEnum()
 
 		std::string name=dirName+it->name_+".go";
 		goFile_.open(name.c_str());
-		goFile_<<indent()<<"package "<<"rpc"<<std::endl;
+		goFile_<<indent()<<"package "<<it->name_<<std::endl;
 		goFile_<<indent()<<"const ("<<std::endl;
 		indent_up();
-
 		bool flag=true;
 		for (auto& inner:it->defs_)
 		{
@@ -60,8 +59,30 @@ void GoGenerator::generateEnum()
 				goFile_<<indent()<<setInitialUpper(inner)<<" =iota "<<std::endl;
 				flag=false;
 			}
-			goFile_<<indent()<<inner<<std::endl;
+			else
+			{
+				goFile_<<indent()<<inner<<std::endl;
+			}
 		}
+		indent_down();
+		goFile_<<indent()<<")"<<std::endl;
+		//map
+		goFile_<<indent()<<"var ("<<std::endl;
+		indent_up();
+
+		goFile_<<indent()<<setInitialUpper(it->name_)<<"S2I"<<"= map[string] int16 {"<<std::endl;
+		for (auto& inner:it->defs_)
+		{
+			goFile_<<indent()<<"\""<<setInitialUpper(inner)<<"\" : "<<setInitialUpper(inner)<<","<<std::endl;
+		}
+		goFile_<<indent()<<"}"<<std::endl;
+
+		goFile_<<indent()<<setInitialUpper(it->name_)<<"I2S"<<"= map[int16] string {"<<std::endl;
+		for (auto& inner:it->defs_)
+		{
+			goFile_<<indent()<<""<<setInitialUpper(inner)<<" : "<<"\""<<setInitialUpper(inner)<<"\""<<","<<std::endl;
+		}
+		goFile_<<indent()<<"}"<<std::endl;
 
 		indent_down();
 		goFile_<<indent()<<")"<<std::endl;
