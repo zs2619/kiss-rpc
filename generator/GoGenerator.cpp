@@ -10,6 +10,7 @@
 #include "../misc.h"
 #include <sstream>
 #include <locale>
+#include <direct.h>
 static std::string setInitialUpper(std::string str)
 {
 	if (str.empty())
@@ -44,7 +45,7 @@ void GoGenerator::generateEnum()
 		}
 		//´´½¨Ä¿Â¼
 		std::string dirName=program_->outputDir_+it->name_+"/";
-		misc::mkdir(dirName.c_str());
+		mkdir(dirName.c_str());
 
 		std::string name=dirName+it->name_+".go";
 		goFile_.open(name.c_str());

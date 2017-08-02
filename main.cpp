@@ -13,7 +13,7 @@
 #include <errno.h>
 #include <string.h>
 #include <stdlib.h>
-
+#include <direct.h>
 
 #include "parser/Global.h"
 #include "generator/Generator.h"
@@ -66,7 +66,7 @@ int main(int argc,char** argv)
 		Program::inst()->outputDir_=argv[++i];
 		Program::inst()->outputDir_+="/";
 
-		misc::mkdir(Program::inst()->outputDir_.c_str());
+		mkdir(Program::inst()->outputDir_.c_str());
 
       } else if (strcmp(argv[i], "-i") == 0)
 	  {
