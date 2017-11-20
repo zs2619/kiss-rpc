@@ -32,6 +32,8 @@
  *  language keywords
  */
 %token tok_service
+%token tok_group
+
 %token tok_include
 %union {
 	std::string*	 str_;
@@ -44,7 +46,11 @@
 	MapDefType*		 mapType_;
 	ArrayDefType*	 arrayType_;
 	FuctionDefType*	 funType_;
+	GroupDefType*	 groupType_;
 	ServiceDefType*  serviceType_;
+	std::vector<FuctionDefType*>* funTypes_;
+	std::vector<GroupDefType*>* groupTypes_;
+
 }
 
 %token<str_>     tok_identifier
@@ -67,12 +73,17 @@
 %type<fieldType_>	FunctionField
 %type<structType_>	FunctionFieldList
 %type<funType_>		Function
-%type<serviceType_>	Functions
-%type<serviceType_>	Service
+%type<serviceType_>	ServiceContent
+
+%type<groupType_>	Group
+
+%type<funTypes_ >	Functions
+%type<groupTypes_ >	Groups
+
 
 %type<mapType_>		MapContainer
 %type<arrayType_>	ArrayContainer
-
+%type<serviceType_>	Service
 
 %start Program
 
@@ -95,7 +106,7 @@ DefinitionList: DefinitionList Definition|Definition
 
 Definition:Struct|Enum|Service
 
-Service: tok_service tok_identifier '{' Functions '}' ';'
+Service: tok_service tok_identifier '{' ServiceContent '}' ';'
 		{
 			$4->name_=*$2;
 			$4->fileName_=curFileName;
@@ -104,20 +115,40 @@ Service: tok_service tok_identifier '{' Functions '}' ';'
 				yyerror("service name repeat: \"%s\"\n", (*$2).c_str());
 			}
 		}
+
+ServiceContent: Groups Functions
+				{
+				$$=new ServiceDefType;
+
+				$$->funs_=*$2;
+				$$->groups_=*$1;
+
+				}
+
+
+Groups :Groups Group
+		{
+			$$->push_back($2)
+
+		}
+		|
+		{
+			$$=new std::vector<GroupDefType*>;
+		}
+
+Group: tok_group '{' Functions'}'
+		{
+			 $$=new GroupDefType;
+			 $$->funs_=*$3;
+		}
+
 Functions: Functions Function 
 		{
-			if(!$$->addFunciton($2))
-			{
-				yyerror("fun name repeat: \"%s\"\n", $2->name_.c_str());
-			}
+			$$->push_back($2)
 		}
-		|Function 
+		|
 		{
-			$$=new ServiceDefType;
-			if(!$$->addFunciton($1))
-			{
-				yyerror("fun name repeat: \"%s\"\n", $1->name_.c_str());
-			}
+			$$=new std::vector<FuctionDefType*>;
 		}
 
 Function:	tok_identifier '(' FunctionFieldList ')' Separator

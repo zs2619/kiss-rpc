@@ -27,6 +27,7 @@ public:
 	virtual bool is_map()       const { return false; }
 	virtual bool is_service()   const { return false; }
 	virtual bool is_function()   const { return false; }
+	virtual bool is_group()      const { return false; }
 
 	virtual std::string getFingerPrint()=0;
 
@@ -153,6 +154,13 @@ public:
 	StructDefType*	argrs_;
 };
 
+class GroupDefType :public Definition
+{
+public:
+	virtual bool is_group()      const { return true; }
+
+	std::vector<FuctionDefType*>	funs_;
+};
 class ServiceDefType:public DefType 
 {
 public:
@@ -168,7 +176,7 @@ public:
 		}
 		return tmp;
 	}
-
+	std::vector<GroupDefType*>		groups_;
 	std::vector<FuctionDefType*>	funs_;
 };
 

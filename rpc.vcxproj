@@ -148,7 +148,7 @@
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">lex.yy.cpp;%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="rpc.y">
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">bison -d -o rpc.tab.cpp rpc.y
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">bison -d -v -o rpc.tab.cpp rpc.y
 </Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">rpc.tab.cpp rpc.tab.hpp;%(Outputs)</Outputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">bison -d -o rpc.tab.cpp rpc.y

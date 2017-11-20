@@ -30,7 +30,10 @@ struct fdfa
 
 service sha
 {
+	group{
+		haha(int8 a,string h);
+		hehe(string s ,float f);
+	}
 	ping();
-	haha(int8 a,string h);
-	hehe(string s ,float f);
+
 };

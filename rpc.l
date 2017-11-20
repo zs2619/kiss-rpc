@@ -74,7 +74,7 @@ symbol        ([:;\,\{\}\(\)\=<>\[\]\"])
 "map"               { return tok_map;              }
 
 "service"           { return tok_service;          }
-
+"group"				{ return tok_group;          }
 "dynamic"            { reserved_keyword(yytext); }
 "make"				 { reserved_keyword(yytext); }
 "go"				 { reserved_keyword(yytext); }
