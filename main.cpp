@@ -13,7 +13,6 @@
 #include <errno.h>
 #include <string.h>
 #include <stdlib.h>
-#include <direct.h>
 
 #include "parser/Global.h"
 #include "generator/Generator.h"
@@ -25,17 +24,17 @@
 
 #include "misc.h"
 
-/**		照抄thrift 
-		前端和后端有引用 以后需要重构!!!!
+/**		
+	前端和后端有引用 以后需要重构!!!!
 */
 void usage() 
 {
   fprintf(stderr, "Usage: rpc [options] file\n");
   fprintf(stderr, "Options:\n");
-  fprintf(stderr, "  -o dir     output file directory\n");
-  fprintf(stderr, "  -i dir     input  file directory\n");
-  fprintf(stderr, "  -gen STR   cpp;as3 Generate code .\n");
-  fprintf(stderr, "  -json		cpp serialize json.\n");
+  fprintf(stderr, "  -o   dir    output file directory\n");
+  fprintf(stderr, "  -i   dir    input  file directory\n");
+  fprintf(stderr, "  -gen lang   cpp as3 cs go Generate code\n");
+  fprintf(stderr, "  -json       serialize json.\n");
   exit(0);
 }
 void split(std::string& s, const std::string& delim,std::vector< std::string >& ret)
@@ -66,7 +65,7 @@ int main(int argc,char** argv)
 		Program::inst()->outputDir_=argv[++i];
 		Program::inst()->outputDir_+="/";
 
-		mkdir(Program::inst()->outputDir_.c_str());
+		misc::mkdir(Program::inst()->outputDir_.c_str());
 
       } else if (strcmp(argv[i], "-i") == 0)
 	  {

@@ -126,7 +126,6 @@
       <Filter>generator\go</Filter>
     </ClInclude>
     <ClInclude Include="misc.h" />
-    <ClInclude Include="unistd.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="lib\as3\IProtocol.as">

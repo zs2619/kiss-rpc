@@ -10,7 +10,7 @@
 #include "../misc.h"
 #include <sstream>
 #include <locale>
-#include <direct.h>
+#include <cctype>
 static std::string setInitialUpper(std::string str)
 {
 	if (str.empty())
@@ -45,7 +45,7 @@ void GoGenerator::generateEnum()
 		}
 		//´´½¨Ä¿Â¼
 		std::string dirName=program_->outputDir_+it->name_+"/";
-		mkdir(dirName.c_str());
+		misc::mkdir(dirName.c_str());
 
 		std::string name=dirName+it->name_+".go";
 		goFile_.open(name.c_str());
@@ -290,15 +290,15 @@ void GoGenerator::genServiceProxy()
 		goFile_<<indent()<<"id :=P__.ReadUInt16()"<<std::endl;
 		goFile_<<indent()<<"switch id {"<<std::endl;
 		int i=0;
-		for(auto& it:it->funs_)
+		for(auto& it1:it->funs_)
 		{
 			goFile_<<indent()<<"case "<<i++<<":"<<std::endl;
 			indent_up();
-			goFile_<<indent()<<"return "<<"this.recv_"<<it->name_<<"(P__)"<<std::endl;
+			goFile_<<indent()<<"return "<<"this.recv_"<<it1->name_<<"(P__)"<<std::endl;
 			indent_down();
 		}
 		goFile_<<indent()<<"default:"<<std::endl;
-		goFile_<<indent()<<"	return false"<<std::endl;
+		goFile_<<indent()<<"return false"<<std::endl;
 
 
 		goFile_<<indent()<<"}//switch "<<std::endl;

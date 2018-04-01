@@ -14,6 +14,8 @@ SET(HEADER_FILES
 	parser/Program.h
 	generator/As3Generator.h
 	generator/CppGenerator.h
+	generator/GoGenerator.h
+	generator/CSharpGenerator.h
 	generator/Generator.h
 	rpc.tab.hpp
 	md5.h
@@ -24,6 +26,8 @@ SET(SRC_FILES
 	parser/Program.cpp
 	generator/As3Generator.cpp
 	generator/CppGenerator.cpp
+	generator/GoGenerator.cpp
+	generator/CSharpGenerator.cpp
 	generator/Generator.cpp
 	lex.yy.cpp 
  	rpc.tab.cpp
@@ -31,3 +35,4 @@ SET(SRC_FILES
 	main.cpp
 	)
 ADD_EXECUTABLE(rpc ${SRC_FILES} )
+add_definitions(-std=c++11)
