@@ -12,9 +12,9 @@ flex and bison
     make 
 
 ## 使用
-Usage: rpc [options] file
-Options:
-  -o   dir    output file directory
-  -i   dir    input  file directory
-  -gen lang   cpp as3 cs go Generate code .
-  -json       serialize json.
+Usage: rpc [options] file<br/>
+Options:<br/>
+  -o   dir    output file directory<br/>
+  -i   dir    input  file directory<br/>
+  -gen lang   cpp as3 cs go Generate code<br/>
+  -json       serialize json<br/>
