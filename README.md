@@ -1,7 +1,13 @@
 ## rpc
 
 结构化数据存储格式,用于结构化数据的序列化,支持序列化反序列化二进制，和序列化成json，也可以生成Rpc接口
-支持c++ as3 c# golang
+
+支持语言
+
+c++
+as3
+c# 
+golang
 
 ## 依赖
 flex and bison
