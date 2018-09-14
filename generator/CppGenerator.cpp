@@ -6,7 +6,7 @@
 */
 //==============================================
 #include "CppGenerator.h"
-#include "../md5.h"
+#include "../misc/md5.h"
 
 CppGenerator::CppGenerator( Program* pro,const std::string& name ) :Generator(pro,name)
 {
@@ -118,13 +118,13 @@ void CppGenerator::generateStructHeader()
 		headerFile_<<"struct "<<(*it)->name_<<std::endl;
 		headerFile_<<"{ "<<std::endl;
 		indent_up();
-		//¹¹Ôì Îö¹¹º¯Êı
+		//æ„é€  ææ„å‡½æ•°
 		headerFile_<<indent()<<(*it)->name_<<"();"<<std::endl;
 		headerFile_<<indent()<<"virtual ~"<<(*it)->name_<<"();"<<std::endl;
 		//fingerprint
 		headerFile_<<indent()<<"static const char* strFingerprint;"<<std::endl;
 
-		//ÊôĞÔ
+		//å±æ€§
 		std::vector<FieldDefType*>::iterator it_inner=(*it)->members_.begin();
 		while(it_inner!=(*it)->members_.end())
 		{
@@ -132,17 +132,17 @@ void CppGenerator::generateStructHeader()
 			defineField(t);
 			++it_inner;
 		}
-		//ĞòÁĞ»¯º¯Êı
+		//åºåˆ—åŒ–å‡½æ•°
 		headerFile_<<std::endl;
 		headerFile_<<indent()<<"//serialize"<<std::endl;
 		headerFile_<<indent()<<"void serialize(IProtocol* __P__); "<<std::endl;
 		
-		//·´ĞòÁĞ»¯º¯Êı
+		//ååºåˆ—åŒ–å‡½æ•°
 		headerFile_<<std::endl;
 		headerFile_<<indent()<<"//deSerialize"<<std::endl;
 		headerFile_<<indent()<<"bool deSerialize(IProtocol* __P__);"<<std::endl;
 
-		//jsonĞòÁĞ»¯
+		//jsonåºåˆ—åŒ–
 		if(Program::inst()->json_)
 		{
 			headerFile_<<std::endl;
@@ -202,7 +202,7 @@ void CppGenerator::generateStructSrc()
 		srcFile_<<"{ "<<std::endl;
 		srcFile_<<"} "<<std::endl;
 
-		//ĞòÁĞ»¯º¯Êı
+		//åºåˆ—åŒ–å‡½æ•°
 		srcFile_<<std::endl;
 		srcFile_<<indent()<<"//serialize"<<std::endl;
 		srcFile_<<indent()<<"void "<<(*it)->name_<<"::serialize(IProtocol* __P__) "<<std::endl;
@@ -212,7 +212,7 @@ void CppGenerator::generateStructSrc()
 		indent_down();
 		srcFile_<<"}// serialize"<<std::endl;
 		
-		//·´ĞòÁĞ»¯º¯Êı
+		//ååºåˆ—åŒ–å‡½æ•°
 		srcFile_<<std::endl;
 		srcFile_<<indent()<<"//deSerialize"<<std::endl;
 		srcFile_<<indent()<<"bool "<<(*it)->name_<<"::deSerialize(IProtocol* __P__)"<<std::endl;
@@ -232,7 +232,7 @@ void CppGenerator::generateStructSrc()
 
 		if (Program::inst()->json_)
 		{
-			//ĞòÁĞ»¯json
+			//åºåˆ—åŒ–json
 			srcFile_<<std::endl;
 			srcFile_<<indent()<<"//serialize"<<std::endl;
 			srcFile_<<indent()<<"void "<<(*it)->name_<<"::serializeJson(std::stringstream& __json__)"<<std::endl;
@@ -729,10 +729,10 @@ void CppGenerator::genServiceStubHeader()
 		indent_down();
 		headerFile_<<indent()<<"};"<<std::endl;
 
-		//¹¹Ôì Îö¹¹º¯Êı
+		//æ„é€  ææ„å‡½æ•°
 		headerFile_<<indent()<<className<<"(IProtocol* p=NULL):__P__(p){}"<<std::endl;
 		headerFile_<<indent()<<"virtual ~"<<className<<"(){}"<<std::endl;
-		//º¯ÊıÉùÃ÷
+		//å‡½æ•°å£°æ˜
 		genFunStubDeclare(*it);
 
 		headerFile_<<indent()<<"IProtocol* __P__;"<<std::endl;
@@ -747,7 +747,7 @@ void CppGenerator::genServiceStubSrc()
 {
 	if (program_->services_.defs_.empty())
 		return;
-	//¹¹Ôì Îö¹¹
+	//æ„é€  ææ„
 	std::vector<ServiceDefType*>::iterator it=program_->services_.defs_.begin();
 	std::vector<ServiceDefType*>::iterator it_end=program_->services_.defs_.end();
 	while(it!=it_end)
@@ -768,7 +768,7 @@ void CppGenerator::genServiceStubSrc()
 			srcFile_<<")"<<std::endl;
 			srcFile_<<indent()<<"{"<<std::endl;
 			indent_up();
-			//ĞòÁĞ»¯
+			//åºåˆ—åŒ–
 			srcFile_<<indent()<<"__P__->writeMsgBegin();"<<std::endl;
 			srcFile_<<indent()<<"__P__->writeUInt16("<<i++<<");"<<std::endl;
 			serializeFields(t->argrs_);
@@ -802,12 +802,12 @@ void CppGenerator::genServiceProxyHeader()
 		//fingerprint
 		headerFile_<<indent()<<"static const char* strFingerprint;"<<std::endl;
 
-		//¹¹Ôì Îö¹¹º¯Êı
+		//æ„é€  ææ„å‡½æ•°
 		headerFile_<<indent()<<className<<"(IProtocol* p=NULL):__P__(p){}"<<std::endl;
 		headerFile_<<indent()<<"virtual ~"<<className<<"(){}"<<std::endl;
-		//º¯ÊıÉùÃ÷
+		//å‡½æ•°å£°æ˜
 		genFunProxyDeclare(*it);
-		//½Ó¿Ú
+		//æ¥å£
 		genInterfaceDeclare(*it);
 		//dispatch
 		headerFile_<<indent()<<"static bool dispatch(IProtocol* p,"<<className<<"* __C__);"<<std::endl;
@@ -874,7 +874,7 @@ void CppGenerator::genServiceProxySrc()
 			srcFile_<<indent()<<"bool "<<className<<"::"<<"recv_"<<t->name_<<"(IProtocol* __P__,"<<className<<"* __C__)"<<std::endl;
 			srcFile_<<indent()<<"{"<<std::endl;
 			indent_up();
-			//·´ĞòÁĞ»¯
+			//ååºåˆ—åŒ–
 			deSerializeFields(t->argrs_);
 			srcFile_<<indent()<<"return __C__->"<<t->name_<<"(";
 			genFunAgrList(srcFile_,t->argrs_,true);

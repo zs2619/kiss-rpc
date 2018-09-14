@@ -6,7 +6,7 @@
 */
 //==============================================
 #include "As3Generator.h"
-#include "../md5.h"
+#include "../misc/md5.h"
 
 void As3Generator::generateProgram()
 {
@@ -162,7 +162,7 @@ void As3Generator::generateStruct()
 		as3File_<<indent()<<"public class "<<(*it)->name_<<std::endl;
 		as3File_<<indent()<<"{ "<<std::endl;
 
-		//ÊôÐÔ
+		//å±žæ€§
 		indent_up();
 		as3File_<<indent()<<"public static const strFingerprint:String=\""<<md5((*it)->getFingerPrint())<<"\";"<<std::endl;
 
@@ -176,13 +176,13 @@ void As3Generator::generateStruct()
 			++it_inner;
 		}
 
-		//ÐòÁÐ»¯º¯Êý
+		//åºåˆ—åŒ–å‡½æ•°
 		as3File_<<std::endl;
 		as3File_<<indent()<<"//serialize"<<std::endl;
 		as3File_<<indent()<<"public function serialize(__P__:IProtocol):Boolean "<<std::endl;
 		as3File_<<indent()<<"{ "<<std::endl;
 		indent_up();
-		//ÐòÁÐ»¯ÊôÐÔ
+		//åºåˆ—åŒ–å±žæ€§
 		it_inner=(*it)->members_.begin();
 		while(it_inner!=(*it)->members_.end())
 		{
@@ -194,13 +194,13 @@ void As3Generator::generateStruct()
 		indent_down();
 		as3File_<<indent()<<"}//serialize "<<std::endl;
 		
-		//·´ÐòÁÐ»¯º¯Êý
+		//ååºåˆ—åŒ–å‡½æ•°
 		as3File_<<std::endl;
 		as3File_<<indent()<<"//deSerialize"<<std::endl;
 		as3File_<<indent()<<"public function deSerialize(__P__:IProtocol):Boolean"<<std::endl;
 		as3File_<<indent()<<"{ "<<std::endl;
 		indent_up();
-		//·´ÐòÁÐ»¯ÊôÐÔ
+		//ååºåˆ—åŒ–å±žæ€§
 		it_inner=(*it)->members_.begin();
 		while(it_inner!=(*it)->members_.end())
 		{
@@ -472,9 +472,9 @@ void As3Generator::genServiceStub()
 		indent_up();
 
 		as3File_<<indent()<<"public static const  strFingerprint:String=\""<<md5((*it)->getFingerPrint())<<"\";"<<std::endl;
-		//ÊôÐÔ
+		//å±žæ€§
 		as3File_<<indent()<<"public var __P__:IProtocol ;"<<std::endl;
-		//¹¹Ôìº¯Êý
+		//æž„é€ å‡½æ•°
 		as3File_<<indent()<<"//construction"<<std::endl;
 		as3File_<<indent()<<"public function "<<className<<"(p:IProtocol)"<<std::endl;
 		as3File_<<indent()<<"{ "<<std::endl;
@@ -494,7 +494,7 @@ void As3Generator::genServiceStub()
 			as3File_<<"):void"<<std::endl;
 			as3File_<<indent()<<"{"<<std::endl;
 			indent_up();
-			//ÐòÁÐ»¯
+			//åºåˆ—åŒ–
 			as3File_<<indent()<<"trace(\""<<t->name_<<"\");"<<std::endl;
 			as3File_<<indent()<<"__P__.writeMsgBegin();"<<std::endl;
 			as3File_<<indent()<<"__P__.writeUInt16("<<i++<<");"<<std::endl;
@@ -534,10 +534,10 @@ void As3Generator::genServiceProxy()
 		as3File_<<indent()<<"{ "<<std::endl;
 		indent_up();
 		as3File_<<indent()<<"public static const strFingerprint:String=\""<<md5((*it)->getFingerPrint())<<"\";"<<std::endl;
-		//ÊôÐÔ
+		//å±žæ€§
 		std::string IFName="I"+(*it)->name_+"Proxy";
 		as3File_<<indent()<<"public var __I__:"<<IFName <<" ;"<<std::endl;
-		//¹¹Ôìº¯Êý
+		//æž„é€ å‡½æ•°
 		as3File_<<indent()<<"//construction"<<std::endl;
 		as3File_<<indent()<<"public function "<<className<<"(I:"<<IFName<<")"<<std::endl;
 		as3File_<<indent()<<"{ "<<std::endl;
@@ -588,7 +588,7 @@ void As3Generator::genServiceProxy()
 			as3File_<<indent()<<"{"<<std::endl;
 			indent_up();
 			as3File_<<indent()<<"trace(\""<<t->name_<<"\");"<<std::endl;
-			//·´ÐòÁÐ»¯
+			//ååºåˆ—åŒ–
 			deSerializeFields(t->argrs_);
 			as3File_<<indent()<<"return __I__."<<t->name_<<"(";
 			genFunAgrList(as3File_,t->argrs_,true);

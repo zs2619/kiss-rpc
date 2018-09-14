@@ -6,7 +6,7 @@
 */
 //==============================================
 #include "CSharpGenerator.h"
-#include "../md5.h"
+#include "../misc/md5.h"
 
 void CSharpGenerator::generateProgram()
 {
@@ -76,7 +76,7 @@ void CSharpGenerator::generateStruct()
 		//fingerprint
 		csharpFile_<<indent()<<"public const string strFingerprint=\""<<md5((*it)->getFingerPrint())<<"\";"<<std::endl;
 
-		//ÊôÐÔ
+		//å±žæ€§
 		std::vector<FieldDefType*>::iterator it_inner=(*it)->members_.begin();
 		while(it_inner!=(*it)->members_.end())
 		{
@@ -85,13 +85,13 @@ void CSharpGenerator::generateStruct()
 				<<" = "<<DefaultValue(t->type_)<<";"<<std::endl;
 			++it_inner;
 		}
-		//ÐòÁÐ»¯º¯Êý
+		//åºåˆ—åŒ–å‡½æ•°
 		csharpFile_<<std::endl;
 		csharpFile_<<indent()<<"//serialize"<<std::endl;
 		csharpFile_<<indent()<<"public bool  serialize(IProtocol __P__) "<<std::endl;
 		csharpFile_<<indent()<<"{ "<<std::endl;
 		indent_up();
-		//ÐòÁÐ»¯ÊôÐÔ
+		//åºåˆ—åŒ–å±žæ€§
 		it_inner=(*it)->members_.begin();
 		while(it_inner!=(*it)->members_.end())
 		{
@@ -103,13 +103,13 @@ void CSharpGenerator::generateStruct()
 		indent_down();
 		csharpFile_<<indent()<<"}//serialize "<<std::endl;
 
-		//·´ÐòÁÐ»¯º¯Êý
+		//ååºåˆ—åŒ–å‡½æ•°
 		csharpFile_<<std::endl;
 		csharpFile_<<indent()<<"//deSerialize"<<std::endl;
 		csharpFile_<<indent()<<"public bool deSerialize(IProtocol __P__)"<<std::endl;
 		csharpFile_<<indent()<<"{ "<<std::endl;
 		indent_up();
-		//·´ÐòÁÐ»¯ÊôÐÔ
+		//ååºåˆ—åŒ–å±žæ€§
 		it_inner=(*it)->members_.begin();
 		while(it_inner!=(*it)->members_.end())
 		{
@@ -431,9 +431,9 @@ void CSharpGenerator::genServiceStub()
 		indent_up();
 
 		csharpFile_<<indent()<<"public const string  strFingerprint=\""<<md5((*it)->getFingerPrint())<<"\";"<<std::endl;
-		//ÊôÐÔ
+		//å±žæ€§
 		csharpFile_<<indent()<<"public IProtocol __P__ ;"<<std::endl;
-		//¹¹Ôìº¯Êý
+		//æž„é€ å‡½æ•°
 		csharpFile_<<indent()<<"//construction"<<std::endl;
 		csharpFile_<<indent()<<"public "<<className<<"(IProtocol p)"<<std::endl;
 		csharpFile_<<indent()<<"{ "<<std::endl;
@@ -453,7 +453,7 @@ void CSharpGenerator::genServiceStub()
 			csharpFile_<<")"<<std::endl;
 			csharpFile_<<indent()<<"{"<<std::endl;
 			indent_up();
-			//ÐòÁÐ»¯
+			//åºåˆ—åŒ–
 			csharpFile_<<indent()<<"Debug.Log(\""<<t->name_<<"\");"<<std::endl;
 			csharpFile_<<indent()<<"__P__.writeMsgBegin();"<<std::endl;
 			csharpFile_<<indent()<<"__P__.writeUInt16((ushort)"<<i++<<");"<<std::endl;
@@ -493,10 +493,10 @@ void CSharpGenerator::genServiceProxy()
 		csharpFile_<<indent()<<"{ "<<std::endl;
 		indent_up();
 		csharpFile_<<indent()<<"public const string strFingerprint=\""<<md5((*it)->getFingerPrint())<<"\";"<<std::endl;
-		//ÊôÐÔ
+		//å±žæ€§
 		std::string IFName="I"+(*it)->name_+"Proxy";
 		csharpFile_<<indent()<<"public "<<IFName<<"  __I__;"<<std::endl;
-		//¹¹Ôìº¯Êý
+		//æž„é€ å‡½æ•°
 		csharpFile_<<indent()<<"//construction"<<std::endl;
 		csharpFile_<<indent()<<"public "<<className<<"("<<IFName<<" I"<<")"<<std::endl;
 		csharpFile_<<indent()<<"{ "<<std::endl;
@@ -547,7 +547,7 @@ void CSharpGenerator::genServiceProxy()
 			csharpFile_<<indent()<<"{"<<std::endl;
 			indent_up();
 			csharpFile_<<indent()<<"Debug.Log(\""<<t->name_<<"\");"<<std::endl;
-			//·´ÐòÁÐ»¯
+			//ååºåˆ—åŒ–
 			deSerializeFields(t->argrs_);
 			csharpFile_<<indent()<<"return __I__."<<t->name_<<"(";
 			genFunAgrList(csharpFile_,t->argrs_,true);

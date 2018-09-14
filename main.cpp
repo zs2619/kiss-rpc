@@ -22,7 +22,7 @@
 #include "generator/GoGenerator.h"
 #include "parser/Program.h"
 
-#include "misc.h"
+#include "misc/misc.h"
 
 /**		
 	前端和后端有引用 以后需要重构!!!!
@@ -105,18 +105,18 @@ int main(int argc,char** argv)
 	curFileName=f;
 	if(!yyin)
 	{
-		printf("open fail %d.\n",errno);
+		std::cerr<<"open fail "<< errno<<std::endl;
 		return 0;
 	}
 	try
 	{
 		if (yyparse() != 0) 
 		{
-			printf("Parser error .");
+			std::cerr<<"Parser error ."<<std::endl;
 			return 0;
 		}
 	} catch (std::string x) {
-		printf(x.c_str());
+		std::cerr<<x<<std::endl;
 	}
 
 	/**后端生成代码*/

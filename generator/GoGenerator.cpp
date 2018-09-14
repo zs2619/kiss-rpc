@@ -6,8 +6,8 @@
 */
 //==============================================
 #include "GoGenerator.h"
-#include "../md5.h"
-#include "../misc.h"
+#include "../misc/md5.h"
+#include "../misc/misc.h"
 #include <sstream>
 #include <locale>
 #include <cctype>
@@ -40,10 +40,10 @@ void GoGenerator::generateEnum()
 	{
 		if(it->fileName_!=program_->fileName_)
 		{
-			 //°üº¬Í·ÎÄ¼ş ²»Éú³É´úÂë
+			 //åŒ…å«å¤´æ–‡ä»¶ ä¸ç”Ÿæˆä»£ç 
 			 continue; 
 		}
-		//´´½¨Ä¿Â¼
+		//åˆ›å»ºç›®å½•
 		std::string dirName=program_->outputDir_+it->name_+"/";
 		misc::mkdir(dirName.c_str());
 
@@ -100,7 +100,7 @@ void GoGenerator::generateStruct()
 	{
 		if(it->fileName_!=program_->fileName_)
 		{
-			//°üº¬Í·ÎÄ¼ş ²»Éú³É´úÂë
+			//åŒ…å«å¤´æ–‡ä»¶ ä¸ç”Ÿæˆä»£ç 
 			continue; 
 		}
 
@@ -115,7 +115,7 @@ void GoGenerator::generateStruct()
 		goFile_<<indent()<<"type "<<it->name_<<" struct{"<<std::endl;
 		indent_up();
 
-		//ÊôĞÔ
+		//å±æ€§
 		for(auto& inner:it->members_)
 		{
 			goFile_<<indent()<<setInitialUpper(inner->name_)<<" "<<typeName(inner->type_)<<" `name:\""<<inner->name_<<"\"`"<<std::endl;
@@ -131,7 +131,7 @@ void GoGenerator::generateStruct()
 		indent_down();
 		goFile_<<"}"<<std::endl;
 
-		//struct ĞòÁĞ»¯
+		//struct åºåˆ—åŒ–
 		goFile_<<indent()<<"func (this *"<<it->name_<<") Serialize( P__ IProtocol){"<<std::endl;
 		indent_up();
 		for(auto& inner:it->members_)
@@ -142,7 +142,7 @@ void GoGenerator::generateStruct()
 		indent_down();
 		goFile_<<"}"<<std::endl;
 
-		//struct ·´ĞòÁĞ»¯
+		//struct ååºåˆ—åŒ–
 		goFile_<<indent()<<"func (this *"<<it->name_<<") DeSerialize( P__ IProtocol) bool{"<<std::endl;
 		indent_up();
 		for(auto& inner:it->members_)
@@ -177,7 +177,7 @@ void GoGenerator::genServiceStub()
 	{
 		if(it->fileName_!=program_->fileName_)
 		{
-			 //°üº¬Í·ÎÄ¼ş ²»Éú³É´úÂë
+			 //åŒ…å«å¤´æ–‡ä»¶ ä¸ç”Ÿæˆä»£ç 
 			continue; 
 		}
 		//
@@ -226,7 +226,7 @@ void GoGenerator::genServiceProxy()
 	if (program_->services_.defs_.empty())
 		return;
 
-	//½Ó¿ÚÎÄ¼ş
+	//æ¥å£æ–‡ä»¶
 	std::string fileName=program_->outputDir_+"I"+program_->baseName_+"Proxy.go";
 	goFile_.open(fileName.c_str());
 	goFile_<<indent()<<"package "<<"rpc"<<std::endl;
@@ -235,7 +235,7 @@ void GoGenerator::genServiceProxy()
 	{
 		if(it->fileName_!=program_->fileName_)
 		{
-			//°üº¬Í·ÎÄ¼ş ²»Éú³É´úÂë
+			//åŒ…å«å¤´æ–‡ä»¶ ä¸ç”Ÿæˆä»£ç 
 			continue; 
 		}
 		std::string ifName="I"+it->name_+"Proxy";
@@ -263,7 +263,7 @@ void GoGenerator::genServiceProxy()
 	{
 		if(it->fileName_!=program_->fileName_)
 		{
-			//°üº¬Í·ÎÄ¼ş ²»Éú³É´úÂë
+			//åŒ…å«å¤´æ–‡ä»¶ ä¸ç”Ÿæˆä»£ç 
 			continue; 
 		}
 		std::string ifName=it->name_+"Proxy";
