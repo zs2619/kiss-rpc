@@ -1,4 +1,4 @@
-include "shuai.txt"
+include "shuai.rpc"
 struct god
 {
 	user g;

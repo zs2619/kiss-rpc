@@ -1,1 +1,0 @@
-	virtual bool ping();

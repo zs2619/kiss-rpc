@@ -128,7 +128,7 @@ ServiceContent: Groups Functions
 
 Groups :Groups Group
 		{
-			$$->push_back($2)
+			$$->push_back($2);
 
 		}
 		|
@@ -144,7 +144,7 @@ Group: tok_group '{' Functions'}'
 
 Functions: Functions Function 
 		{
-			$$->push_back($2)
+			$$->push_back($2);
 		}
 		|
 		{
