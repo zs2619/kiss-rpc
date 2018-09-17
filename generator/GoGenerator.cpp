@@ -455,11 +455,13 @@ void GoGenerator::serializeField( DefType* t ,const std::string& fieldName ,cons
 		indent_down();
 		goFile_<<indent()<<"}"<<std::endl;
 
-	}else if (t->is_enum())
+	}
+	else if (t->is_enum())
 	{
 		goFile_<<indent()<<inner<<".WriteInt16("<<fieldName<<")"<<std::endl;
 
-	}else if(t->is_map())
+	}
+	else if(t->is_map())
 	{
 	}
 }
@@ -625,7 +627,8 @@ std::string GoGenerator::typeName(DefType* t)
 	{
 		 return "int16";
 	}
-	assert(0&&"type error"); 
+	else if(t->is_map()) {
+	}
 	return "";
 }
 

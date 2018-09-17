@@ -7,6 +7,7 @@
 //==============================================
 #include "CppGenerator.h"
 #include "../misc/md5.h"
+#include "../misc/misc.h"
 
 CppGenerator::CppGenerator( Program* pro,const std::string& name ) :Generator(pro,name)
 {
@@ -19,10 +20,11 @@ void CppGenerator::generateProgram()
 	std::string srcName=program_->outputDir_+program_->baseName_+".cpp";
 	headerFile_.open(headerName.c_str());
 	srcFile_.open(srcName.c_str());
-	headerFile_<<"#ifndef	__"<<program_->baseName_<<"_H__"<<std::endl;
-	headerFile_<<"#define	__"<<program_->baseName_<<"_H__"<<std::endl;
+	headerFile_<<"#ifndef	__"<<misc::stringToUpper(program_->baseName_)<<"_H__"<<std::endl;
+	headerFile_<<"#define	__"<<misc::stringToUpper(program_->baseName_)<<"_H__"<<std::endl;
 	headerFile_<<std::endl;
 	// include 
+
 	headerFile_<<"#include \"IProtocol.h\""<<std::endl;
 	headerFile_<<"#include \"Common.h\""<<std::endl;
 	genIncludeHeader(headerFile_);
@@ -115,8 +117,9 @@ void CppGenerator::generateStructHeader()
 		{
 			++it; continue; 
 		}
-		headerFile_<<"struct "<<(*it)->name_<<std::endl;
+		headerFile_<<"class "<<(*it)->name_<<std::endl;
 		headerFile_<<"{ "<<std::endl;
+		headerFile_<<"public: "<<std::endl;
 		indent_up();
 		//构造 析构函数
 		headerFile_<<indent()<<(*it)->name_<<"();"<<std::endl;
@@ -551,11 +554,13 @@ void CppGenerator::serializeField( DefType* t ,const std::string& fieldName )
 		indent_down();
 		srcFile_<<indent()<<"}"<<std::endl;
 
-	}else if (t->is_enum())
+	}
+	else if (t->is_enum()) 
 	{
 		srcFile_<<indent()<<"__P__->writeInt16((int16)"<<fieldName<<");"<<std::endl;
 
-	}else if(t->is_map())
+	}
+	else if(t->is_map()) 
 	{
 		srcFile_<<indent()<<"__P__->writeUInt16("<<fieldName<<".size());"<<std::endl;
 		std::string temp="_it_"+fieldName+"_";

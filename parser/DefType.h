@@ -129,7 +129,7 @@ public:
 
 	SimpleDefType* keyDef_;
 	DefType*	   valueDef_;
-	std::string getFingerPrint() { assert(0); return "";}
+	std::string getFingerPrint() {  return " map "+keyDef_->getFingerPrint()+valueDef_->getFingerPrint();}
 };
 
 class ArrayDefType:public DefType

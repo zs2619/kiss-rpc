@@ -10,7 +10,7 @@
 #define	__CPPGENERATOR_H__
 #include "Generator.h"
 
-/** Éú³Écpp ºó¶Ë*/
+/** ç”Ÿæˆcpp åç«¯*/
 class CppGenerator: public Generator
 {
 public:
@@ -53,9 +53,9 @@ private:
 
 	void genInterfaceDeclare(ServiceDefType* service);
 private:
-	std::ofstream	headerFile_;	//<Í·ÎÄ¼ş
-	std::ofstream	srcFile_;		//<Ô´ÎÄ¼ş
-	std::ofstream	ifFile_;		//<½Ó¿ÚÎÄ¼ş
+	std::ofstream	headerFile_;	//<å¤´æ–‡ä»¶
+	std::ofstream	srcFile_;		//<æºæ–‡ä»¶
+	std::ofstream	ifFile_;		//<æ¥å£æ–‡ä»¶
 };
 
 #endif

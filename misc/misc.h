@@ -2,6 +2,7 @@
 #ifndef	__MISC_H__
 #define	__MISC_H__
 
+#include <algorithm>
 #ifdef WIN32
 #include <direct.h>
 
@@ -20,7 +21,13 @@ inline int	mkdir(const char* fileName)
 #endif
 	}
 
-
+inline	std::string stringToUpper(std::string& str)
+	{
+		std::string upperStr;
+		upperStr.resize(str.size());
+		std::transform(str.begin(),str.end(),upperStr.begin(),::toupper);
+		return std::move(upperStr);
+	}
 }
 
 #endif

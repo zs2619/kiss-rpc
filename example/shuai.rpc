@@ -1,14 +1,28 @@
-struct user
+enum SexType
 {
-	bool b;
-	int8 i;
-
+	male,
+	famale,
 };
+
 struct role
 {
-	int8 f;
-	user  u;
-	array<int16> item;
+	SexType sexType;
+	bool    b;
+	int8 	i8;
+	uint8 	ui8; 
+	int16   i16;
+	uint16  ui16;
+	int32   i32;
+	uint32  ui32;
+	int64   i64;
+	string  str;
+};
+
+struct user
+{
+	map<int32,role> roleMap;
+	array<int32> 	items;
+	array<role>     roles;
 };
 
 service opService
@@ -18,5 +32,4 @@ service opService
 		hehe(string s ,float f);
 	}
 	ping();
-
 };

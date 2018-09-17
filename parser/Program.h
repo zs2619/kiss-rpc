@@ -57,11 +57,11 @@ public:
 
 	bool addIncludeFile(const std::string& includeName);
 	std::vector<std::string>	include_;
-	std::string			fileName_; //<ÊäÈëÎÄ¼þÃû
-	std::string			baseName_; //ÎÄ¼þÃû
-	std::string			inputDir_;	//<ÊäÈëÄ¿Â¼
-	std::string			outputDir_; //<Êä³öÎÄ¼þÄ¿Â¼
-	bool				json_;		//<ÐòÁÐ»¯json
+	std::string			fileName_; //<è¾“å…¥æ–‡ä»¶å
+	std::string			baseName_; //æ–‡ä»¶å
+	std::string			inputDir_;	//<è¾“å…¥ç›®å½•
+	std::string			outputDir_; //<è¾“å‡ºæ–‡ä»¶ç›®å½•
+	bool				json_;		//<åºåˆ—åŒ–json
 };
 
 template <typename T>
