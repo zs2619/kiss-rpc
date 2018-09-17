@@ -1,34 +1,17 @@
-//include "shuai"
-//include "zhn"
-//enum fff 
-//{
-//	zhang,
-//	suai,
-//	dfdf,
-//}
-//enum  ddd
-//{
-//	fsa,
-//}
-//service ddf
-//{
-//	zhang(int8 a,int16 b)
-//	shai(bool d,bool d)
-//}
 struct user
 {
 	bool b;
 	int8 i;
 
 };
-struct fdfa
+struct role
 {
 	int8 f;
 	user  u;
-	array<int16> fdf;
+	array<int16> item;
 };
 
-service sha
+service opService
 {
 	group{
 		haha(int8 a,string h);

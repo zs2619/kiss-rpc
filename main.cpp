@@ -82,12 +82,12 @@ int main(int argc,char** argv)
 	  }
 	}
 	if (argv[i] == NULL) {
-		fprintf(stderr, "Missing file name\n");
+		std::cerr<<"missing file name"<<std::endl;
 		usage();
 	}
 	if(genStr.empty())
 	{
-		fprintf(stderr, "Missing Generate code\n");
+		std::cerr<<"missing Generate code "<<std::endl;
 		usage();
 	}
 	std::vector<std::string> gen;
@@ -112,7 +112,7 @@ int main(int argc,char** argv)
 	{
 		if (yyparse() != 0) 
 		{
-			std::cerr<<"Parser error ."<<std::endl;
+			std::cerr<<"parser error ."<<std::endl;
 			return 0;
 		}
 	} catch (std::string x) {
