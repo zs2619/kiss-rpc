@@ -50,6 +50,15 @@ void GoGenerator::generateEnum()
 		std::string name=dirName+it->name_+".go";
 		goFile_.open(name.c_str());
 		goFile_<<indent()<<"package "<<it->name_<<std::endl;
+
+		//imports 
+		goFile_<<indent()<<"import ("<<std::endl;
+		indent_up();
+		goFile_<<indent()<<"\"IProtocol\""<<std::endl;
+		goFile_<<indent()<<"\"Protocol\""<<std::endl;
+		indent_down();
+		goFile_<<indent()<<")"<<std::endl;
+
 		goFile_<<indent()<<"const ("<<std::endl;
 		indent_up();
 		bool flag=true;
@@ -107,6 +116,15 @@ void GoGenerator::generateStruct()
 		std::string name=program_->outputDir_+it->name_+".go";
 		goFile_.open(name.c_str());
 		goFile_<<indent()<<"package "<<"rpc"<<std::endl;
+
+		//imports 
+		goFile_<<indent()<<"import ("<<std::endl;
+		indent_up();
+		goFile_<<indent()<<"\"IProtocol\""<<std::endl;
+		goFile_<<indent()<<"\"Protocol\""<<std::endl;
+		indent_down();
+		goFile_<<indent()<<")"<<std::endl;
+
 
 		///struct 
 		//fingerprint
@@ -173,6 +191,15 @@ void GoGenerator::genServiceStub()
 	goFile_.open(fileName.c_str());
 	goFile_<<indent()<<"package "<<"rpc"<<std::endl;
 	goFile_<<std::endl;
+
+	//imports 
+	goFile_<<indent()<<"import ("<<std::endl;
+	indent_up();
+	goFile_<<indent()<<"\"IProtocol\""<<std::endl;
+	goFile_<<indent()<<"\"Protocol\""<<std::endl;
+	indent_down();
+	goFile_<<indent()<<")"<<std::endl;
+
 	for (auto& it:program_->services_.defs_)
 	{
 		if(it->fileName_!=program_->fileName_)
@@ -231,6 +258,15 @@ void GoGenerator::genServiceProxy()
 	goFile_.open(fileName.c_str());
 	goFile_<<indent()<<"package "<<"rpc"<<std::endl;
 	goFile_<<std::endl;
+
+	//imports 
+	goFile_<<indent()<<"import ("<<std::endl;
+	indent_up();
+	goFile_<<indent()<<"\"IProtocol\""<<std::endl;
+	goFile_<<indent()<<"\"Protocol\""<<std::endl;
+	indent_down();
+	goFile_<<indent()<<")"<<std::endl;
+
 	for (auto& it:program_->services_.defs_)
 	{
 		if(it->fileName_!=program_->fileName_)

@@ -1,4 +1,4 @@
-package rpclib
+package rpc
 
 import (
 	// "encoding/binary"

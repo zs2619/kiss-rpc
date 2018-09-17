@@ -10,7 +10,7 @@
 
 #include "Generator.h"
 
-/** Éú³Éas3 ºó¶Ë*/
+/** ç”Ÿæˆas3 åç«¯*/
 class As3Generator :public Generator
 {
 public:

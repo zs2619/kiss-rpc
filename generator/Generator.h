@@ -59,9 +59,9 @@ public:
 
 
 protected:
-	int			indent_;		//<Ëõ½ø
+	int			indent_;		//<ç¼©è¿›
 	Program*	program_;
-	std::string name_;			//<Éú³Éºó¶ËµÄÃû×Ö
+	std::string name_;			//<ç”Ÿæˆåç«¯çš„åå­—
 };
 
 #endif

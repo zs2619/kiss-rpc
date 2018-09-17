@@ -5,7 +5,7 @@
 @author		zhangshuai
 */
 //==============================================
-package rpclib
+package rpc
 
 import (
 	"bytes"
