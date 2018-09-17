@@ -586,6 +586,7 @@ void GoGenerator::deSerializeField( DefType* t ,const std::string& fieldName )
 
 	}else if(t->is_map())
 	{
+
 	}
 }
 
@@ -597,9 +598,14 @@ std::string GoGenerator::typeName(DefType* t)
 		ArrayDefType* array=(ArrayDefType*)t;
 		std::string temp="[]"+typeName(array->valueDef_); 
 		return temp;
-	}else if(t->is_map())
+	}
+	else if(t->is_map())
 	{
-	}else if (t->is_simple_type())
+		MapDefType* mapType=(MapDefType*)t;
+		std::string temp="map["+typeName( mapType->keyDef_)+"]"+typeName(mapType->valueDef_); 
+		return temp;
+	}
+	else if (t->is_simple_type())
 	{
 		SimpleDefType* s=(SimpleDefType*)t;
 		switch (s->t_)
@@ -627,8 +633,7 @@ std::string GoGenerator::typeName(DefType* t)
 	{
 		 return "int16";
 	}
-	else if(t->is_map()) {
-	}
+	assert(0&&"type error");
 	return "";
 }
 
