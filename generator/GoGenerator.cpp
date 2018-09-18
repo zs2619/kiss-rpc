@@ -463,6 +463,13 @@ void GoGenerator::serializeField( DefType* t ,const std::string& fieldName ,cons
 	}
 	else if(t->is_map())
 	{
+		goFile_<<indent()<<inner<<".WriteUInt16(uint16(len("<<fieldName<<")))"<<std::endl;
+		goFile_<<indent()<<"for k ,v := range "<<fieldName<<" {"<<std::endl;
+		indent_up();
+		serializeField(((MapDefType*)t)->keyDef_,"k",inner);
+		serializeField(((MapDefType*)t)->valueDef_,"v",inner);
+		indent_down();
+		goFile_<<indent()<<"}"<<std::endl;
 	}
 }
 
@@ -586,6 +593,26 @@ void GoGenerator::deSerializeField( DefType* t ,const std::string& fieldName )
 
 	}else if(t->is_map())
 	{
+		static int i=0;
+		std::stringstream str;
+		str<<"_n_"<<i<<"_map";
+		goFile_<<indent()<<str.str()<<":=P__.ReadUInt16()"<<std::endl;
+		std::stringstream count;count<<"_i_"<<i<<"_";
+		i++;
+
+		goFile_<<indent()<<"for "<<count.str()<<":=0; "<<"uint16("<<count.str()<<")<"<<str.str()<<"; "<<count.str()<<"++ {"<<std::endl;
+		indent_up();
+		//key
+		goFile_<<indent()<<"var tmpKey "<<typeName(((MapDefType*)t)->keyDef_)<<std::endl;
+		deSerializeField(((MapDefType*)t)->keyDef_,"tmpKey");
+
+		//value
+		goFile_<<indent()<<"var tmpValue "<<typeName(((MapDefType*)t)->valueDef_)<<std::endl;
+		deSerializeField(((MapDefType*)t)->valueDef_,"tmpValue");
+
+		goFile_<<indent()<<fieldName<<"[tmpKey]=tmpValue"<<std::endl;
+		indent_down();
+		goFile_<<indent()<<"}"<<std::endl;
 
 	}
 }
