@@ -31,5 +31,8 @@ service opService
 		haha(int8 a,string h);
 		hehe(string s ,float f);
 	}
+	momo(int8 i8,int64 i64);
+	xixi(user u);
+	lala(map<int32,role> m,array<int32> ai,array<role> ar);
 	ping();
 };
