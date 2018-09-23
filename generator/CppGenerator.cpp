@@ -180,16 +180,16 @@ void CppGenerator::generateStructSrc()
 		srcFile_<<indent()<<(*it)->name_<<"::"<<(*it)->name_<<"()"<<std::endl;
 		std::vector<FieldDefType*>::iterator it_inner;
 		it_inner=(*it)->members_.begin();
-		bool frist=true;
+		bool first=true;
 		while(it_inner!=(*it)->members_.end())
 		{
 			FieldDefType*& t=*it_inner;
 			if (t->type_->is_enum()||(t->type_->is_simple_type()&&((SimpleDefType*)(t->type_))->t_!=SimpleDefType::stringType))
 			{
-				if (frist)
+				if (first)
 				{
 					srcFile_<<":"<<t->name_<<"("<<DefaultValue(t->type_)<<")"<<std::endl;
-					frist=false;
+					first=false;
 				}
 				else
 				{
@@ -568,7 +568,7 @@ void CppGenerator::serializeField( DefType* t ,const std::string& fieldName )
 		srcFile_<<indent()<<"while("<<temp<<"!="<<fieldName<<".end())"<<std::endl;
 		srcFile_<<indent()<<"{"<<std::endl;
 		indent_up();
-		std::string tempfirst=temp+"->frist";
+		std::string tempfirst=temp+"->first";
 		std::string tempsecond=temp+"->second";
 		serializeField(((MapDefType*)t)->keyDef_,tempfirst);
 		serializeField(((MapDefType*)t)->valueDef_,tempsecond);
@@ -666,8 +666,8 @@ void CppGenerator::deSerializeField( DefType* t ,const std::string& fieldName )
 	}else if(t->is_map())
 	{
 		std::string size="_n_"+fieldName+"_map_";
-		srcFile_<<indent()<<"int "<<size<<"=0;"<<std::endl;
-		srcFile_<<indent()<<"__P__->readUInt16("<<size<<")return false;"<<std::endl;
+		srcFile_<<indent()<<"uint16 "<<size<<"=0;"<<std::endl;
+		srcFile_<<indent()<<"if(!"<<"__P__->readUInt16("<<size<<"))return false;"<<std::endl;
 		std::string count="_i_"+fieldName+"_";
 		srcFile_<<indent()<<"for (int "<<count<<"=0;"<<count<<"<"<<size<<";"<<count<<"++)"<<std::endl;
 		srcFile_<<indent()<<"{"<<std::endl;
@@ -682,7 +682,7 @@ void CppGenerator::deSerializeField( DefType* t ,const std::string& fieldName )
 
 		deSerializeField(((MapDefType*)t)->keyDef_,firstValue);
 		deSerializeField(((MapDefType*)t)->valueDef_,secondValue);
-		srcFile_<<indent()<<fieldName<<"["<<firstValue<<"]="<< secondValue<<std::endl;
+		srcFile_<<indent()<<fieldName<<"["<<firstValue<<"]="<< secondValue<<";"<<std::endl;
 		indent_down();
 		srcFile_<<indent()<<"}"<<std::endl;
 	}
@@ -895,11 +895,11 @@ void CppGenerator::genServiceProxySrc()
 void CppGenerator::genFunAgrList( std::ofstream& stream,StructDefType* agrList,bool onlyValue)
 {
 	std::vector<FieldDefType*>::iterator it_inner=agrList->members_.begin();
-	bool frist=true;
+	bool first=true;
 	while(it_inner!=agrList->members_.end())
 	{
 		FieldDefType*& t=*it_inner;
-		if (frist)
+		if (first)
 		{
 			if (onlyValue)
 			{
@@ -909,7 +909,7 @@ void CppGenerator::genFunAgrList( std::ofstream& stream,StructDefType* agrList,b
 			{
 				stream<<typeName(t->type_,true)<<"  "<<t->name_;
 			}
-			frist=false;
+			first=false;
 		}
 		else
 		{

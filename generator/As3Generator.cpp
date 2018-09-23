@@ -408,11 +408,11 @@ void As3Generator::generateService()
 void As3Generator::genFunAgrList( std::ofstream& stream,StructDefType* agrList,bool onlyValue)
 {
 	std::vector<FieldDefType*>::iterator it_inner=agrList->members_.begin();
-	bool frist=true;
+	bool first=true;
 	while(it_inner!=agrList->members_.end())
 	{
 		FieldDefType*& t=*it_inner;
-		if (frist)
+		if (first)
 		{
 			if (onlyValue)
 			{
@@ -422,7 +422,7 @@ void As3Generator::genFunAgrList( std::ofstream& stream,StructDefType* agrList,b
 			{
 				stream<<t->name_<<":"<<typeName(t->type_);
 			}
-			frist=false;
+			first=false;
 		}
 		else
 		{

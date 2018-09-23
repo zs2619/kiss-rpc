@@ -178,9 +178,9 @@ public:
 	uint32 getCurLen() { return curLen_; }
 
 private:
-	uint32 len_;		//<buf×î´ó³¤¶È
-	uint32 curLen_;		//<µ±Ç°³¤¶È
-	int8*  buf_;		//<Êı¾İ
+	uint32 len_;		//<bufæœ€å¤§é•¿åº¦
+	uint32 curLen_;		//<å½“å‰é•¿åº¦
+	int8*  buf_;		//<æ•°æ®
 };
 
 #endif

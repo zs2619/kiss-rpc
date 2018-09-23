@@ -476,10 +476,10 @@ void GoGenerator::serializeField( DefType* t ,const std::string& fieldName ,cons
 
 void GoGenerator::genFunAgrList( std::ofstream& stream,StructDefType* agrList,bool onlyValue)
 {
-	bool frist=true;
+	bool first=true;
 	for (auto& it:agrList->members_)
 	{
-		if (frist)
+		if (first)
 		{
 			if (onlyValue)
 			{
@@ -489,7 +489,7 @@ void GoGenerator::genFunAgrList( std::ofstream& stream,StructDefType* agrList,bo
 			{
 				stream<<" "<<it->name_<<"  "<<typeName(it->type_);
 			}
-			frist=false;
+			first=false;
 		}
 		else
 		{

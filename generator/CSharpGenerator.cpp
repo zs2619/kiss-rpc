@@ -614,11 +614,11 @@ void CSharpGenerator::genServiceProxyIf()
 void CSharpGenerator::genFunAgrList( std::ofstream& stream,StructDefType* agrList,bool onlyValue)
 {
 	std::vector<FieldDefType*>::iterator it_inner=agrList->members_.begin();
-	bool frist=true;
+	bool first=true;
 	while(it_inner!=agrList->members_.end())
 	{
 		FieldDefType*& t=*it_inner;
-		if (frist)
+		if (first)
 		{
 			if (onlyValue)
 			{
@@ -628,7 +628,7 @@ void CSharpGenerator::genFunAgrList( std::ofstream& stream,StructDefType* agrLis
 			{
 				stream<<typeName(t->type_)<<" "<<t->name_;
 			}
-			frist=false;
+			first=false;
 		}
 		else
 		{
