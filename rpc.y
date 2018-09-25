@@ -19,6 +19,7 @@
 %token tok_int64
 %token tok_float
 %token tok_string
+%token tok_void
 
 /**
  * Complex type keywords
@@ -80,6 +81,7 @@
 %type<funTypes_ >	Functions
 %type<groupTypes_ >	Groups
 
+%type<type_ >	FunctionResult
 
 %type<mapType_>		MapContainer
 %type<arrayType_>	ArrayContainer
@@ -151,16 +153,27 @@ Functions: Functions Function
 			$$=new std::vector<FuctionDefType*>;
 		}
 
-Function:	tok_identifier '(' FunctionFieldList ')' Separator
+Function: FunctionResult	tok_identifier '(' FunctionFieldList ')' Separator
 		{
 			$$ = new FuctionDefType;
-			$$->name_=*$1;
-			$$->argrs_=$3;
+			$$->result_=$1;
+			$$->name_=*$2;
+			$$->argrs_=$4;
+
 		}
+
+FunctionResult :FieldType
+				{
+				$$=$1;
+				}
+				|tok_void
+				{
+				$$= new VoidDefType;
+				}
 
 FunctionFieldList: FunctionFieldList FunctionField
 		{
-			 $$=$1;
+			$$=$1;
 			if(!$$->addStructValue($2))
 			{
 				yyerror("fun argument repeat: \"%s\"\n", (*$2).name_.c_str());
@@ -179,7 +192,7 @@ FunctionFieldList: FunctionFieldList FunctionField
 			$$ = new StructDefType;
 		}
 
-FunctionField:	 FieldType tok_identifier Separator
+FunctionField: FieldType tok_identifier Separator
 		{
 			$$= new FieldDefType;
 			$$->type_=$1;
@@ -195,9 +208,10 @@ Struct: tok_struct tok_identifier  '{' StructFieldList '}' ';'
 				yyerror("struct name repeat: \"%s\"\n", (*$2).c_str());
 			}
 		}
+
 StructFieldList: StructFieldList	StructField
 		 {
-			 $$=$1;
+			$$=$1;
 			if(!$$->addStructValue($2))
 			{
 				yyerror("struct value repeat: \"%s\"\n", (*$1).name_.c_str());
@@ -212,12 +226,14 @@ StructFieldList: StructFieldList	StructField
 				yyerror("struct value repeat: \"%s\"\n", (*$1).name_.c_str());
 			}
 		}
+
 StructField: FieldType tok_identifier Separator
 		{
 			$$= new FieldDefType;
 			$$->type_=$1;
 			$$->name_=*$2;
 		}
+
 Separator : ';'|','|
 
 
@@ -246,6 +262,7 @@ FieldType: tok_identifier
 			{
 				$$=$1;
 			}
+
 ContainerDefType: MapContainer 
 			 {
 			    $$=$1;

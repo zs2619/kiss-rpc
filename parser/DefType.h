@@ -28,6 +28,7 @@ public:
 	virtual bool is_service()   const { return false; }
 	virtual bool is_function()   const { return false; }
 	virtual bool is_group()      const { return false; }
+	virtual bool is_void()      const { return false; }
 
 	virtual std::string getFingerPrint()=0;
 
@@ -95,6 +96,13 @@ public:
 	dataType t_;
 };
 
+class VoidDefType: public DefType
+{
+public:
+	virtual bool is_void() const { return true; }
+	std::string getFingerPrint(){return " void ";}
+};
+
 class StructDefType:public DefType
 {
 public:
@@ -152,6 +160,7 @@ public:
 		return " fuction "+name_+argrs_->getFingerPrint();
 	}
 	StructDefType*	argrs_;
+	DefType*		result_;
 };
 
 class GroupDefType :public Definition

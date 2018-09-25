@@ -28,11 +28,11 @@ struct user
 service opService
 {
 	group{
-		haha(int8 a,string h);
-		hehe(string s ,float f);
+		int8 haha(int8 a,string h);
+		int8 hehe(string s ,float f);
 	}
-	momo(int8 i8,int64 i64);
-	xixi(user u);
-	lala(map<int32,role> m,array<int32> ai,array<role> ar);
-	ping();
+	void momo(int8 i8,int64 i64);
+	int8 xixi(user u);
+	array<role> lala(map<int32,role> m,array<int32> ai,array<role> ar);
+	int8 ping();
 };

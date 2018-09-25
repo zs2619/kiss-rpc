@@ -72,6 +72,7 @@ symbol        ([:;\,\{\}\(\)\=<>\[\]\"])
 "struct"			{ return tok_struct;			}
 "array"			    { return tok_array;             }
 "map"               { return tok_map;              }
+"void"			 	 { return tok_void; }
 
 "service"           { return tok_service;          }
 "group"				{ return tok_group;          }
