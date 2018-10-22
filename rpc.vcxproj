@@ -55,8 +55,12 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <PreBuildEvent>
-      <Command>
-      </Command>
+      <Command>set PATH=%PATH%;$(SolutionDir)\tools\GnuWin32\bin
+flex.exe  -oparser\lex.yy.cpp rpc.l
+bison.exe -d -v -o parser\rpc.tab.cpp rpc.y
+
+
+</Command>
     </PreBuildEvent>
     <ClCompile>
       <Optimization>Disabled</Optimization>
@@ -107,14 +111,11 @@
     <ClCompile Include="misc\md5.cpp" />
     <ClCompile Include="parser\DefType.cpp" />
     <ClCompile Include="parser\Global.cpp" />
-    <ClCompile Include="lex.yy.cpp">
-      <PreprocessToFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</PreprocessToFile>
-      <PreprocessSuppressLineNumbers Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</PreprocessSuppressLineNumbers>
-    </ClCompile>
+    <ClCompile Include="parser\lex.yy.cpp" />
     <ClCompile Include="parser\Program.cpp" />
-    <ClCompile Include="rpc.tab.cpp" />
     <ClCompile Include="lib\cpp\IBinProtocol.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="parser\rpc.tab.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="generator\CSharpGenerator.h" />
@@ -127,6 +128,7 @@
     <ClInclude Include="parser\DefType.h" />
     <ClInclude Include="parser\Global.h" />
     <ClInclude Include="parser\Program.h" />
+    <ClInclude Include="parser\rpc.tab.hpp" />
     <ClInclude Include="rpc.tab.hpp" />
     <ClInclude Include="lib\cpp\Common.h" />
     <ClInclude Include="lib\cpp\EnumMap.h" />
@@ -138,7 +140,7 @@
     <None Include="lib\as3\IProtocol.as" />
     <Text Include="rpc.l">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">flex</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">tools\GnuWin32\bin\flex.exe  -olex.yy.cpp rpc.l
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">tools\GnuWin32\bin\flex.exe  -oparser\lex.yy.cpp rpc.l
 </Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">lex.yy.cpp;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">flex</Message>
@@ -148,7 +150,7 @@
       <FileType>Document</FileType>
     </Text>
     <Text Include="rpc.y">
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">tools\GnuWin32\bin\bison.exe -d -v -o rpc.tab.cpp rpc.y
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">tools\GnuWin32\bin\bison.exe -d -v -o parser\rpc.tab.cpp rpc.y
 </Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">rpc.tab.cpp rpc.tab.hpp;%(Outputs)</Outputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">bison -d -o rpc.tab.cpp rpc.y

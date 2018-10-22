@@ -62,13 +62,7 @@
     <ClCompile Include="parser\Global.cpp">
       <Filter>parser\src</Filter>
     </ClCompile>
-    <ClCompile Include="lex.yy.cpp">
-      <Filter>parser\src</Filter>
-    </ClCompile>
     <ClCompile Include="parser\Program.cpp">
-      <Filter>parser\src</Filter>
-    </ClCompile>
-    <ClCompile Include="rpc.tab.cpp">
       <Filter>parser\src</Filter>
     </ClCompile>
     <ClCompile Include="lib\cpp\IBinProtocol.cpp">
@@ -83,6 +77,12 @@
     </ClCompile>
     <ClCompile Include="misc\md5.cpp">
       <Filter>misc</Filter>
+    </ClCompile>
+    <ClCompile Include="parser\lex.yy.cpp">
+      <Filter>parser\src</Filter>
+    </ClCompile>
+    <ClCompile Include="parser\rpc.tab.cpp">
+      <Filter>parser\src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -131,6 +131,9 @@
     <ClInclude Include="misc\md5.h">
       <Filter>misc</Filter>
     </ClInclude>
+    <ClInclude Include="parser\rpc.tab.hpp">
+      <Filter>parser\include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="lib\as3\IProtocol.as">
@@ -156,7 +159,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="rpc.y" />
     <Text Include="rpc.l" />
+    <Text Include="rpc.y" />
   </ItemGroup>
 </Project>

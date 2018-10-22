@@ -6,8 +6,8 @@ identifier    ([a-zA-Z_][a-zA-Z_0-9]*)
 fileName	  ([a-zA-Z_0-9\.]*)
 %{
 #include <string>
-#include "parser/Global.h"
-#include "parser/DefType.h"
+#include "Global.h"
+#include "DefType.h"
 #include "rpc.tab.hpp"
 
 void reserved_keyword(char* keyword) {

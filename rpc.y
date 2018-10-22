@@ -1,9 +1,9 @@
 %{
 #include <stdio.h>
 #include <string>
-#include "parser/Global.h"
-#include "parser/DefType.h"
-#include "parser/Program.h"
+#include "Global.h"
+#include "DefType.h"
+#include "Program.h"
 %}
 
 /**
