@@ -5,8 +5,8 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 PROJECT (rpc)
 ADD_CUSTOM_COMMAND(OUTPUT rpc.tab.hpp lex.yy.cpp rpc.tab.cpp
-		COMMAND flex  -olex.yy.cpp rpc.l
-		COMMAND bison -d -o rpc.tab.cpp rpc.y
+		COMMAND flex  -o parser/lex.yy.cpp rpc.l
+		COMMAND bison -d -o parser/rpc.tab.cpp rpc.y
 	)
 SET(HEADER_FILES
 	parser/DefType.h
@@ -18,7 +18,7 @@ SET(HEADER_FILES
 	generator/CSharpGenerator.h
 	generator/Generator.h
 	misc/md5.h
-	rpc.tab.hpp
+	parser/rpc.tab.hpp
 	)
 SET(SRC_FILES
 	parser/DefType.cpp
@@ -30,8 +30,8 @@ SET(SRC_FILES
 	generator/CSharpGenerator.cpp
 	generator/Generator.cpp
 	misc/md5.cpp
-	lex.yy.cpp 
- 	rpc.tab.cpp
+	parser/lex.yy.cpp 
+	parser/rpc.tab.cpp
 	main.cpp
 	)
 ADD_EXECUTABLE(rpc ${SRC_FILES} )
