@@ -42,6 +42,9 @@
     <Filter Include="lib\go">
       <UniqueIdentifier>{c7088765-0bc8-4982-a20d-ff7dce1803d4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="misc">
+      <UniqueIdentifier>{41691de1-e0e3-4aae-bc06-d48b7edd9b10}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="generator\Generator.cpp">
@@ -71,15 +74,15 @@
     <ClCompile Include="lib\cpp\IBinProtocol.cpp">
       <Filter>lib\cpp</Filter>
     </ClCompile>
-    <ClCompile Include="md5.cpp">
-      <Filter>parser\src</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="generator\CSharpGenerator.cpp">
       <Filter>generator\cshape</Filter>
     </ClCompile>
     <ClCompile Include="generator\GoGenerator.cpp">
       <Filter>generator\go</Filter>
+    </ClCompile>
+    <ClCompile Include="misc\md5.cpp">
+      <Filter>misc</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -116,16 +119,18 @@
     <ClInclude Include="lib\cpp\IProtocol.h">
       <Filter>lib\cpp</Filter>
     </ClInclude>
-    <ClInclude Include="md5.h">
-      <Filter>parser\include</Filter>
-    </ClInclude>
     <ClInclude Include="generator\CSharpGenerator.h">
       <Filter>generator\cshape</Filter>
     </ClInclude>
     <ClInclude Include="generator\GoGenerator.h">
       <Filter>generator\go</Filter>
     </ClInclude>
-    <ClInclude Include="misc.h" />
+    <ClInclude Include="misc\misc.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="misc\md5.h">
+      <Filter>misc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="lib\as3\IProtocol.as">
@@ -151,7 +156,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="rpc.l" />
-    <CustomBuild Include="rpc.y" />
+    <Text Include="rpc.y" />
+    <Text Include="rpc.l" />
   </ItemGroup>
 </Project>
