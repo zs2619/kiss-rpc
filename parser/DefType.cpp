@@ -9,16 +9,14 @@
 #include "DefType.h"
 bool EnumDefType::fineValueByName(const std::string& value)
 {
-	std::vector<std::string>::iterator it=defs_.begin();
-	while(it!=defs_.end())
+	auto it = std::find(defs_.begin(), defs_.end(), value);
+	if (it != defs_.end())
 	{
-		if((*it)==value)
-			return true;
-		++it;
+		return true;
 	}
 	return false;
-
 }
+
 bool EnumDefType::addEnumValue( const std::string& value )
 {
 	if(!fineValueByName(value))
@@ -42,7 +40,7 @@ bool StructDefType::addStructValue( FieldDefType* member )
 
 bool StructDefType::fineValueByName( const std::string& value )
 {
-	std::vector<FieldDefType*>::iterator it=members_.begin();
+	auto it=members_.begin();
 	while(it!=members_.end())
 	{
 		if((*it)->name_==value)
@@ -65,7 +63,7 @@ bool ServiceDefType::addFunciton( FuctionDefType* fun )
 
 bool ServiceDefType::findFunByName( const std::string& name )
 {
-	std::vector<FuctionDefType*>::iterator it=funs_.begin();
+	auto it=funs_.begin();
 	while (it!=funs_.end())
 	{
 		if((*it)->name_==name)

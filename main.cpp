@@ -13,6 +13,8 @@
 #include <errno.h>
 #include <string.h>
 #include <stdlib.h>
+#include <type_traits>
+
 
 #include "parser/Global.h"
 #include "generator/Generator.h"
@@ -24,33 +26,32 @@
 
 #include "misc/misc.h"
 
-/**		
-	前端和后端有引用 以后需要重构!!!!
-*/
+
 void usage() 
 {
-  fprintf(stderr, "Usage: rpc [options] file\n");
-  fprintf(stderr, "Options:\n");
-  fprintf(stderr, "  -o   dir    output file directory\n");
-  fprintf(stderr, "  -i   dir    input  file directory\n");
-  fprintf(stderr, "  -gen lang   cpp as3 cs go Generate code\n");
-  fprintf(stderr, "  -json       serialize json.\n");
-  exit(0);
+	std::cout<< "Usage: rpc [options] file" << std::endl;
+	std::cout<< "Options:" << std::endl;
+	std::cout<< "  -o   dir    output file directory" << std::endl;
+	std::cout<< "  -i   dir    input  file directory" << std::endl;
+	std::cout<< "  -gen lang   cpp as3 cs go Generate code" << std::endl;
+	std::cout<< "  -json       serialize json." << std::endl;
+	exit(0);
 }
+
 void split(std::string& s, const std::string& delim,std::vector< std::string >& ret)
 {
- size_t last = 0;
- size_t index=s.find_first_of(delim,last);
- while (index!=std::string::npos)
- {
-  ret.push_back(s.substr(last,index-last));
-  last=index+1;
-  index=s.find_first_of(delim,last);
- }
- if (index-last>0)
- {
-  ret.push_back(s.substr(last,index-last));
- }
+	size_t last = 0;
+	size_t index=s.find_first_of(delim,last);
+	while (index!=std::string::npos)
+	{
+	ret.push_back(s.substr(last,index-last));
+	last=index+1;
+	index=s.find_first_of(delim,last);
+	}
+	if (index-last>0)
+	{
+	ret.push_back(s.substr(last,index-last));
+	}
 }
 int main(int argc,char** argv)
 {
@@ -124,20 +125,20 @@ int main(int argc,char** argv)
 	{
 		if (it=="cpp")
 		{
-			Generator* cpp=new CppGenerator(Program::inst(),"cpp");
+			std::unique_ptr<Generator> cpp(new CppGenerator(Program::inst(),"cpp"));
 			cpp->generateProgram();
 		}
 		else if(it=="as3")
 		{
-			Generator* as3=new As3Generator(Program::inst(),"as3");
+			std::unique_ptr<Generator> as3(new As3Generator(Program::inst(),"as3"));
 			as3->generateProgram();
 		}else if(it=="cs")
 		{
-			Generator* cs=new CSharpGenerator(Program::inst(),"cs");
+			std::unique_ptr<Generator> cs(new CSharpGenerator(Program::inst(),"cs"));
 			cs->generateProgram();
 		}else if(it=="go")
 		{
-			Generator* go=new GoGenerator(Program::inst(),"go");
+			std::unique_ptr<Generator> go(new GoGenerator(Program::inst(),"go"));
 			go->generateProgram();
 		}
 	}

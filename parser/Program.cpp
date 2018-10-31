@@ -11,15 +11,12 @@
 
 bool Program::addIncludeFile( const std::string& includeName )
 {
-	std::vector<std::string>::iterator it =include_.begin();
-	while (it!=include_.end())
+	auto it = std::find(include_.begin(), include_.end(), includeName);
+	if (it != include_.end())
 	{
-		if (*it==includeName)
-		{
-			return false;
-		}
-		++it;
+		return false;
 	}
+
 	include_.push_back(includeName);
 	return true;
 }

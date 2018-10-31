@@ -12,6 +12,8 @@
 #include <vector>
 #include <assert.h>
 #include <string>
+#include <algorithm>    
+
 class	EnumDefType;
 class	StructDefType;
 class	ServiceDefType;
@@ -22,12 +24,16 @@ class DefVector
 public:
 	T findDefByName(const std::string& name)
 	{
-		typename std::vector<T>::iterator it=defs_.begin();
-		while(it!=defs_.end())
+		auto it = std::find_if(defs_.begin(), defs_.end(), [&] (auto it){	
+			if (it->name_ == name)
+				return true; 
+			return false;
+
+		}
+		);
+		if (it != defs_.end())
 		{
-			if((*it)->name_==name)
-				return *it;
-			++it;
+			return *it;
 		}
 		return NULL;
 	}
@@ -56,12 +62,13 @@ public:
 	bool findDefByName(const std::string& name);
 
 	bool addIncludeFile(const std::string& includeName);
+	
+	std::string			fileName_;		///<输入文件名
+	std::string			baseName_;		///文件名
+	std::string			inputDir_;		///<输入目录
+	std::string			outputDir_;		///<输出文件目录
+	bool				json_;			///<序列化json
 	std::vector<std::string>	include_;
-	std::string			fileName_; //<输入文件名
-	std::string			baseName_; //文件名
-	std::string			inputDir_;	//<输入目录
-	std::string			outputDir_; //<输出文件目录
-	bool				json_;		//<序列化json
 };
 
 template <typename T>
