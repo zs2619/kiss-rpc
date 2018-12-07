@@ -91,8 +91,7 @@ bison.exe -d -v -o parser\rpc.tab.cpp rpc.y
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <AdditionalIncludeDirectories>
-      </AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\tools\GnuWin32\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -101,6 +100,9 @@ bison.exe -d -v -o parser\rpc.tab.cpp rpc.y
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
+    <PreBuildEvent>
+      <Command>set PATH=%PATH%;$(SolutionDir)\tools\GnuWin32\bin</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="generator\CSharpGenerator.cpp" />
