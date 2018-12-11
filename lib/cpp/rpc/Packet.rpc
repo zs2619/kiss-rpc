@@ -1,0 +1,15 @@
+
+struct RequestPacket{
+    int8         packetType_;
+    string       serviceName_;
+    int16        funcId_;
+    int          requestId_;
+    int          timeout_;
+	array<int8>  buff_;
+};
+
+struct ResponsePacket{
+    int8         packetType_;
+    int          requestId_;
+	array<int8>  buff;
+};
