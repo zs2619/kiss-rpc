@@ -1,11 +1,12 @@
 
 #include <iostream>
 #include "HelloMsg.h"
-#include "Rpc/RpcChannle.h"
+#include "Rpc/RpcChannel.h"
 
 int main(int argc,char ** argv)
 {
-    RpcChannle chan(new Transport,new Protocol);
+    std::string url;
+    RpcChannel chan(url,new Transport,new Protocol);
     HelloMsgStub client= chan.createStub<HelloMsgStub>() ;
 
     client.test(100,[](int a)->int{
