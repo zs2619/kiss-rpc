@@ -11,14 +11,14 @@
 class RequestMsg{
 public:	
 	int msgSeqId;
-	std::vector<char> buf;
+	std::vector<int8> buf;
 	int msgId;
 };
 class ReponesMsg{
 public:	
 	int msgSeqId;
 	int msgId;
-	std::vector<char> buf;
+	std::vector<int8> buf;
 };
 
 class RpcMsg {

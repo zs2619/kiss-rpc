@@ -11,7 +11,7 @@ public:
     }
     ~RpcServer(){
     }
-    bool registerService(ServiceProxy* proxy){
+    bool registerService(HelloMsgProxyIF* proxy){
 
     }
 
