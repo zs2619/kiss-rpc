@@ -30,7 +30,7 @@ public:
         T t;
         return t;
     }
-    int sendAsyncRpcMsg(RpcMsg* msg){
+    int sendAsyncRpcMsg(const RpcMsg* msg){
         return 0;
     }
 
@@ -54,7 +54,7 @@ public:
         event_base_loopbreak(getEventBase());
     }
 
-    int dispatch(int time){
+    int dispatch(int time=0){
 	    event_base_dispatch(getEventBase());
     }
     void terminate(){
@@ -87,6 +87,7 @@ private:
 private:
 	struct event_base*  base_;
     struct bufferevent* evconn_;
+    std::vector<ClientStub*> stub_;
     Transport*        trans_;
     Protocol*         proto_;
     std::string       url_;

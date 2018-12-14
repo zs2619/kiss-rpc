@@ -15,8 +15,8 @@ int main(int argc,char ** argv)
     });
 
     while(1) {
-        int ret=dispatch();
-        if ret==-1{
+        int ret=chan.dispatch();
+        if (ret==-1){
             break;
         }
     }

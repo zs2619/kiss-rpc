@@ -3,11 +3,19 @@
 #include "rpc/RpcChannel.h"
 class  ClientStub{
 public:
-	virtual void invokeAsync(const RpcMsg& m) {
+	void setChannel(RpcChannel* chan){
+		chan_=chan;
+	}
+	RpcChannel* getChannel(){
+		return chan_;
+	}
+
+	virtual void invokeAsync(const RpcMsg* m) {
+		chan_->sendAsyncRpcMsg(m);
 	}
 
 	virtual void dispatch(const RpcMsg& m){
 	}
 protected:
-	RpcChannel* chan;
+	RpcChannel* chan_;
 };

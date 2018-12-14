@@ -1,15 +1,24 @@
 #include <vector>
 #include "Common.h"
 #include "Transport.h"
+
 class Protocol{
 public:
+    Protocol(){ 
+    }
+    virtual ~Protocol(){ 
+    }
+
     virtual Protocol  createProtoBuffer(){
     }
-    std:vector<int8> getBuffer(){
+
+    template<typename T>
+    int write(T t){
     }
-    void setBuffer(std:vector<int8> buf){
+
+    template<typename T>
+    int read(T t){
     }
 
 private:
-    std:vector<int8> buf;
 };

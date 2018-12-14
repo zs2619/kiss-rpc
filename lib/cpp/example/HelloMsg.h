@@ -10,38 +10,41 @@ public:
 
 	void test(int a, std::function<int(int)>  cb)
 	{
-		Protocol outWriter=chan->getProtocol()->createProtoBuffer();
+		Protocol outWriter=getChannel()->getProtocol()->createProtoBuffer();
 		outWriter.write(a);
 
 		testCallBack=cb;
-		invokeAsync(&outWriter);
+		invokeAsync(outWriter);
 	}
-	void testMsg(std::string s,std::function<int(const std::string&)> cb){
-		RpcMsg m;
+	void testMsg(std::string& s,std::function<int(const std::string&)> cb){
+
+		Protocol outWriter=getChannel()->getProtocol()->createProtoBuffer();
+		outWriter.write(s);
+
 		testMsgCallBack=cb;
-		invokeAsync(m);
+		invokeAsync(outWriter);
 	}
 
 	virtual void invokeAsync(const Protocol& p) {
 		RpcMsg* msg=new RpcMsg;
-		m.sendMsg.buf=p.getBuffer()
-		chan->sendAsyncRpcMsg(&msg);
+		msg->sendMsg.buf=p.getBuffer();
+		getChannel()->sendAsyncRpcMsg( msg);
 	}
 
 	virtual void dispatch(const RpcMsg& m){
 		if (m.recvMsg.msgId==1){
 
-			Protocol inReader=chan->getProtocol()->createProtoBuffer();
-			inReader->setBuffer(m.recvMsg.buf);
+			Protocol inReader=getChannel()->getProtocol()->createProtoBuffer();
+			inReader.setBuffer(m.recvMsg.buf);
 			int i;
-			inWriter.read(i);
+			inReader.read(i);
 
 			int ret=testCallBack(i);
 
 		} else if (m.recvMsg.msgId==2){
 
-			Protocol inReader=chan->getProtocol()->createProtoBuffer();
-			inReader->setBuffer(m.recvMsg.buf);
+			Protocol inReader=getChannel()->getProtocol()->createProtoBuffer();
+			inReader.setBuffer(m.recvMsg.buf);
 
 			std::string s;
 			inReader.read(s);
@@ -50,8 +53,8 @@ public:
 		}
 	}
 protected:
-     std::function<void(int)> testCallBack;
-     std::function<void(const std::string&)> testMsgCallBack;
+     std::function<int(int)> testCallBack;
+     std::function<int(const std::string&)> testMsgCallBack;
 };
 
 
