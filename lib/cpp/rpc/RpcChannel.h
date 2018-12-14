@@ -15,10 +15,10 @@ extern "C"{
 class RpcChannel{
 public:
     RpcChannel(const std::string& url,Transport* trans,Protocol* proto){
-        #ifdef _WIN32
-            WSADATA wsa_data;
-            WSAStartup(0x0201, &wsa_data);
-        #endif
+    #ifdef _WIN32
+        WSADATA wsa_data;
+        WSAStartup(0x0201, &wsa_data);
+    #endif
     	base_ = event_base_new();
     }
     ~RpcChannel(){

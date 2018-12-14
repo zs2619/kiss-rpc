@@ -3,10 +3,14 @@
 #include "rpc/RpcChannel.h"
 class  ClientStub{
 public:
+
+	ClientStub() {}
+	virtual ~ClientStub() {}
+
 	void setChannel(RpcChannel* chan){
 		chan_=chan;
 	}
-	RpcChannel* getChannel(){
+	const RpcChannel* getChannel(){
 		return chan_;
 	}
 

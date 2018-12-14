@@ -7,6 +7,7 @@
 class HelloMsgStub  :public ClientStub{
 public: 
 	HelloMsgStub() {}
+	virtual ~HelloMsgStub() {}
 
 	void test(int a, std::function<int(int)>  cb)
 	{
@@ -25,10 +26,10 @@ public:
 		invokeAsync(outWriter);
 	}
 
-	virtual void invokeAsync(const Protocol& p) {
+	virtual void invokeAsync( Protocol& p) {
 		RpcMsg* msg=new RpcMsg;
 		msg->sendMsg.buf=p.getBuffer();
-		getChannel()->sendAsyncRpcMsg( msg);
+		getChannel()->sendAsyncRpcMsg((const RpcMsg*) msg);
 	}
 
 	virtual void dispatch(const RpcMsg& m){

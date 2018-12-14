@@ -35,10 +35,9 @@ public:
         return true;
     }
 
-    int init(){
+    int initialize(){
 
         struct sockaddr_in sin;
-
         memset(&sin, 0, sizeof(sin));
         sin.sin_family = AF_INET;
         sin.sin_port = htons(2619);
@@ -55,7 +54,7 @@ public:
         return 0;
     }
 
-    int term(){
+    int terminate(){
 	    evconnlistener_free(listener_);
 	    event_base_free(base_);
         return 0;
