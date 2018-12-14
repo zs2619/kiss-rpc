@@ -14,5 +14,14 @@ int main(int argc,char ** argv)
         return 0;
     });
 
+    while(1) {
+        int ret=dispatch();
+        if ret==-1{
+            break;
+        }
+    }
+
+    chan.terminate();
+
     return 0;
 }
