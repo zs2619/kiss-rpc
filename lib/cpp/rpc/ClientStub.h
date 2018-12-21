@@ -14,12 +14,11 @@ public:
 		return chan_;
 	}
 
-	virtual void invokeAsync(const RpcMsg* m) {
-		chan_->sendAsyncRpcMsg(m);
+	virtual void invoke(const RpcMsg* m) {
+		chan_->sendRequestMsg(m);
 	}
 
-	virtual void dispatch(const RpcMsg& m){
-	}
+	virtual void dispatch(const RpcMsg& m)=0;
 protected:
 	RpcChannel* chan_;
 };

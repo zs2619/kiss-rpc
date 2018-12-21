@@ -67,8 +67,14 @@ class HelloMsgProxyIF: public ServiceProxy{
 
 	virtual void dispatch(const RpcMsg& m){
 		if (m.recvMsg.msgId==1){
+			Protocol inReader=getChannel()->getProtocol()->createProtoBuffer();
+			inReader.setBuffer(m.recvMsg.buf);
 			int a=1;
+			inReader.read(a);
+
 			auto result = test(a);
+			Protocol outWriter=getChannel()->getProtocol()->createProtoBuffer();
+			invoke
 
 		} else if (m.recvMsg.msgId==2){
 

@@ -14,7 +14,7 @@ public:
 	std::vector<int8> buf;
 	int msgId;
 };
-class ReponesMsg{
+class ResponseMsg{
 public:	
 	int msgSeqId;
 	int msgId;
@@ -24,9 +24,9 @@ public:
 class RpcMsg {
 public:
 	RpcMsg()  {}
-
-	RequestMsg 	sendMsg;
-	ReponesMsg 	recvMsg;
+	ServiceProxy* prosy_;
+	RequestMsg 	  sendMsg_;
+	ResponseMsg  recvMsg_;
 
 	static std::map<int,RpcMsg*> RpcMsgMap;
 };

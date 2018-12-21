@@ -14,9 +14,10 @@ class  HelloMsgProxy :public HelloMsgProxyIF
 };
 int main(int argc,char ** argv)
 {
-    RpcServer server(std::string(":2619"),new Transport,new Protocol);
-    server.registerService(new HelloMsgProxy);
+    rpc::RpcService service(rpc::NetEvent::getInstance(),std::string(":2619"),new Transport,new Protocol);
+    service.registerService(new HelloMsgProxy);
+    service.open();
 
-    server.run();
+    rpc::NetEvent::getInstance().eventLoop();
     return 0;
 }
