@@ -2,7 +2,9 @@
 #include <iostream>
 #include <string>
 #include "HelloMsg.h"
-#include "Rpc/RpcServer.h"
+#include "rpc/RpcService.h"
+#include "rpc/NetEvent.h"
+#include "rpc/EndPoint.h"
 
 class  HelloMsgProxy :public HelloMsgProxyIF
 {
@@ -14,10 +16,10 @@ class  HelloMsgProxy :public HelloMsgProxyIF
 };
 int main(int argc,char ** argv)
 {
-    rpc::RpcService<HelloMsgStub,TcpTransport,BinaryProtocol> service(rpc::NetEvent::getInstance());
-    EndPoint ep(std::string(":2619"));
-    service.open(ep);
+    rpc::EndPoint ep(std::string(":2619"));
+    rpc::RpcService<HelloMsgProxy,TcpTransport,BinaryProtocol> service(rpc::NetEvent::getInstance(),ep);
+    service.open();
 
-    rpc::NetEvent::getInstance().eventLoop();
+    rpc::NetEvent::getInstance()->eventLoop();
     return 0;
 }

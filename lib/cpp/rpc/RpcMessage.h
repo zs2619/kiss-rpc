@@ -24,8 +24,7 @@ public:
 class RpcMsg {
 public:
 	RpcMsg()  {}
-	ServiceProxy* prosy_;
-	RequestMsg 	  sendMsg_;
+	RequestMsg 	 sendMsg_;
 	ResponseMsg  recvMsg_;
 
 	static std::map<int,RpcMsg*> RpcMsgMap;

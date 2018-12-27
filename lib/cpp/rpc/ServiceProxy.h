@@ -1,15 +1,26 @@
 
-#include "RpcMessage.h"
-#include "rpc/RpcService.h"
+#ifndef __RPC_SERVICEPROXY_H__
+#define __RPC_SERVICEPROXY_H__
 
+#include "RpcMessage.h"
+#include "EventHandler.h"
+namespace rpc {
 class ServiceProxy:public EventHandler{
 public:
-
-	const RpcService* getService(){
-		return service_;
-	}
-
+	ServiceProxy(){}
+	virtual ~ServiceProxy() {}
 
 protected:
-	RpcService*  service_;
+    virtual int handleInput(){
+		RpcMsg m;
+		dispatch(m);
+	}
+    virtual int handleOutput(){
+
+	}
+    virtual int handleClose(){
+
+	}
 };
+}
+#endif

@@ -1,95 +1,50 @@
 
+#ifndef __RPC_NETEVENT_H__
+#define __RPC_NETEVENT_H__
 extern "C"{
 #include <event2/event.h>
 #include <event2/event_struct.h>
 #include <event2/util.h>
 #include <event2/bufferevent.h>
 }
+#include "RpcChannel.h"
+#include "RpcService.h"
+#include "EndPoint.h"
 
 namespace rpc {
 class NetEvent {
-  typedef  void NetEventListenerCb(struct evconnlistener *listener, evutil_socket_t fd,
-        struct sockaddr *sa, int socklen, void *user_data);
-
  public:
     NetEvent(){
     #ifdef _WIN32
-        WSADATA wsa_data;
-        WSAStartup(0x0201, &wsa_data);
+        WSADATA wsaData;
+        WSAStartup(0x0201, &wsaData);
     #endif
     	base_ = event_base_new();
     }
 
     ~NetEvent(){
-	    event_base_free(getEventBase());
+        if (nullptr!=base_) {
+    	    event_base_free(base_);
+        }
     }
+
     static NetEvent* getInstance(){}
 
-
-    struct evconnlistener * evconnlistener(NetEvent* event,struct sockaddr* sin  void *userData,NetEventListenerCb cb){
-	   struct evconnlistener * listener = evconnlistener_new_bind(base, listener_cb, (void *)userData,
-	    LEV_OPT_REUSEABLE|LEV_OPT_CLOSE_ON_FREE, -1,
-	    (struct sockaddr*)sin,
-	    sizeof(*sin));
-        return listener;
-    } 
-
-    struct bufferevent* connect(RpcChannel* chan){
-	    struct bufferevent * be = bufferevent_socket_new(base, -1, BEV_OPT_CLOSE_ON_FREE);
-        bufferevent_socket_connect_hostname();
-
-        EventHandler* handler;
-        chan->makeStubHandler(handler,be);
-
-        bufferevent_setcb(bev, conn_readcb, conn_writecb, conn_eventcb, handler);
-        bufferevent_enable(bev, EV_WRITE|EV_READ);
-        return be;
+    struct event_base* getEventBase(){
+        return base_;
     }
 
     int eventLoop(){
-	    event_base_dispatch(getEventBase());
+	    event_base_dispatch(base_);
     }
 
     int endEventLoop(){
-        event_base_loopbreak(getEventBase());
+        event_base_loopbreak(base_);
     }
-
-    struct event_base*  getEventBase(){base_;}
 
 private:
-    static void listener_cb(struct evconnlistener *listener, evutil_socket_t fd,
-        struct sockaddr *sa, int socklen, void *user_data)
-    {
-        RpcService* service=(RpcService*)user_data
-
-        struct bufferevent *bev;
-        bev = bufferevent_socket_new(base, fd, BEV_OPT_CLOSE_ON_FREE);
-        if (!bev) {
-            fprintf(stderr, "Error constructing bufferevent!");
-            event_base_loopbreak(base);
-            return;
-        }
-
-        EventHandler* handler;
-        service->makeServiceHandler(handler);
-
-
-        bufferevent_setcb(bev, conn_readcb, conn_writecb, conn_eventcb, handler);
-        bufferevent_enable(bev, EV_WRITE|EV_READ);
-    }
-
-    static void conn_eventcb(struct bufferevent *bev, short events, void *userData) {
-        EventHandler* handler=(EventHandler*) userData;
-    }
-
-    static void conn_readcb(struct bufferevent *bev, void *userData) { 
-        EventHandler* handler=(EventHandler*) userData;
-    }
-
-    static void conn_writecb(struct bufferevent *bev, void *userData) { 
-        EventHandler* handler=(EventHandler*) userData;
-    }
 
 	struct event_base*  base_;
 };
 }
+#endif 

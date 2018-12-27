@@ -1,10 +1,14 @@
+
+#ifndef __RPC_HELLOMSG_H__
+#define __RPC_HELLOMSG_H__
+
 #include <functional>  
 #include <type_traits>
-#include "Rpc/ClientStub.h"
-#include "Rpc/ServiceProxy.h"
-#include "Rpc/Protocol.h"
+#include "rpc/ClientStub.h"
+#include "rpc/ServiceProxy.h"
+#include "rpc/Protocol.h"
 
-class HelloMsgStub  : public ClientStub{
+class HelloMsgStub  : public rpc::ClientStub{
 public: 
 	HelloMsgStub() {}
 	virtual ~HelloMsgStub() {}
@@ -28,24 +32,24 @@ public:
 
 	void invokeAsync( Protocol& p) {
 		RpcMsg* msg=new RpcMsg;
-		msg->sendMsg.buf=p.getBuffer();
+		msg->sendMsg_.buf=p.getBuffer();
 		invoke((const RpcMsg*) msg);
 	}
 
 	virtual void dispatch(const RpcMsg& m){
-		if (m.recvMsg.msgId==1){
+		if (m.recvMsg_.msgId==1){
 
 			Protocol inReader=getProtocol()->createProtoBuffer();
-			inReader.setBuffer(m.recvMsg.buf);
+			inReader.setBuffer(m.recvMsg_.buf);
 			int i;
 			inReader.read(i);
 
 			int ret=testCallBack(i);
 
-		} else if (m.recvMsg.msgId==2){
+		} else if (m.recvMsg_.msgId==2){
 
 			Protocol inReader=getProtocol()->createProtoBuffer();
-			inReader.setBuffer(m.recvMsg.buf);
+			inReader.setBuffer(m.recvMsg_.buf);
 
 			std::string s;
 			inReader.read(s);
@@ -59,27 +63,26 @@ protected:
 };
 
 
-class HelloMsgProxyIF: public ServiceProxy{
+class HelloMsgProxyIF: public rpc::ServiceProxy{
 
 	virtual std::pair<int,int> test(int a)=0;
 	virtual std::pair<int,std::string> testMsg(std::string s)=0;
 
-
 	virtual void dispatch(const RpcMsg& m){
-		if (m.recvMsg.msgId==1){
+		if (m.recvMsg_.msgId==1){
 			Protocol inReader=getProtocol()->createProtoBuffer();
-			inReader.setBuffer(m.recvMsg.buf);
+			inReader.setBuffer(m.recvMsg_.buf);
 			int a=1;
 			inReader.read(a);
 
 			auto result = test(a);
 			Protocol outWriter=getProtocol()->createProtoBuffer();
-			invoke
 
-		} else if (m.recvMsg.msgId==2){
+		} else if (m.recvMsg_.msgId==2){
 
 			std::string s="shuai";
 			auto result = testMsg(s);
 		}
 	}
 };
+#endif
