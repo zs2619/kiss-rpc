@@ -1,7 +1,9 @@
-#ifndef		__RPC_ENDPOINT_H__
-#define		__RPC_ENDPOINT_H__
+#ifndef __RPC_ENDPOINT_H__
+#define	__RPC_ENDPOINT_H__
 
 #include <string>
+#include "NetEvent.h"
+
 
 namespace rpc {
 class EndPoint{
@@ -10,14 +12,15 @@ public:
     }
     ~EndPoint(){}
 
-    const char *getHostName () {
+    const char *getHostName () const {
         return "";
     }
-    int getPort() {
+    int getPort() const {
         return 0;
     }
 
-    struct sockaddr_in getAddrIn(){
+    struct sockaddr_in* getAddrIn() const {
+		return nullptr;
     }
 
  private:

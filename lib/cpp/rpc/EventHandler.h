@@ -4,9 +4,12 @@
 
 #include "RpcMessage.h"
 #include "NetEvent.h"
-
+#include "Transport.h"
+#include "Protocol.h"
 namespace rpc {
+
 class EventHandler{
+
  public:
     EventHandler(){}
     virtual ~EventHandler(){
@@ -15,11 +18,22 @@ class EventHandler{
         bev_=nullptr;
     }
 
-    int init(Transport* trans,Protocol* proto,struct bufferevent *bev){
+    int init(Transport* trans,Protocol* proto, struct bufferevent *bev){
         trans_=trans;
         proto_=proto;
+		bev_ = bev;
+		return 0;
+    }
+    void setBufferEvent(struct bufferevent *bev){
         bev_=bev;
     }
+	struct bufferevent * getBufferEvent() {
+		return bev_ ;
+	}
+	int setHandler() {
+        bufferevent_setcb(bev_, EventHandler::conn_readcb, EventHandler::conn_writecb, EventHandler::conn_eventcb, this);
+        return bufferevent_enable(bev_, EV_WRITE|EV_READ);
+	}
 
  protected:
 
@@ -54,7 +68,7 @@ private:
          handler->handleOutput();
     }
 
-
 };
+
 }
 #endif

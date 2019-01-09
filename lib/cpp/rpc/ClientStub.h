@@ -12,14 +12,18 @@ public:
 
 
  protected:
+	virtual int invoke(const RpcMsg* msg) { return 0; };
     virtual int handleInput(){
 		RpcMsg m;
 		dispatch(m);
+		return 0;
 	}
     virtual int handleOutput(){
+		return 0;
 
 	}
     virtual int handleClose(){
+		return 0;
 
 	}
 };

@@ -6,6 +6,8 @@
 */
 //==============================================
 
+#ifndef	__RPC_RPCMSG_H__
+#define	__RPC_RPCMSG_H__
 #include "Common.h"
 
 class RequestMsg{
@@ -29,3 +31,4 @@ public:
 
 	static std::map<int,RpcMsg*> RpcMsgMap;
 };
+#endif

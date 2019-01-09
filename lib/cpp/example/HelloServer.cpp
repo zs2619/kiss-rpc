@@ -10,16 +10,18 @@ class  HelloMsgProxy :public HelloMsgProxyIF
 {
  public:
 
-	virtual std::pair<int,int> test(int a){}
-	virtual std::pair<int,std::string> testMsg(std::string s){};
+	virtual std::pair<int, int> test(int a) { return std::pair<int, int>(); }
+	virtual std::pair<int,std::string> testMsg(std::string s){return std::pair<int, std::string>(); };
 
 };
 int main(int argc,char ** argv)
 {
     rpc::EndPoint ep(std::string(":2619"));
     rpc::RpcService<HelloMsgProxy,TcpTransport,BinaryProtocol> service(rpc::NetEvent::getInstance(),ep);
-    service.open();
+	if (-1 == service.open()) {
+		std::cerr << "service.open " << std::endl;
+	}
 
-    rpc::NetEvent::getInstance()->eventLoop();
+    int ret=rpc::NetEvent::getInstance()->eventLoop();
     return 0;
 }

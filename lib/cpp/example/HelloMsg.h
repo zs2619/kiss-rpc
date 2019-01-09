@@ -41,7 +41,7 @@ public:
 
 			Protocol inReader=getProtocol()->createProtoBuffer();
 			inReader.setBuffer(m.recvMsg_.buf);
-			int i;
+			int i=0;
 			inReader.read(i);
 
 			int ret=testCallBack(i);
