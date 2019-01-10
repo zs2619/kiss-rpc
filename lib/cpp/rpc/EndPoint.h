@@ -2,29 +2,34 @@
 #define	__RPC_ENDPOINT_H__
 
 #include <string>
+#include <sstream>
 #include "NetEvent.h"
 	
 
 namespace rpc {
 class EndPoint{
 public:
-    EndPoint(const std::string& url):hostname_(url){
-    }
+	EndPoint(const std::string& url);
     ~EndPoint(){}
 
     const char *getHostName () const {
-        return "";
-    }
-    int getPort() const {
-        return 0;
+        return hostname_.c_str();
     }
 
-    struct sockaddr_in* getAddrIn() const {
-		return nullptr;
+    int getPort() const {
+        return ntohs(sockAddrIn_.sin_port);
     }
+
+    const struct sockaddr_in* getAddrIn() const {
+        return  &sockAddrIn_;
+    }
+
+	int set(const std::string& url);
+    
 
  private:
-    std::string hostname_; 
+   struct sockaddr_in sockAddrIn_;
+   std::string hostname_; 
 };
 }
 #endif 

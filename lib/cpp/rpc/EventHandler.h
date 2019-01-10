@@ -35,7 +35,6 @@ class EventHandler{
         return bufferevent_enable(bev_, EV_WRITE|EV_READ);
 	}
 
- protected:
 
 	virtual void dispatch(const RpcMsg& m)=0;
     virtual int invoke(const RpcMsg* msg)=0;

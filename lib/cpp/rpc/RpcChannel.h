@@ -35,17 +35,27 @@ public:
 
 private:
 
-    static void connect_hostname_cb(struct bufferevent *bev, short what, void *ctx){
+    static void connect_cb(struct bufferevent *bev, short events, void *ctx){
+
         EventHandler* handler=(EventHandler*)ctx;
-		handler->setHandler();
+        if (events & BEV_EVENT_EOF) {
+			handler->handleClose();
+        }else if (events & BEV_EVENT_ERROR) {
+			handler->handleClose();
+        }else if (events & BEV_EVENT_CONNECTED) {
+            handler->setHandler();
+        }else if (events&BEV_EVENT_TIMEOUT)
+        {
+
+        }
     }
 
     int connect(E* eh,const EndPoint& ep){
 
-        bufferevent_setcb(eh->getBufferEvent(), NULL , NULL , connect_hostname_cb, eh);
+        bufferevent_setcb(eh->getBufferEvent(), NULL , NULL , connect_cb, eh);
         bufferevent_enable(eh->getBufferEvent(), EV_WRITE);
 
-        if (0!=bufferevent_socket_connect_hostname(eh->getBufferEvent(),NULL, AF_INET,ep.getHostName(),ep.getPort())){
+        if (0!=bufferevent_socket_connect(eh->getBufferEvent(),(const sockaddr*)ep.getAddrIn(),sizeof(struct sockaddr_in))){
             return -1;
         }
         return 0;

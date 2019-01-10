@@ -11,7 +11,6 @@ public:
 	virtual ~ClientStub() {}
 
 
- protected:
 	virtual int invoke(const RpcMsg* msg) { return 0; };
     virtual int handleInput(){
 		RpcMsg m;
@@ -23,8 +22,8 @@ public:
 
 	}
     virtual int handleClose(){
+		std::cout<<"handleClose"<<std::endl;
 		return 0;
-
 	}
 };
 }
