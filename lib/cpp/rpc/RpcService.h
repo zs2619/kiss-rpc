@@ -62,7 +62,7 @@ private:
         struct event_base *base=event->getInstance()->getEventBase();
 
         struct bufferevent *bev = bufferevent_socket_new(base, fd, BEV_OPT_CLOSE_ON_FREE);
-        if (nullptr!=bev) {
+        if (nullptr==bev) {
             event->endEventLoop();
             return;
         }

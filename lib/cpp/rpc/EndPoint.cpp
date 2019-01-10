@@ -5,6 +5,7 @@
  rpc::EndPoint::EndPoint(const std::string & url) {
 	memset(&sockAddrIn_, 0, sizeof(sockaddr_in));
 	if (-1 == set(url)) {
+		throw ("EndPoint error");
 	}
 }
 
@@ -18,7 +19,7 @@
 	 memset(&hints, 0, sizeof(hints));
 	 hints.ai_family = PF_UNSPEC;
 	 hints.ai_socktype = SOCK_STREAM;
-	 int r = evutil_getaddrinfo(host.c_str(), portStr.c_str(), &hints, &ai);
+	 int r = evutil_getaddrinfo(host.empty()?nullptr:host.c_str(), portStr.c_str(), &hints, &ai);
 	 if (r != 0) {
 		 return -1;
 	 }
