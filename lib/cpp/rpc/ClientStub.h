@@ -10,8 +10,12 @@ public:
 	ClientStub(){}
 	virtual ~ClientStub() {}
 
+	virtual int invoke(const RpcMsg* msg) {
 
-	virtual int invoke(const RpcMsg* msg) { return 0; };
+		getTransport()->sendRequestMsg(&msg->sendMsg_);
+		return 0; 
+	};
+
     virtual int handleInput(){
 		RpcMsg m;
 		dispatch(m);

@@ -22,6 +22,7 @@ class EventHandler{
         trans_=trans;
         proto_=proto;
 		bev_ = bev;
+		trans_->setBufferEvent(bev_);
 		return 0;
     }
     void setBufferEvent(struct bufferevent *bev){
@@ -43,8 +44,8 @@ class EventHandler{
     virtual int handleOutput()=0;
     virtual int handleClose()=0;
 
-    Protocol* getProtocol(){return nullptr;}
-    Transport* getTransport(){return nullptr;}
+    Protocol* getProtocol(){return proto_;}
+    Transport* getTransport(){return trans_;}
 
 private:
     Transport*   trans_;

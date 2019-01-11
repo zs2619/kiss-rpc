@@ -9,6 +9,8 @@ extern "C"{
 #include <event2/bufferevent.h>
 #include <event2/listener.h>
 }
+#include <functional>  
+#include <chrono>
 #include "EndPoint.h"
 
 namespace rpc {
@@ -16,43 +18,33 @@ class NetEvent {
 
 public:
 
-    ~NetEvent(){
-        if (nullptr!=base_) {
-    	    event_base_free(base_);
-        }
-    }
+	~NetEvent();
 
-	static NetEvent* getInstance() { 
-        if (event_==nullptr){
-            event_=new NetEvent();
-        }
-        return event_;
-    }
+	static NetEvent* getInstance();
 
-    struct event_base* getEventBase(){
-        return base_;
-    }
+    typedef void (*event_callback_fn)(evutil_socket_t, short, void *);
+    struct event_base* getEventBase(){ return base_; }
 
-    int eventLoop(){
-	   return  event_base_dispatch(base_);
-    }
 
-    int endEventLoop(){
-        return event_base_loopbreak(base_);
-    }
+	  template<class Rep1, class Period1, class Rep2 = int, class Period2 = std::ratio<1>>
+	  int schedule_timer (std::function<void(evutil_socket_t, short, void *)> cb,
+	                       const std::chrono::duration<Rep1, Period1>& delay,
+	                       const std::chrono::duration<Rep2, Period2>& interval = std::chrono::duration<Rep2, Period2>::zero()){
+	  }
+
+
+
+	int cancelTimer(int id);
+
+	int eventLoop();
+	int endEventLoop();
 
 private:
 	static NetEvent*	event_;
 	struct event_base*  base_;
 
 private:
-    NetEvent(){
-    #ifdef _WIN32
-        WSADATA wsaData;
-        WSAStartup(0x0201, &wsaData);
-    #endif
-    	base_ = event_base_new();
-    }
+	NetEvent();
 };
 }
 #endif 

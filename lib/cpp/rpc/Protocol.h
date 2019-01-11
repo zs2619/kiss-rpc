@@ -1,6 +1,5 @@
 #include <vector>
 #include "Common.h"
-#include "Transport.h"
 
 #ifndef __RPC_PROTOCOL_H__
 #define __RPC_PROTOCOL_H__
@@ -12,9 +11,9 @@ public:
     virtual ~Protocol(){ 
     }
 
-    virtual Protocol  createProtoBuffer(){
+	virtual Protocol  createProtoBuffer() { 
 		return Protocol();
-    }
+	};
 
     template<typename T>
     int write(T t){
@@ -36,8 +35,15 @@ private:
     std::vector<int8> buff_;
 };
 class JsonProtocol :public Protocol{
+public:
+    virtual Protocol  createProtoBuffer(){
+    }
 };
 
 class BinaryProtocol :public Protocol{
+public:
+    virtual Protocol  createProtoBuffer(){
+		return BinaryProtocol();
+    }
 };
 #endif

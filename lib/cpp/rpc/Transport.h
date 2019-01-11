@@ -12,6 +12,9 @@ extern "C"{
 class Transport{
 public:
 
+   void setBufferEvent(bufferevent* bev){
+	   bev_ = bev;
+   }
 
    virtual int sendRequestMsg(const RequestMsg* msg)=0;
    virtual int recvResponseMsg(const ResponseMsg* msg)=0;
@@ -19,15 +22,17 @@ public:
    virtual int sendResponseMsg(const ResponseMsg* msg)=0;
    virtual int recvRequestMsg(const RequestMsg* msg)=0;
 
-private:
+protected:
    int         connStatus_;
+   bufferevent* bev_;
 };
 
 class TcpTransport :public Transport{
 public:
    virtual int sendRequestMsg(const RequestMsg* msg){
-	   return 0;
 
+	bufferevent_write(bev_, "ABCDEFG", 7);
+	   return 0;
    };
    virtual int recvResponseMsg(const ResponseMsg* msg){
 
@@ -41,8 +46,6 @@ public:
    virtual int recvRequestMsg(const RequestMsg* msg){
 	   return 0;
    };
-private:
-    bufferevent* bev_;
 };
 
 class HttpTransport :public Transport{
