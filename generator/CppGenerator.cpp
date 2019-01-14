@@ -16,19 +16,19 @@ CppGenerator::CppGenerator( Program* pro,const std::string& name ) :Generator(pr
 
 void CppGenerator::generateProgram()
 {
-	std::string headerName=program_->outputDir_+program_->baseName_+".h";
-	std::string srcName=program_->outputDir_+program_->baseName_+".cpp";
+	std::string headerName=program_->getOutputDir()+program_->getBaseName()+".h";
+	std::string srcName=program_->getOutputDir()+program_->getBaseName()+".cpp";
 	headerFile_.open(headerName.c_str());
 	srcFile_.open(srcName.c_str());
-	headerFile_<<"#ifndef	__"<<misc::stringToUpper(program_->baseName_)<<"_H__"<<std::endl;
-	headerFile_<<"#define	__"<<misc::stringToUpper(program_->baseName_)<<"_H__"<<std::endl;
+	headerFile_<<"#ifndef	__"<<misc::stringToUpper(program_->getBaseName())<<"_H__"<<std::endl;
+	headerFile_<<"#define	__"<<misc::stringToUpper(program_->getBaseName())<<"_H__"<<std::endl;
 	headerFile_<<std::endl;
 	// include 
 
 	headerFile_<<"#include \"IProtocol.h\""<<std::endl;
 	headerFile_<<"#include \"Common.h\""<<std::endl;
 	genIncludeHeader(headerFile_);
-	srcFile_<<"#include\""<<program_->baseName_+".h"<<"\""<<std::endl;
+	srcFile_<<"#include\""<<program_->getBaseName()+".h"<<"\""<<std::endl;
 	headerFile_<<std::endl;
 
 	generateEnumHeader();
@@ -54,11 +54,6 @@ void CppGenerator::generateEnumHeader()
 	std::vector<EnumDefType*>::iterator it_end=program_->enums_.defs_.end();
 	while(it!=it_end)
 	{
-		if((*it)->fileName_!=program_->fileName_)
-		{
-			++it; continue; 
-		}
-
 		headerFile_<<"enum "<<(*it)->name_<<std::endl;
 		headerFile_<<"{ "<<std::endl;
 		std::vector<std::string>::iterator it_inner=(*it)->defs_.begin();
@@ -84,10 +79,6 @@ void CppGenerator::generateEnumSrc()
 	std::vector<EnumDefType*>::iterator it_end=program_->enums_.defs_.end();
 	while(it!=it_end)
 	{
-		if((*it)->fileName_!=program_->fileName_)
-		{
-			++it; continue; 
-		}
 		srcFile_<<"void "<<(*it)->name_<<"Init(EnumMap* e)"<<std::endl;
 		srcFile_<<"{ "<<std::endl;
 		std::vector<std::string>::iterator it_inner=(*it)->defs_.begin();
@@ -113,21 +104,15 @@ void CppGenerator::generateStructHeader()
 	std::vector<StructDefType*>::iterator it_end=program_->structs_.defs_.end();
 	while(it!=it_end)
 	{
-		if((*it)->fileName_!=program_->fileName_)
-		{
-			++it; continue; 
-		}
 		headerFile_<<"class "<<(*it)->name_<<std::endl;
 		headerFile_<<"{ "<<std::endl;
 		headerFile_<<"public: "<<std::endl;
 		indent_up();
-		//构造 析构函数
 		headerFile_<<indent()<<(*it)->name_<<"();"<<std::endl;
 		headerFile_<<indent()<<"virtual ~"<<(*it)->name_<<"();"<<std::endl;
 		//fingerprint
 		headerFile_<<indent()<<"static const char* strFingerprint;"<<std::endl;
 
-		//属性
 		std::vector<FieldDefType*>::iterator it_inner=(*it)->members_.begin();
 		while(it_inner!=(*it)->members_.end())
 		{
@@ -135,18 +120,15 @@ void CppGenerator::generateStructHeader()
 			defineField(t);
 			++it_inner;
 		}
-		//序列化函数
 		headerFile_<<std::endl;
 		headerFile_<<indent()<<"//serialize"<<std::endl;
 		headerFile_<<indent()<<"void serialize(IProtocol* __P__); "<<std::endl;
 		
-		//反序列化函数
 		headerFile_<<std::endl;
 		headerFile_<<indent()<<"//deSerialize"<<std::endl;
 		headerFile_<<indent()<<"bool deSerialize(IProtocol* __P__);"<<std::endl;
 
-		//json序列化
-		if(Program::inst()->json_)
+		if(Program::inst()->option_.json_)
 		{
 			headerFile_<<std::endl;
 			headerFile_<<indent()<<"//serialize json"<<std::endl;
@@ -170,10 +152,6 @@ void CppGenerator::generateStructSrc()
 	std::vector<StructDefType*>::iterator it_end=program_->structs_.defs_.end();
 	while(it!=it_end)
 	{
-		if((*it)->fileName_!=program_->fileName_)
-		{
-			++it; continue; 
-		}	
 		//fingerprint
 		srcFile_<<indent()<<"const char* "<<(*it)->name_<<"::"<<"strFingerprint=\""<<md5((*it)->getFingerPrint())<<"\";"<<std::endl;
 
@@ -205,7 +183,6 @@ void CppGenerator::generateStructSrc()
 		srcFile_<<"{ "<<std::endl;
 		srcFile_<<"} "<<std::endl;
 
-		//序列化函数
 		srcFile_<<std::endl;
 		srcFile_<<indent()<<"//serialize"<<std::endl;
 		srcFile_<<indent()<<"void "<<(*it)->name_<<"::serialize(IProtocol* __P__) "<<std::endl;
@@ -215,7 +192,6 @@ void CppGenerator::generateStructSrc()
 		indent_down();
 		srcFile_<<"}// serialize"<<std::endl;
 		
-		//反序列化函数
 		srcFile_<<std::endl;
 		srcFile_<<indent()<<"//deSerialize"<<std::endl;
 		srcFile_<<indent()<<"bool "<<(*it)->name_<<"::deSerialize(IProtocol* __P__)"<<std::endl;
@@ -233,9 +209,8 @@ void CppGenerator::generateStructSrc()
 
 		srcFile_<<"}//deSerialize "<<std::endl;
 
-		if (Program::inst()->json_)
+		if (Program::inst()->option_.json_)
 		{
-			//序列化json
 			srcFile_<<std::endl;
 			srcFile_<<indent()<<"//serialize"<<std::endl;
 			srcFile_<<indent()<<"void "<<(*it)->name_<<"::serializeJson(std::stringstream& __json__)"<<std::endl;
@@ -709,10 +684,6 @@ void CppGenerator::genServiceStubHeader()
 	std::vector<ServiceDefType*>::iterator it_end=program_->services_.defs_.end();
 	while(it!=it_end)
 	{
-		if((*it)->fileName_!=program_->fileName_)
-		{
-			++it; continue; 
-		}
 		std::string className=(*it)->name_+"Stub";
 		headerFile_<<"class "<<className<<std::endl;
 		headerFile_<<"{ "<<std::endl;
@@ -734,10 +705,8 @@ void CppGenerator::genServiceStubHeader()
 		indent_down();
 		headerFile_<<indent()<<"};"<<std::endl;
 
-		//构造 析构函数
 		headerFile_<<indent()<<className<<"(IProtocol* p=NULL):__P__(p){}"<<std::endl;
 		headerFile_<<indent()<<"virtual ~"<<className<<"(){}"<<std::endl;
-		//函数声明
 		genFunStubDeclare(*it);
 
 		headerFile_<<indent()<<"IProtocol* __P__;"<<std::endl;
@@ -752,15 +721,10 @@ void CppGenerator::genServiceStubSrc()
 {
 	if (program_->services_.defs_.empty())
 		return;
-	//构造 析构
 	std::vector<ServiceDefType*>::iterator it=program_->services_.defs_.begin();
 	std::vector<ServiceDefType*>::iterator it_end=program_->services_.defs_.end();
 	while(it!=it_end)
 	{
-		if((*it)->fileName_!=program_->fileName_)
-		{
-			++it; continue; 
-		}
 		//fingerprint
 		srcFile_<<indent()<<"const char* "<<(*it)->name_<<"Stub::"<<"strFingerprint=\""<<md5((*it)->getFingerPrint())<<"\";"<<std::endl;
 		int i=0;
@@ -773,7 +737,6 @@ void CppGenerator::genServiceStubSrc()
 			srcFile_<<")"<<std::endl;
 			srcFile_<<indent()<<"{"<<std::endl;
 			indent_up();
-			//序列化
 			srcFile_<<indent()<<"__P__->writeMsgBegin();"<<std::endl;
 			srcFile_<<indent()<<"__P__->writeUInt16("<<i++<<");"<<std::endl;
 			serializeFields(t->argrs_);
@@ -794,10 +757,6 @@ void CppGenerator::genServiceProxyHeader()
 	std::vector<ServiceDefType*>::iterator it_end=program_->services_.defs_.end();
 	while(it!=it_end)
 	{
-		if((*it)->fileName_!=program_->fileName_)
-		{
-			++it; continue; 
-		}
 		std::string className=(*it)->name_+"Proxy";
 		headerFile_<<indent()<<"class "<<className<<std::endl;
 		headerFile_<<indent()<<"{ "<<std::endl;
@@ -807,12 +766,9 @@ void CppGenerator::genServiceProxyHeader()
 		//fingerprint
 		headerFile_<<indent()<<"static const char* strFingerprint;"<<std::endl;
 
-		//构造 析构函数
 		headerFile_<<indent()<<className<<"(IProtocol* p=NULL):__P__(p){}"<<std::endl;
 		headerFile_<<indent()<<"virtual ~"<<className<<"(){}"<<std::endl;
-		//函数声明
 		genFunProxyDeclare(*it);
-		//接口
 		genInterfaceDeclare(*it);
 		//dispatch
 		headerFile_<<indent()<<"static bool dispatch(IProtocol* p,"<<className<<"* __C__);"<<std::endl;
@@ -834,10 +790,6 @@ void CppGenerator::genServiceProxySrc()
 	std::vector<ServiceDefType*>::iterator it_end=program_->services_.defs_.end();
 	while(it!=it_end)
 	{
-		if((*it)->fileName_!=program_->fileName_)
-		{
-			++it; continue; 
-		}
 		//fingerprint
 		srcFile_<<indent()<<"const char* "<<(*it)->name_<<"Proxy::"<<"strFingerprint=\""<<md5((*it)->getFingerPrint())<<"\";"<<std::endl;
 		//dispatch
@@ -879,7 +831,6 @@ void CppGenerator::genServiceProxySrc()
 			srcFile_<<indent()<<"bool "<<className<<"::"<<"recv_"<<t->name_<<"(IProtocol* __P__,"<<className<<"* __C__)"<<std::endl;
 			srcFile_<<indent()<<"{"<<std::endl;
 			indent_up();
-			//反序列化
 			deSerializeFields(t->argrs_);
 			srcFile_<<indent()<<"return __C__->"<<t->name_<<"(";
 			genFunAgrList(srcFile_,t->argrs_,true);
@@ -1049,7 +1000,7 @@ void CppGenerator::genIncludeHeader( std::ofstream& stream )
 
 void CppGenerator::genInterfaceDeclare( ServiceDefType* service )
 {
-	std::string IFName=program_->outputDir_+program_->baseName_+"IF.h";
+	std::string IFName=program_->getInputDir()+program_->getBaseName()+"IF.h";
 	ifFile_.open(IFName.c_str());
 	std::vector<FuctionDefType*>::iterator it_inner=service->funs_.begin();
 	while(it_inner!=service->funs_.end())

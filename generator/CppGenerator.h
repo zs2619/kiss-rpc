@@ -10,7 +10,6 @@
 #define	__CPPGENERATOR_H__
 #include "Generator.h"
 
-/** 生成cpp 后端*/
 class CppGenerator: public Generator
 {
 public:
@@ -53,9 +52,9 @@ private:
 
 	void genInterfaceDeclare(ServiceDefType* service);
 private:
-	std::ofstream	headerFile_;	//<头文件
-	std::ofstream	srcFile_;		//<源文件
-	std::ofstream	ifFile_;		//<接口文件
+	std::ofstream	headerFile_;
+	std::ofstream	srcFile_;	
+	std::ofstream	ifFile_;
 };
 
 #endif

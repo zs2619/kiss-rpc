@@ -38,13 +38,7 @@ void GoGenerator::generateEnum()
 
 	for(auto& it :program_->enums_.defs_)
 	{
-		if(it->fileName_!=program_->fileName_)
-		{
-			 //包含头文件 不生成代码
-			 continue; 
-		}
-		//创建目录
-		std::string dirName=program_->outputDir_+it->name_+"/";
+		std::string dirName=program_->getOutputDir()+it->name_+"/";
 		misc::mkdir(dirName.c_str());
 
 		std::string name=dirName+it->name_+".go";
@@ -107,13 +101,7 @@ void GoGenerator::generateStruct()
 
 	for(auto& it :program_->structs_.defs_)
 	{
-		if(it->fileName_!=program_->fileName_)
-		{
-			//包含头文件 不生成代码
-			continue; 
-		}
-
-		std::string name=program_->outputDir_+it->name_+".go";
+		std::string name=program_->getOutputDir()+it->name_+".go";
 		goFile_.open(name.c_str());
 		goFile_<<indent()<<"package "<<"rpc"<<std::endl;
 
@@ -133,7 +121,6 @@ void GoGenerator::generateStruct()
 		goFile_<<indent()<<"type "<<it->name_<<" struct{"<<std::endl;
 		indent_up();
 
-		//属性
 		for(auto& inner:it->members_)
 		{
 			goFile_<<indent()<<setInitialUpper(inner->name_)<<" "<<typeName(inner->type_)<<" `json:\""<<inner->name_<<"\"`"<<std::endl;
@@ -149,7 +136,6 @@ void GoGenerator::generateStruct()
 		indent_down();
 		goFile_<<"}"<<std::endl;
 
-		//struct 序列化
 		goFile_<<indent()<<"func (this *"<<it->name_<<") Serialize( P__ IProtocol){"<<std::endl;
 		indent_up();
 		for(auto& inner:it->members_)
@@ -160,7 +146,6 @@ void GoGenerator::generateStruct()
 		indent_down();
 		goFile_<<"}"<<std::endl;
 
-		//struct 反序列化
 		goFile_<<indent()<<"func (this *"<<it->name_<<") DeSerialize( P__ IProtocol) bool{"<<std::endl;
 		indent_up();
 		for(auto& inner:it->members_)
@@ -187,7 +172,7 @@ void GoGenerator::genServiceStub()
 {
 	if (program_->services_.defs_.empty())
 		return;
-	std::string fileName=program_->outputDir_+program_->baseName_+"Stub.go";
+	std::string fileName=program_->getOutputDir()+program_->getBaseName()+"Stub.go";
 	goFile_.open(fileName.c_str());
 	goFile_<<indent()<<"package "<<"rpc"<<std::endl;
 	goFile_<<std::endl;
@@ -202,11 +187,6 @@ void GoGenerator::genServiceStub()
 
 	for (auto& it:program_->services_.defs_)
 	{
-		if(it->fileName_!=program_->fileName_)
-		{
-			 //包含头文件 不生成代码
-			continue; 
-		}
 		//
 		goFile_<<indent()<<"const "<<it->name_<<"_"<<"strFingerprintStub=\""<<md5(it->getFingerPrint())<<"\""<<std::endl;
 		std::string ifName=it->name_+"Stub";
@@ -253,8 +233,7 @@ void GoGenerator::genServiceProxy()
 	if (program_->services_.defs_.empty())
 		return;
 
-	//接口文件
-	std::string fileName=program_->outputDir_+"I"+program_->baseName_+"Proxy.go";
+	std::string fileName=program_->getOutputDir()+"I"+program_->getBaseName()+"Proxy.go";
 	goFile_.open(fileName.c_str());
 	goFile_<<indent()<<"package "<<"rpc"<<std::endl;
 	goFile_<<std::endl;
@@ -269,11 +248,6 @@ void GoGenerator::genServiceProxy()
 
 	for (auto& it:program_->services_.defs_)
 	{
-		if(it->fileName_!=program_->fileName_)
-		{
-			//包含头文件 不生成代码
-			continue; 
-		}
 		std::string ifName="I"+it->name_+"Proxy";
 		goFile_<<indent()<<"type "<<ifName<<" interface {"<<std::endl;
 		indent_up();
@@ -291,17 +265,12 @@ void GoGenerator::genServiceProxy()
 	goFile_.close();
 
 	//
-	fileName=program_->outputDir_+program_->baseName_+"Proxy.go";
+	fileName=program_->getOutputDir()+program_->getBaseName()+"Proxy.go";
 	goFile_.open(fileName.c_str());
 	goFile_<<indent()<<"package "<<"rpc"<<std::endl;
 	goFile_<<std::endl;
 	for (auto& it:program_->services_.defs_)
 	{
-		if(it->fileName_!=program_->fileName_)
-		{
-			//包含头文件 不生成代码
-			continue; 
-		}
 		std::string ifName=it->name_+"Proxy";
 		goFile_<<indent()<<"const "<<it->name_<<"_"<<"strFingerprintProxy=\""<<md5(it->getFingerPrint())<<"\""<<std::endl;
 		goFile_<<indent()<<"type "<<ifName<<" struct {"<<std::endl;

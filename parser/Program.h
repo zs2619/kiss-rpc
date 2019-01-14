@@ -12,40 +12,15 @@
 #include <vector>
 #include <assert.h>
 #include <string>
+#include <map>
 #include <algorithm>    
-
-class	EnumDefType;
-class	StructDefType;
-class	ServiceDefType;
-
-template <typename T>
-class DefVector
-{
+#include "DefType.h"
+#include "Global.h"
+  
+class Context{
 public:
-	T findDefByName(const std::string& name)
-	{
-		auto it = std::find_if(defs_.begin(), defs_.end(), [&] (auto it){	
-			if (it->name_ == name)
-				return true; 
-			return false;
-
-		}
-		);
-		if (it != defs_.end())
-		{
-			return *it;
-		}
-		return NULL;
-	}
-	bool addDef(T	t);
-
-	std::vector<T>   defs_;
+    NameSpaceType     ns_;
 };
-
-typedef DefVector<EnumDefType*>		EnumVector;
-typedef DefVector<StructDefType*>   StructVector;
-typedef DefVector<ServiceDefType*>  ServiceVector;
-
 class Program 
 {
 public:
@@ -54,30 +29,57 @@ public:
 		static Program p;
 		return &p;
 	}
-	Program():json_(false){}
+	Program(){}
 
-	EnumVector			enums_;
-	StructVector		structs_;
-	ServiceVector		services_;
+	bool parseArg(int argc,char** argv);
 	bool findDefByName(const std::string& name);
-
 	bool addIncludeFile(const std::string& includeName);
+	Context* getFileContext(const std::string& name);
+
+    bool addEnumDefType(EnumDefType* d){
+        if (!enums_.addDef(d)){
+    		yyerror("enum name repeat: \"%s\"\n", d->name_.c_str());
+        }
+        return true;
+    }
+
+    bool addStructDefType(StructDefType* d){
+        if (!structs_.addDef(d)){
+    		yyerror("struct name repeat: \"%s\"\n", d->name_.c_str());
+        }
+        return true;
+    }
+    bool addServiceDefType(ServiceDefType* d){
+        if (!services_.addDef(d)){
+    		yyerror("serviece name repeat: \"%s\"\n", d->name_.c_str());
+        }
+        return true;
+    }
 	
-	std::string			fileName_;		///<输入文件名
-	std::string			baseName_;		///文件名
-	std::string			inputDir_;		///<输入目录
-	std::string			outputDir_;		///<输出文件目录
-	bool				json_;			///<序列化json
-	std::vector<std::string>	include_;
+	std::string& getFileName() { return option_.fileName_;}
+	std::string& getBaseName() { return option_.fileName_;}
+	std::string& getOutputDir(){ return option_.outputDir_;}
+	std::string& getInputDir() { return option_.inputDir_; }
+
+    class Option{
+    public:
+        Option():json_(false){}
+        std::string			fileName_;	
+        std::string			baseName_;	
+        std::string			inputDir_;	
+        std::string			outputDir_;	
+        bool				json_;		
+    };
+    Option  option_;
+    
+
+public:
+	EnumVector			            enums_;
+	StructVector		            structs_;
+	ServiceVector		            services_;
+	std::vector<std::string>	    include_;
+    std::map<std::string ,Context*> contexts_;
 };
 
-template <typename T>
-bool DefVector<T>::addDef(T	t)
-{
-	assert(t);
-	if(Program::inst()->findDefByName(t->name_))
-		return false;
-	defs_.push_back(t);
-	return true;
-}
+
 #endif

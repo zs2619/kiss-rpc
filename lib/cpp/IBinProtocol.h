@@ -92,7 +92,7 @@ public:
 			return true;
 		if (0== vIn.size())
 			return true;
-		writeUInt16(vIn.size());
+		writeUInt16(uint16(vIn.size()));
 
 		for (size_t i=0;i<vIn.size();i++)
 		{
@@ -121,7 +121,7 @@ public:
 			return true;
 		if (0== vIn.size())
 			return true;
-		writeUInt16(vIn.size());
+		writeUInt16(uint16(vIn.size()));
 
 		for (size_t i=0;i<vIn.size();i++)
 		{
@@ -151,7 +151,7 @@ public:
 			return true;
 		if (0== vIn.size())
 			return true;
-		writeUInt16(vIn.size());
+		writeUInt16(uint16(vIn.size()));
 
 		for (size_t i=0;i<vIn.size();i++)
 		{
@@ -178,9 +178,9 @@ public:
 	uint32 getCurLen() { return curLen_; }
 
 private:
-	uint32 len_;		//<buf最大长度
-	uint32 curLen_;		//<当前长度
-	int8*  buf_;		//<数据
+	uint32 len_;		
+	uint32 curLen_;	
+	int8*  buf_;
 };
 
 #endif

@@ -15,7 +15,7 @@ namespace misc
 inline int	mkdir(const char* fileName)
 	{
 #ifdef WIN32
-		return ::mkdir(fileName);
+		return ::_mkdir(fileName);
 #else
 	return  ::mkdir(fileName, S_IRWXU | S_IRWXG | S_IRWXO);
 #endif

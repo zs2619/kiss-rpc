@@ -6,6 +6,7 @@
 */
 //==============================================
 
+#include "Program.h"
 #include "DefType.h"
 bool EnumDefType::fineValueByName(const std::string& value)
 {
@@ -49,6 +50,24 @@ bool StructDefType::fineValueByName( const std::string& value )
 	}
 	return false;
 
+}
+
+std::string StructDefType::getFingerPrint()
+{
+	std::string tmp = "struct " + name_;
+	for (size_t i = 0; i<members_.size(); i++)
+	{
+		if (members_[i]->type_->is_struct())
+		{
+			StructDefType* tmpStruct = Program::inst()->structs_.findDefByName(members_[i]->type_->name_);
+			tmp += tmpStruct->getFingerPrint();
+		}
+		else
+		{
+			tmp += members_[i]->type_->getFingerPrint();
+		}
+	}
+	return tmp;
 }
 
 bool ServiceDefType::addFunciton( FuctionDefType* fun )

@@ -8,9 +8,8 @@ extern "C"{
 #include <event2/util.h>
 #include <event2/bufferevent.h>
 #include <event2/listener.h>
+#include <event2/buffer.h>
 }
-#include <functional>  
-#include <chrono>
 #include "EndPoint.h"
 
 namespace rpc {
@@ -26,15 +25,8 @@ public:
     struct event_base* getEventBase(){ return base_; }
 
 
-	  template<class Rep1, class Period1, class Rep2 = int, class Period2 = std::ratio<1>>
-	  int schedule_timer (std::function<void(evutil_socket_t, short, void *)> cb,
-	                       const std::chrono::duration<Rep1, Period1>& delay,
-	                       const std::chrono::duration<Rep2, Period2>& interval = std::chrono::duration<Rep2, Period2>::zero()){
-	  }
-
-
-
-	int cancelTimer(int id);
+	event* scheduleTimer(event_callback_fn cb,void* arg, const timeval& delay, const timeval & interval);
+	void cancelTimer(event* ev);
 
 	int eventLoop();
 	int endEventLoop();
@@ -45,6 +37,8 @@ private:
 
 private:
 	NetEvent();
+	NetEvent(const NetEvent&)=delete;
+	NetEvent& operator=(const NetEvent&)=delete;
 };
 }
 #endif 

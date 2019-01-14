@@ -9,45 +9,36 @@ extern "C"{
 }
 #include "RpcMessage.h"
 
-class Transport{
+class ITransport{
 public:
 
    void setBufferEvent(bufferevent* bev){
 	   bev_ = bev;
    }
 
-   virtual int sendRequestMsg(const RequestMsg* msg)=0;
-   virtual int recvResponseMsg(const ResponseMsg* msg)=0;
+   virtual int sendRequestMsg(const RequestMsg& msg)=0;
+   virtual int recvResponseMsg(std::vector<int8>& buff, ResponseMsg& msg)=0;
 
-   virtual int sendResponseMsg(const ResponseMsg* msg)=0;
-   virtual int recvRequestMsg(const RequestMsg* msg)=0;
+   virtual int sendResponseMsg(const ResponseMsg& msg)=0;
+   virtual int recvRequestMsg(std::vector<int8>& buff, RequestMsg& msg)=0;
 
 protected:
    int         connStatus_;
    bufferevent* bev_;
 };
 
-class TcpTransport :public Transport{
+class TcpTransport :public ITransport{
 public:
-   virtual int sendRequestMsg(const RequestMsg* msg){
+    virtual int sendRequestMsg(const RequestMsg& msg);;
 
-	bufferevent_write(bev_, "ABCDEFG", 7);
-	   return 0;
-   };
-   virtual int recvResponseMsg(const ResponseMsg* msg){
+   virtual int recvResponseMsg(std::vector<int8>& buff, ResponseMsg& msg);;
 
-	   return 0;
-   };
+   virtual int sendResponseMsg(const ResponseMsg& msg);;
 
-   virtual int sendResponseMsg(const ResponseMsg* msg){
-
-	   return 0;
-   };
-   virtual int recvRequestMsg(const RequestMsg* msg){
-	   return 0;
-   };
+   virtual int recvRequestMsg(std::vector<int8>& buff, RequestMsg& msg);;
+   std::vector<int8> buff_;
 };
 
-class HttpTransport :public Transport{
+class HttpTransport :public ITransport{
 };
 #endif

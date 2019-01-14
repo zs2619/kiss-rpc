@@ -12,7 +12,37 @@
 #include <string>
 #include <vector>
 #include <assert.h>
-#include "Program.h"
+
+template <typename T>
+class DefVector
+{
+public:
+	T findDefByName(const std::string& name)
+	{
+		auto it = std::find_if(defs_.begin(), defs_.end(), [&] (auto it){	
+			if (it->name_ == name)
+				return true; 
+			return false;
+
+		}
+		);
+		if (it != defs_.end())
+		{
+			return *it;
+		}
+		return NULL;
+	}
+	bool addDef(T	t) {
+		assert(t);
+		if(Program::inst()->findDefByName(t->name_))
+			return false;
+		defs_.push_back(t);
+		return true;
+	}
+
+	std::vector<T>   defs_;
+};
+
 class Definition
 {
 };
@@ -35,6 +65,7 @@ public:
 	std::string name_;
 	std::string fileName_;
 };
+
 
 class EnumDefType: public DefType
 {
@@ -110,23 +141,7 @@ public:
 	bool	addStructValue(FieldDefType* value);
 	bool	fineValueByName(const std::string& value);
 
-	std::string getFingerPrint()
-	{ 
-		std::string tmp="struct "+name_;
-		for (size_t i=0;i<members_.size();i++)
-		{
-			if(members_[i]->type_->is_struct())
-			{
-				StructDefType* tmpStruct=Program::inst()->structs_.findDefByName(members_[i]->type_->name_);
-				tmp+=tmpStruct->getFingerPrint();
-			}
-			else
-			{
-				tmp+=members_[i]->type_->getFingerPrint();
-			}
-		}
-		return tmp;
-	}
+	std::string getFingerPrint();
 	std::vector<FieldDefType*>		members_;
 };
 
@@ -189,5 +204,20 @@ public:
 	std::vector<FuctionDefType*>	funs_;
 };
 
+typedef DefVector<EnumDefType*>		EnumVector;
+typedef DefVector<StructDefType*>   StructVector;
+typedef DefVector<ServiceDefType*>  ServiceVector;
+
+class NameSpaceType : public DefType{
+public:
+
+	std::string getFingerPrint() { return ""; };
+
+	EnumVector		enums_;
+	StructVector	structs_;
+	ServiceVector	services_;
+};
+
+typedef DefVector<NameSpaceType*>   NameSapceVector;
 
 #endif

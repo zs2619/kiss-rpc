@@ -10,7 +10,7 @@
 
 void CSharpGenerator::generateProgram()
 {
-	std::string name=program_->outputDir_+program_->baseName_+".cs";
+	std::string name=program_->getOutputDir()+program_->getBaseName()+".cs";
 	csharpFile_.open(name.c_str());
 	csharpFile_<<indent()<<"using UnityEngine;"<<std::endl;
 	csharpFile_<<indent()<<"using System;"<<std::endl;
@@ -33,10 +33,6 @@ void CSharpGenerator::generateEnum()
 	std::vector<EnumDefType*>::iterator it_end=program_->enums_.defs_.end();
 	while(it!=it_end)
 	{
-		if((*it)->fileName_!=program_->fileName_)
-		{
-			++it; continue; 
-		}
 		indent_up();
 		csharpFile_<<indent()<<"public enum "<<(*it)->name_<<std::endl;
 		csharpFile_<<indent()<<"{"<<std::endl;
@@ -64,10 +60,6 @@ void CSharpGenerator::generateStruct()
 	
 	while(it!=it_end)
 	{
-		if((*it)->fileName_!=program_->fileName_)
-		{
-			++it; continue; 
-		}
 		indent_up();
 		
 		csharpFile_<<indent()<<"public class "<<(*it)->name_<<std::endl;
@@ -76,7 +68,6 @@ void CSharpGenerator::generateStruct()
 		//fingerprint
 		csharpFile_<<indent()<<"public const string strFingerprint=\""<<md5((*it)->getFingerPrint())<<"\";"<<std::endl;
 
-		//属性
 		std::vector<FieldDefType*>::iterator it_inner=(*it)->members_.begin();
 		while(it_inner!=(*it)->members_.end())
 		{
@@ -85,13 +76,11 @@ void CSharpGenerator::generateStruct()
 				<<" = "<<DefaultValue(t->type_)<<";"<<std::endl;
 			++it_inner;
 		}
-		//序列化函数
 		csharpFile_<<std::endl;
 		csharpFile_<<indent()<<"//serialize"<<std::endl;
 		csharpFile_<<indent()<<"public bool  serialize(IProtocol __P__) "<<std::endl;
 		csharpFile_<<indent()<<"{ "<<std::endl;
 		indent_up();
-		//序列化属性
 		it_inner=(*it)->members_.begin();
 		while(it_inner!=(*it)->members_.end())
 		{
@@ -103,13 +92,11 @@ void CSharpGenerator::generateStruct()
 		indent_down();
 		csharpFile_<<indent()<<"}//serialize "<<std::endl;
 
-		//反序列化函数
 		csharpFile_<<std::endl;
 		csharpFile_<<indent()<<"//deSerialize"<<std::endl;
 		csharpFile_<<indent()<<"public bool deSerialize(IProtocol __P__)"<<std::endl;
 		csharpFile_<<indent()<<"{ "<<std::endl;
 		indent_up();
-		//反序列化属性
 		it_inner=(*it)->members_.begin();
 		while(it_inner!=(*it)->members_.end())
 		{
@@ -416,10 +403,6 @@ void CSharpGenerator::genServiceStub()
 	std::vector<ServiceDefType*>::iterator it_end=program_->services_.defs_.end();
 	while(it!=it_end)
 	{
-		if((*it)->fileName_!=program_->fileName_)
-		{
-			++it; continue; 
-		}
 		std::string className=(*it)->name_+"Stub";
 		/*std::string name=program_->outputDir_+className+".cs";
 		csharpFile_.open(name.c_str());
@@ -431,9 +414,7 @@ void CSharpGenerator::genServiceStub()
 		indent_up();
 
 		csharpFile_<<indent()<<"public const string  strFingerprint=\""<<md5((*it)->getFingerPrint())<<"\";"<<std::endl;
-		//属性
 		csharpFile_<<indent()<<"public IProtocol __P__ ;"<<std::endl;
-		//构造函数
 		csharpFile_<<indent()<<"//construction"<<std::endl;
 		csharpFile_<<indent()<<"public "<<className<<"(IProtocol p)"<<std::endl;
 		csharpFile_<<indent()<<"{ "<<std::endl;
@@ -453,7 +434,6 @@ void CSharpGenerator::genServiceStub()
 			csharpFile_<<")"<<std::endl;
 			csharpFile_<<indent()<<"{"<<std::endl;
 			indent_up();
-			//序列化
 			csharpFile_<<indent()<<"Debug.Log(\""<<t->name_<<"\");"<<std::endl;
 			csharpFile_<<indent()<<"__P__.writeMsgBegin();"<<std::endl;
 			csharpFile_<<indent()<<"__P__.writeUInt16((ushort)"<<i++<<");"<<std::endl;
@@ -479,10 +459,6 @@ void CSharpGenerator::genServiceProxy()
 	std::vector<ServiceDefType*>::iterator it_end=program_->services_.defs_.end();
 	while(it!=it_end)
 	{
-		if((*it)->fileName_!=program_->fileName_)
-		{
-			++it; continue; 
-		}
 		std::string className=(*it)->name_+"Proxy";
 		/*std::string name=program_->outputDir_+className+".cs";
 		csharpFile_.open(name.c_str());
@@ -493,10 +469,8 @@ void CSharpGenerator::genServiceProxy()
 		csharpFile_<<indent()<<"{ "<<std::endl;
 		indent_up();
 		csharpFile_<<indent()<<"public const string strFingerprint=\""<<md5((*it)->getFingerPrint())<<"\";"<<std::endl;
-		//属性
 		std::string IFName="I"+(*it)->name_+"Proxy";
 		csharpFile_<<indent()<<"public "<<IFName<<"  __I__;"<<std::endl;
-		//构造函数
 		csharpFile_<<indent()<<"//construction"<<std::endl;
 		csharpFile_<<indent()<<"public "<<className<<"("<<IFName<<" I"<<")"<<std::endl;
 		csharpFile_<<indent()<<"{ "<<std::endl;
@@ -547,7 +521,6 @@ void CSharpGenerator::genServiceProxy()
 			csharpFile_<<indent()<<"{"<<std::endl;
 			indent_up();
 			csharpFile_<<indent()<<"Debug.Log(\""<<t->name_<<"\");"<<std::endl;
-			//反序列化
 			deSerializeFields(t->argrs_);
 			csharpFile_<<indent()<<"return __I__."<<t->name_<<"(";
 			genFunAgrList(csharpFile_,t->argrs_,true);
@@ -573,12 +546,8 @@ void CSharpGenerator::genServiceProxyIf()
 	std::vector<ServiceDefType*>::iterator it_end=program_->services_.defs_.end();
 	while(it!=it_end)
 	{
-		if((*it)->fileName_!=program_->fileName_)
-		{
-			++it; continue; 
-		}
 		std::string className="I"+(*it)->name_+"Proxy";
-		std::string name=program_->outputDir_+className+".cs";
+		std::string name=program_->getOutputDir()+className+".cs";
 		ifFile_.open(name.c_str());
 		ifFile_<<indent()<<"using System;"<<std::endl;
 		ifFile_<<indent()<<"using System.Collections.Generic;"<<std::endl;

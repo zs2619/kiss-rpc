@@ -104,9 +104,6 @@
     <ClInclude Include="parser\Program.h">
       <Filter>parser\include</Filter>
     </ClInclude>
-    <ClInclude Include="rpc.tab.hpp">
-      <Filter>parser\include</Filter>
-    </ClInclude>
     <ClInclude Include="lib\cpp\Common.h">
       <Filter>lib\cpp</Filter>
     </ClInclude>

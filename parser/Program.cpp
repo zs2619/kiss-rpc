@@ -1,7 +1,7 @@
 //==============================================
 /**
 	@date:		2012:3:27  
-	@file: 		Program .cpp
+	@file: 		Program.cpp
 	@author: 	zhangshuai
 */
 //==============================================
@@ -11,14 +11,30 @@
 
 bool Program::addIncludeFile( const std::string& includeName )
 {
-	auto it = std::find(include_.begin(), include_.end(), includeName);
-	if (it != include_.end())
-	{
-		return false;
-	}
+	size_t found=includeName.find(".");
+	if (found==std::string::npos)
+		found=0;
+	std::string baseName=includeName.substr(0,found);
 
-	include_.push_back(includeName);
+	auto it = std::find(include_.begin(), include_.end(), baseName);
+	if (it != include_.end())
+		return false;
+
+	include_.push_back(baseName);
+    contexts_[baseName]=new Context;
 	return true;
+}
+
+Context * Program::getFileContext(const std::string & name) {
+	auto it = contexts_.find(name);
+	if (it == contexts_.end())
+		return nullptr;
+	return it->second;
+}
+
+bool Program::parseArg(int argc,char** argv) 
+{
+	return false;
 }
 
 bool Program::findDefByName( const std::string& name )

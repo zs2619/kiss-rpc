@@ -6,9 +6,10 @@
 #include "Program.h"
 %}
 
+%debug
 /**
- * Base datatype keywords
-*/
+ *  language keywords
+ */
 %token tok_bool
 %token tok_uint8
 %token tok_int8
@@ -20,25 +21,16 @@
 %token tok_float
 %token tok_string
 %token tok_void
-
-/**
- * Complex type keywords
- */
 %token tok_enum
 %token tok_struct
 %token tok_array
 %token tok_map
-
-/**
- *  language keywords
- */
+%token tok_namespace
 %token tok_service
 %token tok_group
-
 %token tok_include
 %union {
 	std::string*	 str_;
-	float			 number_;
 	DefType*		 type_;
 	EnumDefType*	 enumType_;
 	StructDefType*	 structType_;
@@ -49,49 +41,44 @@
 	FuctionDefType*	 funType_;
 	GroupDefType*	 groupType_;
 	ServiceDefType*  serviceType_;
+	NameSpaceType*   nameSpaceType_;
 	std::vector<FuctionDefType*>* funTypes_;
 	std::vector<GroupDefType*>* groupTypes_;
-
 }
 
-%token<str_>     tok_identifier
-%token<str_>     tok_fileName
-
-%type<str_>		 EnumValue
-
+%token<str_>		tok_identifier
+%token<str_>		tok_fileName
+%type<str_>			EnumValue
 %type<enumType_>	EnumFieldList
 %type<enumType_>	Enum
-
-%type<structType_>		Struct
-%type<structType_>		StructFieldList
-%type<fieldType_>		StructField
-
+%type<structType_>	Struct
+%type<structType_>	StructFieldList
+%type<fieldType_>	StructField
 %type<type_>		FieldType
 %type<simpleType_>	SimpleDefType
 %type<type_>		ContainerDefType
 %type<type_>		ValueType
-
 %type<fieldType_>	FunctionField
 %type<structType_>	FunctionFieldList
 %type<funType_>		Function
 %type<serviceType_>	ServiceContent
-
 %type<groupType_>	Group
-
 %type<funTypes_ >	Functions
 %type<groupTypes_ >	Groups
-
-%type<type_ >	FunctionResult
-
+%type<type_ >		FunctionResult
 %type<mapType_>		MapContainer
 %type<arrayType_>	ArrayContainer
 %type<serviceType_>	Service
+%type<nameSpaceType_>	NameSpace
+%type<nameSpaceType_>	DefinitionList
+
 
 %start Program
 
 %%
-Program :Header DefinitionList
+Program :Header NameSpace
 		 |Header
+		 |NameSpace
 
 Header:  Header HeaderDef |
 
@@ -99,39 +86,70 @@ HeaderDef :tok_include '\"' tok_fileName '\"'
 		{
 			if(Program::inst()->addIncludeFile(*$3))
 			{
-
-				switchBuf((Program::inst()->inputDir_+(*$3)).c_str());
+				std::string f=Program::inst()->getInputDir()+ *$3;
+				switchBuf(f.c_str());
 			}
 		}
 
-DefinitionList: DefinitionList Definition|Definition
+NameSpace : tok_namespace tok_identifier '{' DefinitionList'}'
+        {
+            Context* c=Program::inst()->getFileContext(curFileName);
+            if (c==nullptr){
+				yyerror("context error: \"%s\"\n", curFileName.c_str());
+            }
+            c->ns_.name_=*$2;
+            c->ns_.fileName_=curFileName;
+        }
 
-Definition:Struct|Enum|Service
+DefinitionList: DefinitionList Definition
+				|Definition
+
+Definition:Struct
+		{
+			Program::inst()->addStructDefType($1);
+            Context* c=Program::inst()->getFileContext(curFileName);
+            if (c==nullptr){
+				yyerror("context error: \"%s\"\n", curFileName.c_str());
+            }
+            c->ns_.structs_.addDef($1);
+		}
+        |Enum
+        {
+			Program::inst()->addEnumDefType($1);
+            Context* c=Program::inst()->getFileContext(curFileName);
+            if (c==nullptr){
+				yyerror("context error: \"%s\"\n", curFileName.c_str());
+            }
+            c->ns_.enums_.addDef($1);
+        }
+        |Service
+        {
+			Program::inst()->addServiceDefType($1);
+            Context* c=Program::inst()->getFileContext(curFileName);
+            if (c==nullptr){
+				yyerror("context error: \"%s\"\n", curFileName.c_str());
+            }
+            c->ns_.services_.addDef($1);
+        }
 
 Service: tok_service tok_identifier '{' ServiceContent '}' ';'
 		{
 			$4->name_=*$2;
 			$4->fileName_=curFileName;
-			if(!Program::inst()->services_.addDef($4))
-			{
-				yyerror("service name repeat: \"%s\"\n", (*$2).c_str());
-			}
+			$$=$4
 		}
 
 ServiceContent: Groups Functions
-				{
-				$$=new ServiceDefType;
-
-				$$->funs_=*$2;
-				$$->groups_=*$1;
-
-				}
+        {
+            $$=new ServiceDefType;
+            $$->funs_=*$2;
+            $$->groups_=*$1;
+        }
 
 
 Groups :Groups Group
 		{
 			$$->push_back($2);
-
 		}
 		|
 		{
@@ -159,17 +177,16 @@ Function: FunctionResult	tok_identifier '(' FunctionFieldList ')' Separator
 			$$->result_=$1;
 			$$->name_=*$2;
 			$$->argrs_=$4;
-
 		}
 
 FunctionResult :FieldType
-				{
-				$$=$1;
-				}
-				|tok_void
-				{
-				$$= new VoidDefType;
-				}
+        {
+            $$=$1;
+        }
+        |tok_void
+        {
+            $$= new VoidDefType;
+        }
 
 FunctionFieldList: FunctionFieldList FunctionField
 		{
@@ -203,20 +220,17 @@ Struct: tok_struct tok_identifier  '{' StructFieldList '}' ';'
 		{
 			$4->name_=*$2;
 			$4->fileName_=curFileName;
-			if(!Program::inst()->structs_.addDef($4))
-			{
-				yyerror("struct name repeat: \"%s\"\n", (*$2).c_str());
-			}
+			$$=$4
 		}
 
 StructFieldList: StructFieldList	StructField
-		 {
+		{
 			$$=$1;
 			if(!$$->addStructValue($2))
 			{
 				yyerror("struct value repeat: \"%s\"\n", (*$1).name_.c_str());
 			}
-		 }
+		}
 		|StructField
 		{
 			$$ = new StructDefType;
@@ -238,39 +252,39 @@ Separator : ';'|','|
 
 
 FieldType: tok_identifier 
-			{
-				if(Program::inst()->structs_.findDefByName(*$1))
-				{
-					$$= new StructDefType;
-					$$->name_=*$1;
-				}
-				else if(Program::inst()->enums_.findDefByName(*$1))
-				{
-					$$= new EnumDefType;
-					$$->name_=*$1;
-				}
-				else
-				{
-					yyerror("no define: \"%s\"\n", (*$1).c_str());
-				}
-			}
-			| SimpleDefType 
-			{
-				$$=$1;
-			}
-			|ContainerDefType 
-			{
-				$$=$1;
-			}
+        {
+            if(Program::inst()->structs_.findDefByName(*$1))
+            {
+                $$= new StructDefType;
+                $$->name_=*$1;
+            }
+            else if(Program::inst()->enums_.findDefByName(*$1))
+            {
+                $$= new EnumDefType;
+                $$->name_=*$1;
+            }
+            else
+            {
+                yyerror("no define: \"%s\"\n", (*$1).c_str());
+            }
+        }
+        | SimpleDefType 
+        {
+            $$=$1;
+        }
+        |ContainerDefType 
+        {
+            $$=$1;
+        }
 
 ContainerDefType: MapContainer 
-			 {
-			    $$=$1;
-			 }
-			 |ArrayContainer
-			 {
-			    $$=$1;
-			 }
+        {
+            $$=$1;
+        }
+        |ArrayContainer
+        {
+            $$=$1;
+        }
 MapContainer:tok_map '<'SimpleDefType',' ValueType'>'
 		{
 			$$= new MapDefType;
@@ -302,10 +316,7 @@ Enum: tok_enum	tok_identifier '{'EnumFieldList'}' ';'
 		{
 			$4->name_=*$2;
 			$4->fileName_=curFileName;
-			if(!Program::inst()->enums_.addDef($4))
-			{
-				yyerror("enum name repeat: \"%s\"\n", (*$2).c_str());
-			}
+            $$=$4
 		}
 EnumFieldList: EnumFieldList EnumValue 
 		{

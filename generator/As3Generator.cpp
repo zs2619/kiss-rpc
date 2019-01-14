@@ -21,11 +21,7 @@ void As3Generator::generateEnum()
 	std::vector<EnumDefType*>::iterator it_end=program_->enums_.defs_.end();
 	while(it!=it_end)
 	{
-		if((*it)->fileName_!=program_->fileName_)
-		{
-			++it; continue; 
-		}
-		std::string name=program_->outputDir_+(*it)->name_+".as";
+		std::string name=program_->getOutputDir()+(*it)->name_+".as";
 		as3File_.open(name.c_str());
 		as3File_<<indent()<<"package com.rpc"<<std::endl;
 		as3File_<<indent()<<"{"<<std::endl;
@@ -150,11 +146,7 @@ void As3Generator::generateStruct()
 	std::vector<StructDefType*>::iterator it_end=program_->structs_.defs_.end();
 	while(it!=it_end)
 	{
-		if((*it)->fileName_!=program_->fileName_)
-		{
-			++it; continue; 
-		}
-		std::string name=program_->outputDir_+(*it)->name_+".as";
+		std::string name=program_->getOutputDir()+(*it)->name_+".as";
 		as3File_.open(name.c_str());
 		as3File_<<indent()<<"package com.rpc"<<std::endl;
 		as3File_<<indent()<<"{"<<std::endl;
@@ -162,7 +154,6 @@ void As3Generator::generateStruct()
 		as3File_<<indent()<<"public class "<<(*it)->name_<<std::endl;
 		as3File_<<indent()<<"{ "<<std::endl;
 
-		//属性
 		indent_up();
 		as3File_<<indent()<<"public static const strFingerprint:String=\""<<md5((*it)->getFingerPrint())<<"\";"<<std::endl;
 
@@ -176,13 +167,11 @@ void As3Generator::generateStruct()
 			++it_inner;
 		}
 
-		//序列化函数
 		as3File_<<std::endl;
 		as3File_<<indent()<<"//serialize"<<std::endl;
 		as3File_<<indent()<<"public function serialize(__P__:IProtocol):Boolean "<<std::endl;
 		as3File_<<indent()<<"{ "<<std::endl;
 		indent_up();
-		//序列化属性
 		it_inner=(*it)->members_.begin();
 		while(it_inner!=(*it)->members_.end())
 		{
@@ -194,13 +183,11 @@ void As3Generator::generateStruct()
 		indent_down();
 		as3File_<<indent()<<"}//serialize "<<std::endl;
 		
-		//反序列化函数
 		as3File_<<std::endl;
 		as3File_<<indent()<<"//deSerialize"<<std::endl;
 		as3File_<<indent()<<"public function deSerialize(__P__:IProtocol):Boolean"<<std::endl;
 		as3File_<<indent()<<"{ "<<std::endl;
 		indent_up();
-		//反序列化属性
 		it_inner=(*it)->members_.begin();
 		while(it_inner!=(*it)->members_.end())
 		{
@@ -457,12 +444,8 @@ void As3Generator::genServiceStub()
 	std::vector<ServiceDefType*>::iterator it_end=program_->services_.defs_.end();
 	while(it!=it_end)
 	{
-		if((*it)->fileName_!=program_->fileName_)
-		{
-			++it; continue; 
-		}
 		std::string className=(*it)->name_+"Stub";
-		std::string name=program_->outputDir_+className+".as";
+		std::string name=program_->getOutputDir()+className+".as";
 		as3File_.open(name.c_str());
 		as3File_<<indent()<<"package com.rpc"<<std::endl;
 		as3File_<<indent()<<"{"<<std::endl;
@@ -472,9 +455,7 @@ void As3Generator::genServiceStub()
 		indent_up();
 
 		as3File_<<indent()<<"public static const  strFingerprint:String=\""<<md5((*it)->getFingerPrint())<<"\";"<<std::endl;
-		//属性
 		as3File_<<indent()<<"public var __P__:IProtocol ;"<<std::endl;
-		//构造函数
 		as3File_<<indent()<<"//construction"<<std::endl;
 		as3File_<<indent()<<"public function "<<className<<"(p:IProtocol)"<<std::endl;
 		as3File_<<indent()<<"{ "<<std::endl;
@@ -494,7 +475,6 @@ void As3Generator::genServiceStub()
 			as3File_<<"):void"<<std::endl;
 			as3File_<<indent()<<"{"<<std::endl;
 			indent_up();
-			//序列化
 			as3File_<<indent()<<"trace(\""<<t->name_<<"\");"<<std::endl;
 			as3File_<<indent()<<"__P__.writeMsgBegin();"<<std::endl;
 			as3File_<<indent()<<"__P__.writeUInt16("<<i++<<");"<<std::endl;
@@ -520,12 +500,8 @@ void As3Generator::genServiceProxy()
 	std::vector<ServiceDefType*>::iterator it_end=program_->services_.defs_.end();
 	while(it!=it_end)
 	{
-		if((*it)->fileName_!=program_->fileName_)
-		{
-			++it; continue; 
-		}
 		std::string className=(*it)->name_+"Proxy";
-		std::string name=program_->outputDir_+className+".as";
+		std::string name=program_->getOutputDir()+className+".as";
 		as3File_.open(name.c_str());
 		as3File_<<indent()<<"package com.rpc"<<std::endl;
 		as3File_<<indent()<<"{"<<std::endl;
@@ -534,10 +510,8 @@ void As3Generator::genServiceProxy()
 		as3File_<<indent()<<"{ "<<std::endl;
 		indent_up();
 		as3File_<<indent()<<"public static const strFingerprint:String=\""<<md5((*it)->getFingerPrint())<<"\";"<<std::endl;
-		//属性
 		std::string IFName="I"+(*it)->name_+"Proxy";
 		as3File_<<indent()<<"public var __I__:"<<IFName <<" ;"<<std::endl;
-		//构造函数
 		as3File_<<indent()<<"//construction"<<std::endl;
 		as3File_<<indent()<<"public function "<<className<<"(I:"<<IFName<<")"<<std::endl;
 		as3File_<<indent()<<"{ "<<std::endl;
@@ -588,7 +562,6 @@ void As3Generator::genServiceProxy()
 			as3File_<<indent()<<"{"<<std::endl;
 			indent_up();
 			as3File_<<indent()<<"trace(\""<<t->name_<<"\");"<<std::endl;
-			//反序列化
 			deSerializeFields(t->argrs_);
 			as3File_<<indent()<<"return __I__."<<t->name_<<"(";
 			genFunAgrList(as3File_,t->argrs_,true);
@@ -614,12 +587,8 @@ void As3Generator::genServiceProxyIf()
 	std::vector<ServiceDefType*>::iterator it_end=program_->services_.defs_.end();
 	while(it!=it_end)
 	{
-		if((*it)->fileName_!=program_->fileName_)
-		{
-			++it; continue; 
-		}
 		std::string className="I"+(*it)->name_+"Proxy";
-		std::string name=program_->outputDir_+className+".as";
+		std::string name=program_->getOutputDir()+className+".as";
 		as3File_.open(name.c_str());
 		as3File_<<indent()<<"package com.rpc"<<std::endl;
 		as3File_<<indent()<<"{"<<std::endl;

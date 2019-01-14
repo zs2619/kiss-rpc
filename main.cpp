@@ -59,19 +59,19 @@ int main(int argc,char** argv)
 		usage();
 	std::string genStr;
 	int i;
+	Program::Option option;
+
 	for (i = 1; i < argc-1; i++) 
 	{
       if (strcmp(argv[i], "-o") == 0) 
 	  {
-		Program::inst()->outputDir_=argv[++i];
-		Program::inst()->outputDir_+="/";
-
-		misc::mkdir(Program::inst()->outputDir_.c_str());
+		option.outputDir_=argv[++i];
+		option.outputDir_+="/";
 
       } else if (strcmp(argv[i], "-i") == 0)
 	  {
-		Program::inst()->inputDir_=argv[++i];
-		Program::inst()->inputDir_+="/";
+		option.inputDir_=argv[++i];
+		option.inputDir_+="/";
 	  }
 	  else if (strcmp(argv[i], "-gen") == 0)
 	  {
@@ -79,7 +79,7 @@ int main(int argc,char** argv)
 	  }
 	  else if (strcmp(argv[i], "-json") ==0 )
 	  {
-		  Program::inst()->json_=true;
+		  option.json_=true;
 	  }
 	}
 	if (argv[i] == NULL) {
@@ -91,6 +91,7 @@ int main(int argc,char** argv)
 		std::cerr<<"missing Generate code "<<std::endl;
 		usage();
 	}
+
 	std::vector<std::string> gen;
 	split(genStr,";",gen);
 
@@ -99,11 +100,17 @@ int main(int argc,char** argv)
 	if (found==std::string::npos)
 		found=0;
 	std::string baseName=fileName.substr(0,found);
-	Program::inst()->baseName_=baseName;
-	std::string f=Program::inst()->inputDir_+fileName;
-	Program::inst()->fileName_=f;
-	yyin = fopen(f.c_str() , "r" );
+	option.baseName_=baseName;
+
+	std::string f=option.inputDir_+fileName;
+	option.fileName_=f;
+
+	Program::inst()->option_ = option;
+	misc::mkdir(Program::inst()->getOutputDir().c_str());
+
+	yyin = std::fopen(f.c_str() , "r" );
 	curFileName=f;
+	Program::inst()->contexts_[curFileName]=new Context;
 	if(!yyin)
 	{
 		std::cerr<<"open fail "<< errno<<std::endl;

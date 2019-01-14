@@ -59,9 +59,9 @@ public:
 
 
 protected:
-	int			indent_;		//<缩进
+	int			indent_;	
 	Program*	program_;
-	std::string name_;			//<生成后端的名字
+	std::string name_;	
 };
 
 #endif

@@ -18,7 +18,7 @@ class EventHandler{
         bev_=nullptr;
     }
 
-    int init(Transport* trans,Protocol* proto, struct bufferevent *bev){
+    int init(ITransport* trans,IProtocol* proto, struct bufferevent *bev){
         trans_=trans;
         proto_=proto;
 		bev_ = bev;
@@ -37,36 +37,27 @@ class EventHandler{
 	}
 
 
-	virtual void dispatch(const RpcMsg& m)=0;
-    virtual int invoke(const RpcMsg* msg)=0;
+	virtual void dispatch(std::shared_ptr<RpcMsg> m)=0;
+    virtual int invoke(std::shared_ptr<RpcMsg> msg)=0;
 
-    virtual int handleInput()=0;
+    virtual int handleInput(std::vector<int8>& buff)=0;
     virtual int handleOutput()=0;
     virtual int handleClose()=0;
 
-    Protocol* getProtocol(){return proto_;}
-    Transport* getTransport(){return trans_;}
+    IProtocol* getProtocol(){return proto_;}
+    ITransport* getTransport(){return trans_;}
 
 private:
-    Transport*   trans_;
-    Protocol*    proto_;
+    ITransport*   trans_;
+    IProtocol*    proto_;
     struct bufferevent *bev_;
 
  protected:
-    static void conn_eventcb(struct bufferevent *bev, short events, void *userData) {
-        EventHandler* handler=(EventHandler*) userData;
-         handler->handleClose();
-    }
+     static void conn_eventcb(struct bufferevent *bev, short events, void *userData);
 
-    static void conn_readcb(struct bufferevent *bev, void *userData) { 
-        EventHandler* handler=(EventHandler*) userData;
-         handler->handleInput();
-    }
+    static void conn_readcb(struct bufferevent *bev, void *userData);
 
-    static void conn_writecb(struct bufferevent *bev, void *userData) { 
-        EventHandler* handler=(EventHandler*) userData;
-         handler->handleOutput();
-    }
+    static void conn_writecb(struct bufferevent *bev, void *userData);
 
 };
 

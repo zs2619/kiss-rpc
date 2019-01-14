@@ -25,7 +25,6 @@ rpc::NetEvent::~NetEvent() {
 }
 
 
- int rpc::NetEvent::cancelTimer(int id) { return -1; }
 
  int rpc::NetEvent::eventLoop() {
 	return  event_base_dispatch(base_);
@@ -34,3 +33,16 @@ rpc::NetEvent::~NetEvent() {
 int rpc::NetEvent::endEventLoop() {
 	return event_base_loopbreak(base_);
 }
+event* rpc::NetEvent::scheduleTimer(event_callback_fn cb,void* arg, const timeval& delay, const timeval & interval ){
+	event* ev=  event_new(base_, -1, EV_PERSIST, cb, arg);
+	if (ev == nullptr){
+		return  nullptr;
+	}
+	if (-1 == event_add(ev, &interval)) {
+		event_del(ev);
+		return  nullptr;
+	}
+	return ev;
+}
+
+void rpc::NetEvent::cancelTimer(event * ev) { event_free(ev); }
