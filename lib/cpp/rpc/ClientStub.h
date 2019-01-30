@@ -3,6 +3,7 @@
 #define	__RPC_CLIENTSTUB_H__
 
 #include <unordered_map>
+#include <iostream>
 #include "RpcMessage.h"
 #include "EventHandler.h"
 namespace rpc {

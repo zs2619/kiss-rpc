@@ -60,9 +60,10 @@ public:
         }
         return true;
     }
+	Context* getGenerateContext();
 	
 	std::string& getFileName() { return option_.fileName_;}
-	std::string& getBaseName() { return option_.fileName_;}
+	std::string& getBaseName() { return option_.baseName_;}
 	std::string& getOutputDir(){ return option_.outputDir_;}
 	std::string& getInputDir() { return option_.inputDir_; }
 

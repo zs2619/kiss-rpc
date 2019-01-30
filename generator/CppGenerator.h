@@ -31,20 +31,26 @@ private:
 	std::string typeName(DefType* t,bool isAgr=false);
 	std::string DefaultValue( DefType* t );
 
-	void serializeField( DefType* t ,const std::string& fieldName );
+	void serializeField( DefType* t ,const std::string& fieldName ,const std::string& prefix);
 	void serializeJsonField( DefType* t ,const std::string& key, const std::string& value);
 	void serializeJsonFields( StructDefType* t );
-	void deSerializeField( DefType* t ,const std::string& fieldName );
+	void deSerializeField( DefType* t ,const std::string& fieldName ,const std::string& prefix);
 
-	void serializeFields( StructDefType* t );
-	void deSerializeFields( StructDefType* t );
+	void serializeFields( StructDefType* t ,const std::string& prefix);
+	void deSerializeFields( StructDefType* t ,const std::string& prefix);
 
 	void genServiceStubHeader();
 	void genServiceStubSrc();
 	void genServiceProxyHeader();
 	void genServiceProxySrc();
 
-	void genFunAgrList(std::ofstream& stream,StructDefType* agrList,bool onlyValue=false);
+	enum ParamType 
+	{
+		PT_Type,
+		PT_Value,
+		PT_TypeValue,
+	};
+	void genFunAgrList(std::ofstream& stream,StructDefType* agrList,ParamType paramType=PT_TypeValue);
 	void genFunStubDeclare(ServiceDefType* service);
 	void genFunProxyDeclare(ServiceDefType* service);
 

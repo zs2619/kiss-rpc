@@ -9,6 +9,7 @@
 #ifndef		__RPCTYPEDEF_H__
 #define		__RPCTYPEDEF_H__
 
+namespace rpc {
 typedef unsigned char 	uint8;
 typedef signed   char 	int8;
 
@@ -21,11 +22,12 @@ typedef signed	 int 	int32;
 
 typedef signed	 long long 	int64;
 typedef unsigned long  long uint64;
+}
 
 #include <string>
 #include <map>
 #include <sstream>
 #include <vector>
 #include <chrono>
-#include "EnumMap.h"
+#include "rpc/EnumMap.h"
 #endif

@@ -10,26 +10,27 @@
 #define	__RPC_RPCMSG_H__
 #include "Common.h"
 #include <chrono>
+namespace rpc {
+	class RequestMsg {
+	public:
+		int64 msgSeqId;
+		std::vector<int8> buf;
+		int msgId;
+	};
+	class ResponseMsg {
+	public:
+		int64 msgSeqId;
+		int msgId;
+		std::vector<int8> buf;
+	};
 
-class RequestMsg{
-public:	
-	int64 msgSeqId;
-	std::vector<int8> buf;
-	int msgId;
-};
-class ResponseMsg{
-public:	
-	int64 msgSeqId;
-	int msgId;
-	std::vector<int8> buf;
-};
-
-class RpcMsg {
-public:
-	RpcMsg()  {}
-	~RpcMsg()  {}
- 	std::chrono::system_clock::time_point time_;
-	RequestMsg 	 sendMsg_;
-	ResponseMsg  recvMsg_;
-};
+	class RpcMsg {
+	public:
+		RpcMsg() {}
+		~RpcMsg() {}
+		std::chrono::system_clock::time_point time_;
+		RequestMsg 	 sendMsg_;
+		ResponseMsg  recvMsg_;
+	};
+}
 #endif

@@ -1,10 +1,10 @@
-#include "Transport.h"
+#include "rpc/Transport.h"
 
-int TcpTransport::sendRequestMsg(const RequestMsg & msg) {
+int rpc::TcpTransport::sendRequestMsg(const RequestMsg & msg) {
     return bufferevent_write(bev_, msg.buf.data(), msg.buf.size());
 }
 
-int TcpTransport::recvResponseMsg(std::vector<int8>& buff, ResponseMsg & msg) {
+int rpc::TcpTransport::recvResponseMsg(std::vector<int8>& buff, ResponseMsg & msg) {
     buff_.insert(buff_.end(), buff.begin(), buff.end());
     if (buff_.size() <= 2) {
         return -1;
@@ -18,11 +18,11 @@ int TcpTransport::recvResponseMsg(std::vector<int8>& buff, ResponseMsg & msg) {
     return 0;
 }
 
-int TcpTransport::sendResponseMsg(const ResponseMsg & msg) {
+int rpc::TcpTransport::sendResponseMsg(const ResponseMsg & msg) {
     return bufferevent_write(bev_, msg.buf.data(), msg.buf.size());
 }
 
-int TcpTransport::recvRequestMsg(std::vector<int8>& buff, RequestMsg & msg) {
+int rpc::TcpTransport::recvRequestMsg(std::vector<int8>& buff, RequestMsg & msg) {
     buff_.insert(buff_.end(), buff.begin(), buff.end());
     if (buff_.size() <= 2) {
         return -1;

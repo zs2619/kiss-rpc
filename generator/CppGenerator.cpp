@@ -25,9 +25,16 @@ void CppGenerator::generateProgram()
 	headerFile_<<std::endl;
 	// include 
 
-	headerFile_<<"#include \"IProtocol.h\""<<std::endl;
-	headerFile_<<"#include \"Common.h\""<<std::endl;
+	headerFile_<<"#include <functional>"<<std::endl;
+	headerFile_<<"#include \"rpc/Common.h\""<<std::endl;
+	headerFile_<<"#include \"rpc/Protocol.h\""<<std::endl;
+	headerFile_<<"#include \"rpc/ClientStub.h\""<<std::endl;
+	headerFile_<<"#include \"rpc/ServiceProxy.h\""<<std::endl;
 	genIncludeHeader(headerFile_);
+
+	Context*  generateContext = program_->getGenerateContext();
+	headerFile_<<"namespace "<<generateContext->ns_.name_<<"{"<<std::endl;
+
 	srcFile_<<"#include\""<<program_->getBaseName()+".h"<<"\""<<std::endl;
 	headerFile_<<std::endl;
 
@@ -39,6 +46,7 @@ void CppGenerator::generateProgram()
 
 	generateServiceHeader();
 	generateServiceSrc();
+	headerFile_<<"}///namespace"<<std::endl;
 	headerFile_<<"#endif"<<std::endl;
 
 	headerFile_.close();
@@ -47,11 +55,11 @@ void CppGenerator::generateProgram()
 
 void CppGenerator::generateEnumHeader()
 {
-	if (program_->enums_.defs_.empty())
+	Context*  generateContext = program_->getGenerateContext();
+	if (generateContext->ns_.enums_.defs_.empty())
 		return;
-	headerFile_<<"#include\"EnumMap.h\""<<std::endl;
-	std::vector<EnumDefType*>::iterator it=program_->enums_.defs_.begin();
-	std::vector<EnumDefType*>::iterator it_end=program_->enums_.defs_.end();
+	std::vector<EnumDefType*>::iterator it=generateContext->ns_.enums_.defs_.begin();
+	std::vector<EnumDefType*>::iterator it_end=generateContext->ns_.enums_.defs_.end();
 	while(it!=it_end)
 	{
 		headerFile_<<"enum "<<(*it)->name_<<std::endl;
@@ -65,7 +73,7 @@ void CppGenerator::generateEnumHeader()
 		}
 		indent_down();
 		headerFile_<<"}; "<<std::endl;
-		headerFile_<<"extern EnumMap Enum("<<(*it)->name_<<");"<<std::endl;
+		headerFile_<<"extern rpc::EnumMap RpcEnum("<<(*it)->name_<<");"<<std::endl;
 		headerFile_<<std::endl;
 		++it;
 	}
@@ -73,13 +81,14 @@ void CppGenerator::generateEnumHeader()
 
 void CppGenerator::generateEnumSrc()
 {
-	if (program_->enums_.defs_.empty())
+	Context*  generateContext = program_->getGenerateContext();
+	if (generateContext->ns_.enums_.defs_.empty())
 		return;
-	std::vector<EnumDefType*>::iterator it=program_->enums_.defs_.begin();
-	std::vector<EnumDefType*>::iterator it_end=program_->enums_.defs_.end();
+	std::vector<EnumDefType*>::iterator it=generateContext->ns_.enums_.defs_.begin();
+	std::vector<EnumDefType*>::iterator it_end=generateContext->ns_.enums_.defs_.end();
 	while(it!=it_end)
 	{
-		srcFile_<<"void "<<(*it)->name_<<"Init(EnumMap* e)"<<std::endl;
+		srcFile_<<"void "<<(*it)->name_<<"Init(rpc::EnumMap* e)"<<std::endl;
 		srcFile_<<"{ "<<std::endl;
 		std::vector<std::string>::iterator it_inner=(*it)->defs_.begin();
 		indent_up();
@@ -90,7 +99,7 @@ void CppGenerator::generateEnumSrc()
 		}
 		indent_down();
 		srcFile_<<"} "<<std::endl;
-		srcFile_<<"EnumMap"<<" Enum("<<(*it)->name_<<")("<<(*it)->name_<<"Init);"<<std::endl;
+		srcFile_<<"rpc::EnumMap"<<" RpcEnum("<<(*it)->name_<<")("<<(*it)->name_<<"Init);"<<std::endl;
 		srcFile_<<std::endl;
 		++it;
 	}
@@ -98,10 +107,12 @@ void CppGenerator::generateEnumSrc()
 
 void CppGenerator::generateStructHeader()
 {
-	if (program_->structs_.defs_.empty())
+	Context*  generateContext = program_->getGenerateContext();
+
+	if (generateContext->ns_.structs_.defs_.empty())
 		return;
-	std::vector<StructDefType*>::iterator it=program_->structs_.defs_.begin();
-	std::vector<StructDefType*>::iterator it_end=program_->structs_.defs_.end();
+	std::vector<StructDefType*>::iterator it=generateContext->ns_.structs_.defs_.begin();
+	std::vector<StructDefType*>::iterator it_end=generateContext->ns_.structs_.defs_.end();
 	while(it!=it_end)
 	{
 		headerFile_<<"class "<<(*it)->name_<<std::endl;
@@ -122,11 +133,11 @@ void CppGenerator::generateStructHeader()
 		}
 		headerFile_<<std::endl;
 		headerFile_<<indent()<<"//serialize"<<std::endl;
-		headerFile_<<indent()<<"void serialize(IProtocol* __P__); "<<std::endl;
+		headerFile_<<indent()<<"void serialize(rpc::IProtocol* __P__); "<<std::endl;
 		
 		headerFile_<<std::endl;
 		headerFile_<<indent()<<"//deSerialize"<<std::endl;
-		headerFile_<<indent()<<"bool deSerialize(IProtocol* __P__);"<<std::endl;
+		headerFile_<<indent()<<"bool deSerialize(rpc::IProtocol* __P__);"<<std::endl;
 
 		if(Program::inst()->option_.json_)
 		{
@@ -145,17 +156,18 @@ void CppGenerator::generateStructHeader()
 
 void CppGenerator::generateStructSrc()
 {
-	if (program_->structs_.defs_.empty())
+	Context*  generateContext = program_->getGenerateContext();
+	if (generateContext->ns_.structs_.defs_.empty())
 		return;
 
-	std::vector<StructDefType*>::iterator it=program_->structs_.defs_.begin();
-	std::vector<StructDefType*>::iterator it_end=program_->structs_.defs_.end();
+	std::vector<StructDefType*>::iterator it=generateContext->ns_.structs_.defs_.begin();
+	std::vector<StructDefType*>::iterator it_end=generateContext->ns_.structs_.defs_.end();
 	while(it!=it_end)
 	{
 		//fingerprint
-		srcFile_<<indent()<<"const char* "<<(*it)->name_<<"::"<<"strFingerprint=\""<<md5((*it)->getFingerPrint())<<"\";"<<std::endl;
+		srcFile_<<indent()<<"const char* "<<generateContext->ns_.name_<<"::"<<(*it)->name_<<"::"<<"strFingerprint=\""<<md5((*it)->getFingerPrint())<<"\";"<<std::endl;
 
-		srcFile_<<indent()<<(*it)->name_<<"::"<<(*it)->name_<<"()"<<std::endl;
+		srcFile_<<indent()<<generateContext->ns_.name_<<"::"<<(*it)->name_<<"::"<<(*it)->name_<<"()"<<std::endl;
 		std::vector<FieldDefType*>::iterator it_inner;
 		it_inner=(*it)->members_.begin();
 		bool first=true;
@@ -179,28 +191,28 @@ void CppGenerator::generateStructSrc()
 		srcFile_<<"{ "<<std::endl;
 		srcFile_<<"} "<<std::endl;
 
-		srcFile_<<indent()<<(*it)->name_<<"::""~"<<(*it)->name_<<"()"<<std::endl;
+		srcFile_<<indent()<<generateContext->ns_.name_<<"::"<<(*it)->name_<<"::""~"<<(*it)->name_<<"()"<<std::endl;
 		srcFile_<<"{ "<<std::endl;
 		srcFile_<<"} "<<std::endl;
 
 		srcFile_<<std::endl;
 		srcFile_<<indent()<<"//serialize"<<std::endl;
-		srcFile_<<indent()<<"void "<<(*it)->name_<<"::serialize(IProtocol* __P__) "<<std::endl;
+		srcFile_<<indent()<<"void "<<generateContext->ns_.name_<<"::"<<(*it)->name_<<"::serialize(rpc::IProtocol* __P__) "<<std::endl;
 		srcFile_<<"{ "<<std::endl;
 		indent_up();
-		serializeFields(*it);
+		serializeFields(*it,"__P__");
 		indent_down();
 		srcFile_<<"}// serialize"<<std::endl;
 		
 		srcFile_<<std::endl;
 		srcFile_<<indent()<<"//deSerialize"<<std::endl;
-		srcFile_<<indent()<<"bool "<<(*it)->name_<<"::deSerialize(IProtocol* __P__)"<<std::endl;
+		srcFile_<<indent()<<"bool "<<generateContext->ns_.name_<<"::"<<(*it)->name_<<"::deSerialize(rpc::IProtocol* __P__)"<<std::endl;
 		srcFile_<<"{ "<<std::endl;
 		it_inner=(*it)->members_.begin();
 		indent_up();
 		while(it_inner!=(*it)->members_.end())
 		{
-			deSerializeField((*it_inner)->type_,(*it_inner)->name_);
+			deSerializeField((*it_inner)->type_,(*it_inner)->name_,"__P__");
 			srcFile_<<std::endl;
 			++it_inner;
 		}
@@ -290,16 +302,16 @@ std::string CppGenerator::typeName(DefType* t,bool isAgr)
 		switch (s->t_)
 		{
 		case	SimpleDefType::boolType : return "bool";
-		case	SimpleDefType::uint8Type : return "uint8";
-		case	SimpleDefType::int8Type : return "int8";
-		case	SimpleDefType::uint16Type : return "uint16";
-		case	SimpleDefType::int16Type : return "int16";
+		case	SimpleDefType::uint8Type : return "rpc::uint8";
+		case	SimpleDefType::int8Type : return "rpc::int8";
+		case	SimpleDefType::uint16Type : return "rpc::uint16";
+		case	SimpleDefType::int16Type : return "rpc::int16";
 
-		case	SimpleDefType::uint32Type : return "uint32";
-		case	SimpleDefType::int32Type : return "int32";
+		case	SimpleDefType::uint32Type : return "rpc::uint32";
+		case	SimpleDefType::int32Type : return "rpc::int32";
 
-		case	SimpleDefType::int64Type : return "int64";
-		case	SimpleDefType::floatType : return "float";
+		case	SimpleDefType::int64Type : return "rpc::int64";
+		case	SimpleDefType::floatType : return "rpc::float";
 		case	SimpleDefType::stringType : 
 			{
 				if (isAgr)
@@ -311,7 +323,7 @@ std::string CppGenerator::typeName(DefType* t,bool isAgr)
 					return "std::string";
 				}
 			}
-		default          : assert(0&&"type error"); return "";
+		default : assert(0&&"type error"); return "";
 		}
 	}
 	else if(t->is_struct())
@@ -453,11 +465,11 @@ void CppGenerator::serializeJsonField( DefType* t ,const std::string& key, const
 		srcFile_<<indent()<<"__json__<<\"\\\""<<key<<"\\\":\""<<"<<int32("<<value<<")";
 	}
 }
-void CppGenerator::serializeField( DefType* t ,const std::string& fieldName )
+void CppGenerator::serializeField( DefType* t ,const std::string& fieldName,const std::string& prefix )
 {
 	if (t->is_struct())
 	{
-		srcFile_<<indent()<<fieldName<<".serialize(__P__);"<<std::endl;
+		srcFile_<<indent()<<fieldName<<".serialize("<<prefix<<");"<<std::endl;
 	}
 	else if (t->is_simple_type())
 	{
@@ -466,52 +478,52 @@ void CppGenerator::serializeField( DefType* t ,const std::string& fieldName )
 		{
 		case	SimpleDefType::boolType : 
 			{
-				srcFile_<<indent()<<"__P__->writeBool("<<fieldName<<");"<<std::endl;
+				srcFile_<<indent()<<prefix<<"->writeBool("<<fieldName<<");"<<std::endl;
 				break;
 			} 
 		case	SimpleDefType::uint8Type : 
 			{
-				srcFile_<<indent()<<"__P__->writeUInt8("<<fieldName<<");"<<std::endl;
+				srcFile_<<indent()<<prefix<<"->writeUInt8("<<fieldName<<");"<<std::endl;
 				break;
 			} 
 		case	SimpleDefType::int8Type : 
 			{
-				srcFile_<<indent()<<"__P__->writeInt8("<<fieldName<<");"<<std::endl;
+				srcFile_<<indent()<<prefix<<"->writeInt8("<<fieldName<<");"<<std::endl;
 				break;
 			} 
 		case	SimpleDefType::uint16Type :
 			{
-				srcFile_<<indent()<<"__P__->writeUInt16("<<fieldName<<");"<<std::endl;
+				srcFile_<<indent()<<prefix<<"->writeUInt16("<<fieldName<<");"<<std::endl;
 				break;
 			} 
 		case	SimpleDefType::int16Type :
 			{
-				srcFile_<<indent()<<"__P__->writeInt16("<<fieldName<<");"<<std::endl;
+				srcFile_<<indent()<<prefix<<"->writeInt16("<<fieldName<<");"<<std::endl;
 				break;
 			} 
 		case	SimpleDefType::uint32Type :
 			{
-				srcFile_<<indent()<<"__P__->writeUInt32("<<fieldName<<");"<<std::endl;
+				srcFile_<<indent()<<prefix<<"->writeUInt32("<<fieldName<<");"<<std::endl;
 				break;
 			} 
 		case	SimpleDefType::int32Type :
 			{
-				srcFile_<<indent()<<"__P__->writeInt32("<<fieldName<<");"<<std::endl;
+				srcFile_<<indent()<<prefix<<"->writeInt32("<<fieldName<<");"<<std::endl;
 				break;
 			} 
 		case	SimpleDefType::int64Type :
 			{
-				srcFile_<<indent()<<"__P__->writeInt64("<<fieldName<<");"<<std::endl;
+				srcFile_<<indent()<<prefix<<"->writeInt64("<<fieldName<<");"<<std::endl;
 				break;
 			} 
 		case	SimpleDefType::floatType :
 			{
-				srcFile_<<indent()<<"__P__->writeFloat("<<fieldName<<");"<<std::endl;
+				srcFile_<<indent()<<prefix<<"->writeFloat("<<fieldName<<");"<<std::endl;
 				break;
 			} 
 		case	SimpleDefType::stringType :
 			{
-				srcFile_<<indent()<<"__P__->writeString("<<fieldName<<");"<<std::endl;
+				srcFile_<<indent()<<prefix<<"->writeString("<<fieldName<<");"<<std::endl;
 				break;
 			}
 
@@ -519,25 +531,25 @@ void CppGenerator::serializeField( DefType* t ,const std::string& fieldName )
 	}
 	else if(t->is_array())
 	{
-		srcFile_<<indent()<<"__P__->writeUInt16("<<fieldName<<".size());"<<std::endl;
+		srcFile_<<indent()<<prefix<<"->writeUInt16(rpc::uint16("<<fieldName<<".size()));"<<std::endl;
 		std::string temp="_i_"+fieldName+"_";
 		srcFile_<<indent()<<"for (size_t "<<temp<<"=0;"<<temp<<"<"<<fieldName<<".size();"<<temp<<"++)"<<std::endl;
 		srcFile_<<indent()<<"{"<<std::endl;
 		indent_up();
 		std::string tempAgr=fieldName+"["+temp+"]";
-		serializeField(((ArrayDefType*)t)->valueDef_,tempAgr);
+		serializeField(((ArrayDefType*)t)->valueDef_,tempAgr,prefix);
 		indent_down();
 		srcFile_<<indent()<<"}"<<std::endl;
 
 	}
 	else if (t->is_enum()) 
 	{
-		srcFile_<<indent()<<"__P__->writeInt16((int16)"<<fieldName<<");"<<std::endl;
+		srcFile_<<indent()<<prefix<<"->writeInt16((rpc::int16)"<<fieldName<<");"<<std::endl;
 
 	}
 	else if(t->is_map()) 
 	{
-		srcFile_<<indent()<<"__P__->writeUInt16("<<fieldName<<".size());"<<std::endl;
+		srcFile_<<indent()<<prefix<<"->writeUInt16(rpc::uint16("<<fieldName<<".size()));"<<std::endl;
 		std::string temp="_it_"+fieldName+"_";
 		srcFile_<<indent()<<typeName(t)<<"::iterator "<<temp<<" = "<<fieldName<<".begin();"<<std::endl;
 		srcFile_<<indent()<<"while("<<temp<<"!="<<fieldName<<".end())"<<std::endl;
@@ -545,19 +557,19 @@ void CppGenerator::serializeField( DefType* t ,const std::string& fieldName )
 		indent_up();
 		std::string tempfirst=temp+"->first";
 		std::string tempsecond=temp+"->second";
-		serializeField(((MapDefType*)t)->keyDef_,tempfirst);
-		serializeField(((MapDefType*)t)->valueDef_,tempsecond);
+		serializeField(((MapDefType*)t)->keyDef_,tempfirst,prefix);
+		serializeField(((MapDefType*)t)->valueDef_,tempsecond,prefix);
 		srcFile_<<indent()<<"++"<<temp<<";"<<std::endl;
 		indent_down();
 		srcFile_<<indent()<<"}"<<std::endl;
 	}
 }
 
-void CppGenerator::deSerializeField( DefType* t ,const std::string& fieldName )
+void CppGenerator::deSerializeField( DefType* t ,const std::string& fieldName ,const std::string& prefix )
 {
 	if (t->is_struct())
 	{
-		srcFile_<<indent()<<"if(!"<<fieldName<<".deSerialize(__P__))return false;"<<std::endl;
+		srcFile_<<indent()<<"if(!"<<fieldName<<".deSerialize("<<prefix<<"))return false;"<<std::endl;
 	}
 	else if (t->is_simple_type())
 	{
@@ -566,52 +578,52 @@ void CppGenerator::deSerializeField( DefType* t ,const std::string& fieldName )
 		{
 		case	SimpleDefType::boolType : 
 			{
-				srcFile_<<indent()<<"if(!"<<"__P__->readBool("<<fieldName<<"))return false;"<<std::endl;
+				srcFile_<<indent()<<"if(!"<<prefix<<"->readBool("<<fieldName<<"))return false;"<<std::endl;
 				break;
 			} 
 		case	SimpleDefType::uint8Type : 
 			{
-				srcFile_<<indent()<<"if(!"<<"__P__->readUInt8("<<fieldName<<"))return false;"<<std::endl;
+				srcFile_<<indent()<<"if(!"<<prefix<<"->readUInt8("<<fieldName<<"))return false;"<<std::endl;
 				break;
 			} 
 		case	SimpleDefType::int8Type : 
 			{
-				srcFile_<<indent()<<"if(!"<<"__P__->readInt8("<<fieldName<<"))return false;"<<std::endl;
+				srcFile_<<indent()<<"if(!"<<prefix<<"->readInt8("<<fieldName<<"))return false;"<<std::endl;
 				break;
 			} 
 		case	SimpleDefType::uint16Type :
 			{
-				srcFile_<<indent()<<"if(!"<<"__P__->readUInt16("<<fieldName<<"))return false;"<<std::endl;
+				srcFile_<<indent()<<"if(!"<<prefix<<"->readUInt16("<<fieldName<<"))return false;"<<std::endl;
 				break;
 			} 
 		case	SimpleDefType::int16Type :
 			{
-				srcFile_<<indent()<<"if(!"<<"__P__->readInt16("<<fieldName<<"))return false;"<<std::endl;
+				srcFile_<<indent()<<"if(!"<<prefix<<"->readInt16("<<fieldName<<"))return false;"<<std::endl;
 				break;
 			} 
 		case	SimpleDefType::uint32Type :
 			{
-				srcFile_<<indent()<<"if(!"<<"__P__->readUInt32("<<fieldName<<"))return false;"<<std::endl;
+				srcFile_<<indent()<<"if(!"<<prefix<<"->readUInt32("<<fieldName<<"))return false;"<<std::endl;
 				break;
 			} 
 		case	SimpleDefType::int32Type :
 			{
-				srcFile_<<indent()<<"if(!"<<"__P__->readInt32("<<fieldName<<"))return false;"<<std::endl;
+				srcFile_<<indent()<<"if(!"<<prefix<<"->readInt32("<<fieldName<<"))return false;"<<std::endl;
 				break;
 			} 
 		case	SimpleDefType::int64Type :
 			{
-				srcFile_<<indent()<<"if(!"<<"__P__->readInt64("<<fieldName<<"))return false;"<<std::endl;
+				srcFile_<<indent()<<"if(!"<<prefix<<"->readInt64("<<fieldName<<"))return false;"<<std::endl;
 				break;
 			} 
 		case	SimpleDefType::floatType :
 			{
-				srcFile_<<indent()<<"if(!"<<"__P__->readFloat("<<fieldName<<"))return false;"<<std::endl;
+				srcFile_<<indent()<<"if(!"<<prefix<<"->readFloat("<<fieldName<<"))return false;"<<std::endl;
 				break;
 			} 
 		case	SimpleDefType::stringType :
 			{
-				srcFile_<<indent()<<"if(!"<<"__P__->readString("<<fieldName<<"))return false;"<<std::endl;
+				srcFile_<<indent()<<"if(!"<<prefix<<"->readString("<<fieldName<<"))return false;"<<std::endl;
 				break;
 			}
 		}
@@ -619,30 +631,30 @@ void CppGenerator::deSerializeField( DefType* t ,const std::string& fieldName )
 	else if(t->is_array())
 	{
 		std::string size="_n_"+fieldName+"_array";
-		srcFile_<<indent()<<"uint16 "<<size<<"=0;"<<std::endl;
-		srcFile_<<indent()<<"if(!"<<"__P__->readUInt16("<<size<<"))return false;"<<std::endl;
+		srcFile_<<indent()<<"rpc::uint16 "<<size<<"=0;"<<std::endl;
+		srcFile_<<indent()<<"if(!"<<prefix<<"->readUInt16("<<size<<"))return false;"<<std::endl;
 		srcFile_<<indent()<<fieldName<<".resize( "<<size<<");"<<std::endl;
 		std::string count="_i_"+fieldName+"_";
 		srcFile_<<indent()<<"for (size_t "<<count<<"=0;"<<count<<"<"<<size<<";"<<count<<"++)"<<std::endl;
 		srcFile_<<indent()<<"{"<<std::endl;
 		indent_up();
 		std::string tempAgr=fieldName+"["+count+"]";
-		deSerializeField(((ArrayDefType*)t)->valueDef_,tempAgr);
+		deSerializeField(((ArrayDefType*)t)->valueDef_,tempAgr,prefix);
 		indent_down();
 		srcFile_<<indent()<<"}"<<std::endl;
 
 	}else if (t->is_enum())
 	{
 		std::string tempName=" __temp_enum__"+fieldName;
-		srcFile_<<indent()<<"int16 "<<tempName<<" =0;"<<std::endl;
-		srcFile_<<indent()<<"if(!"<<"__P__->readInt16((int16&)"<<tempName<<"))return false;"<<std::endl;
+		srcFile_<<indent()<<"rpc::int16 "<<tempName<<" =0;"<<std::endl;
+		srcFile_<<indent()<<"if(!"<<prefix<<"->readInt16((rpc::int16&)"<<tempName<<"))return false;"<<std::endl;
 		srcFile_<<indent()<<fieldName<<"=("<<typeName(t)<<")"<<tempName<<";"<<std::endl;
 
 	}else if(t->is_map())
 	{
 		std::string size="_n_"+fieldName+"_map_";
-		srcFile_<<indent()<<"uint16 "<<size<<"=0;"<<std::endl;
-		srcFile_<<indent()<<"if(!"<<"__P__->readUInt16("<<size<<"))return false;"<<std::endl;
+		srcFile_<<indent()<<"rpc::uint16 "<<size<<"=0;"<<std::endl;
+		srcFile_<<indent()<<"if(!"<<prefix<<"->readUInt16("<<size<<"))return false;"<<std::endl;
 		std::string count="_i_"+fieldName+"_";
 		srcFile_<<indent()<<"for (int "<<count<<"=0;"<<count<<"<"<<size<<";"<<count<<"++)"<<std::endl;
 		srcFile_<<indent()<<"{"<<std::endl;
@@ -655,8 +667,8 @@ void CppGenerator::deSerializeField( DefType* t ,const std::string& fieldName )
 		std::string secondValue=" _second_map_"+fieldName;
 		srcFile_<<indent()<<secondType<<" "<<secondValue<<";"<<std::endl;
 
-		deSerializeField(((MapDefType*)t)->keyDef_,firstValue);
-		deSerializeField(((MapDefType*)t)->valueDef_,secondValue);
+		deSerializeField(((MapDefType*)t)->keyDef_,firstValue,prefix);
+		deSerializeField(((MapDefType*)t)->valueDef_,secondValue,prefix);
 		srcFile_<<indent()<<fieldName<<"["<<firstValue<<"]="<< secondValue<<";"<<std::endl;
 		indent_down();
 		srcFile_<<indent()<<"}"<<std::endl;
@@ -678,14 +690,17 @@ void CppGenerator::generateServiceSrc()
 
 void CppGenerator::genServiceStubHeader()
 {
-	if (program_->services_.defs_.empty())
+
+	Context*  generateContext = program_->getGenerateContext();
+
+	if (generateContext->ns_.services_.defs_.empty())
 		return;
-	std::vector<ServiceDefType*>::iterator it=program_->services_.defs_.begin();
-	std::vector<ServiceDefType*>::iterator it_end=program_->services_.defs_.end();
+	auto it=generateContext->ns_.services_.defs_.begin();
+	auto it_end=generateContext->ns_.services_.defs_.end();
 	while(it!=it_end)
 	{
 		std::string className=(*it)->name_+"Stub";
-		headerFile_<<"class "<<className<<std::endl;
+		headerFile_<<"class "<<className<<": public rpc::ClientStub"<<std::endl;
 		headerFile_<<"{ "<<std::endl;
 		headerFile_<<"public: "<<std::endl;
 		indent_up();
@@ -705,11 +720,14 @@ void CppGenerator::genServiceStubHeader()
 		indent_down();
 		headerFile_<<indent()<<"};"<<std::endl;
 
-		headerFile_<<indent()<<className<<"(IProtocol* p=NULL):__P__(p){}"<<std::endl;
+		headerFile_<<indent()<<className<<"(){}"<<std::endl;
 		headerFile_<<indent()<<"virtual ~"<<className<<"(){}"<<std::endl;
+
+		headerFile_<<indent()<< "void invokeAsync(const rpc::IProtocol* p);"<<std::endl;
+		headerFile_<<indent()<< "virtual bool dispatch(std::shared_ptr<rpc::RpcMsg> msg);" <<std::endl;
+
 		genFunStubDeclare(*it);
 
-		headerFile_<<indent()<<"IProtocol* __P__;"<<std::endl;
 		indent_down();
 		headerFile_<<"};//class"<<std::endl;
 		headerFile_<<std::endl;
@@ -719,29 +737,99 @@ void CppGenerator::genServiceStubHeader()
 
 void CppGenerator::genServiceStubSrc()
 {
-	if (program_->services_.defs_.empty())
+	Context*  generateContext = program_->getGenerateContext();
+	if (generateContext->ns_.services_.defs_.empty())
 		return;
-	std::vector<ServiceDefType*>::iterator it=program_->services_.defs_.begin();
-	std::vector<ServiceDefType*>::iterator it_end=program_->services_.defs_.end();
+
+
+	auto it=generateContext->ns_.services_.defs_.begin();
+	auto it_end=generateContext->ns_.services_.defs_.end();
 	while(it!=it_end)
 	{
 		//fingerprint
-		srcFile_<<indent()<<"const char* "<<(*it)->name_<<"Stub::"<<"strFingerprint=\""<<md5((*it)->getFingerPrint())<<"\";"<<std::endl;
-		int i=0;
-		std::vector<FuctionDefType*>::iterator it_inner=(*it)->funs_.begin();
+		srcFile_<<indent()<<"const char* "<<generateContext->ns_.name_<<"::"<<(*it)->name_<<"Stub::"<<"strFingerprint=\""<<md5((*it)->getFingerPrint())<<"\";"<<std::endl;
+
+		srcFile_ <<indent()<< "void  "<<generateContext->ns_.name_<<"::"<<(*it)->name_<<"Stub::"<<"invokeAsync(const rpc::IProtocol* p) {" << std::endl;
+		indent_up();
+		srcFile_ <<indent()<<"std::shared_ptr<rpc::RpcMsg> msg = std::make_shared<rpc::RpcMsg>();" << std::endl;
+		srcFile_ <<indent()<<"msg->sendMsg_.buf = p->getBuffer();"<<std::endl;
+		srcFile_ <<indent()<<"invoke(msg);" << std::endl;
+		indent_down();
+		srcFile_ <<indent()<< "}" << std::endl;
+
+		srcFile_ <<indent()<< "bool  "<<generateContext->ns_.name_<<"::"<<(*it)->name_<<"Stub::"<<"dispatch(std::shared_ptr<rpc::RpcMsg> msg) {" << std::endl;
+		indent_up();
+
+		srcFile_ << indent() << "auto id=msg->recvMsg_.msgId;" << std::endl;
+		srcFile_ << indent() << "switch (id)" << std::endl;
+		srcFile_ << indent() << "{" << std::endl;
+		int i = 0;
+		indent_up();
+		auto it_inner=(*it)->funs_.begin();
+		while (it_inner != (*it)->funs_.end())
+		{
+			i++;
+			FuctionDefType*& t = *it_inner;
+			if (!t->result_->is_void())
+			{
+
+				srcFile_ << indent() << "case "<<i<<":"<< std::endl;
+				srcFile_ << indent() << "{" << std::endl;
+				indent_up();
+				srcFile_ << indent() << "std::unique_ptr<rpc::IProtocol> __P__(getProtocol()->createProtoBuffer());" << std::endl;
+				srcFile_ << indent() << "__P__->setBuffer(msg->recvMsg_.buf);" << std::endl;
+				srcFile_ << indent() << typeName(t->result_) << " ret ;" << std::endl;
+
+				deSerializeField(t->result_, "ret","__P__.get()");
+
+				srcFile_ << indent() << "int cbRet = "<<t->name_<<"CallBack(ret);" << std::endl;
+				srcFile_ << indent() << "return true;" << std::endl;
+				indent_down();
+				srcFile_ << indent() << "}" << std::endl;
+			}
+			it_inner++;
+		}
+
+		srcFile_ << indent() << "default:" << std::endl;
+		srcFile_ << indent() << "{" << std::endl;
+		indent_up();
+		srcFile_ << indent() << "return false;" << std::endl;
+		indent_down();
+		srcFile_ << indent() << "}" << std::endl;
+		indent_down();
+		srcFile_ << indent() << "}" << std::endl;
+
+
+		indent_down();
+		srcFile_ <<indent()<< "}" << std::endl;
+
+		it_inner=(*it)->funs_.begin();
 		while(it_inner!=(*it)->funs_.end())
 		{
 			FuctionDefType*& t=*it_inner;
-			srcFile_<<indent()<<"void "<<(*it)->name_<<+"Stub"<<"::"<<t->name_<<"(";
+			srcFile_<<indent()<<"void "<<generateContext->ns_.name_<<"::"<<(*it)->name_<<+"Stub"<<"::"<<t->name_<<"(";
 			genFunAgrList(srcFile_,t->argrs_);
+			if (!t->result_->is_void())
+			{
+				if (!t->argrs_->members_.empty()) {
+					srcFile_ << ",";
+				}
+				srcFile_ <<"std::function<int("<<typeName(t->result_)<<")> cb";
+			}
 			srcFile_<<")"<<std::endl;
 			srcFile_<<indent()<<"{"<<std::endl;
+
 			indent_up();
-			srcFile_<<indent()<<"__P__->writeMsgBegin();"<<std::endl;
-			srcFile_<<indent()<<"__P__->writeUInt16("<<i++<<");"<<std::endl;
-			serializeFields(t->argrs_);
-			srcFile_<<indent()<<"__P__->writeMsgEnd();"<<std::endl;
+			srcFile_<<indent()<<"std::unique_ptr<rpc::IProtocol> __P__(getProtocol()->createProtoBuffer());"<<std::endl;
+			serializeFields(t->argrs_,"__P__.get()");
+
+			if (!t->result_->is_void())
+			{
+				srcFile_ << indent() <<t->name_<< "CallBack = cb;" << std::endl;
+			}
+			srcFile_<<indent()<<"invokeAsync(__P__.get());"<<std::endl;
 			indent_down();
+
 			srcFile_<<indent()<<"}"<<std::endl;
 			++it_inner;
 		}
@@ -751,14 +839,15 @@ void CppGenerator::genServiceStubSrc()
 
 void CppGenerator::genServiceProxyHeader()
 {
-	if (program_->services_.defs_.empty())
+	Context*  generateContext = program_->getGenerateContext();
+	if (generateContext->ns_.services_.defs_.empty())
 		return;
-	std::vector<ServiceDefType*>::iterator it=program_->services_.defs_.begin();
-	std::vector<ServiceDefType*>::iterator it_end=program_->services_.defs_.end();
+	std::vector<ServiceDefType*>::iterator it=generateContext->ns_.services_.defs_.begin();
+	std::vector<ServiceDefType*>::iterator it_end=generateContext->ns_.services_.defs_.end();
 	while(it!=it_end)
 	{
-		std::string className=(*it)->name_+"Proxy";
-		headerFile_<<indent()<<"class "<<className<<std::endl;
+		std::string className=(*it)->name_+"ProxyIF";
+		headerFile_<<indent()<<"class "<<className<<": public rpc::ServiceProxy "<<std::endl;
 		headerFile_<<indent()<<"{ "<<std::endl;
 		headerFile_<<indent()<<"public: "<<std::endl;
 		indent_up();
@@ -766,14 +855,12 @@ void CppGenerator::genServiceProxyHeader()
 		//fingerprint
 		headerFile_<<indent()<<"static const char* strFingerprint;"<<std::endl;
 
-		headerFile_<<indent()<<className<<"(IProtocol* p=NULL):__P__(p){}"<<std::endl;
+		headerFile_<<indent()<<className<<"(){}"<<std::endl;
 		headerFile_<<indent()<<"virtual ~"<<className<<"(){}"<<std::endl;
 		genFunProxyDeclare(*it);
-		genInterfaceDeclare(*it);
 		//dispatch
-		headerFile_<<indent()<<"static bool dispatch(IProtocol* p,"<<className<<"* __C__);"<<std::endl;
+		headerFile_<<indent()<<"virtual bool dispatch(std::shared_ptr<rpc::RpcMsg> msg);"<<std::endl;
 		headerFile_<<std::endl;
-		headerFile_<<indent()<<"IProtocol* __P__;"<<std::endl;
 		indent_down();
 		headerFile_<<indent()<<"};//class"<<std::endl;
 		headerFile_<<std::endl;
@@ -784,21 +871,21 @@ void CppGenerator::genServiceProxyHeader()
 
 void CppGenerator::genServiceProxySrc()
 {
-	if (program_->services_.defs_.empty())
+	Context*  generateContext = program_->getGenerateContext();
+	if (generateContext->ns_.services_.defs_.empty())
 		return;
-	std::vector<ServiceDefType*>::iterator it=program_->services_.defs_.begin();
-	std::vector<ServiceDefType*>::iterator it_end=program_->services_.defs_.end();
+	auto it=generateContext->ns_.services_.defs_.begin();
+	auto it_end=generateContext->ns_.services_.defs_.end();
 	while(it!=it_end)
 	{
 		//fingerprint
-		srcFile_<<indent()<<"const char* "<<(*it)->name_<<"Proxy::"<<"strFingerprint=\""<<md5((*it)->getFingerPrint())<<"\";"<<std::endl;
+		srcFile_<<indent()<<"const char* "<<generateContext->ns_.name_<<"::"<<(*it)->name_<<"ProxyIF::"<<"strFingerprint=\""<<md5((*it)->getFingerPrint())<<"\";"<<std::endl;
 		//dispatch
-		std::string className=(*it)->name_+"Proxy";
-		srcFile_<<indent()<<"bool "<<className<<"::dispatch(IProtocol* __P__,"<<className<<"* __C__)"<<std::endl;
+		std::string className=(*it)->name_+"ProxyIF";
+		srcFile_<<indent()<<"bool "<<generateContext->ns_.name_<<"::"<<className<<"::dispatch(std::shared_ptr<rpc::RpcMsg> msg)"<<std::endl;
 		srcFile_<<indent()<<"{"<<std::endl;
 		indent_up();
-		srcFile_<<indent()<<"uint16 id=0;"<<std::endl;
-		srcFile_<<indent()<<"if(!__P__->readUInt16(id)) return false;"<<std::endl;
+		srcFile_<<indent()<<"auto id=msg->recvMsg_.msgId;"<<std::endl;
 		srcFile_<<indent()<<"switch (id)"<<std::endl;
 		srcFile_<<indent()<<"{"<<std::endl;
 		indent_up();
@@ -810,69 +897,63 @@ void CppGenerator::genServiceProxySrc()
 			srcFile_<<indent()<<"case  "<<i++<<" :"<<std::endl;
 			srcFile_<<indent()<<"{"<<std::endl;
 			indent_up();
-			srcFile_<<indent()<<"return recv_"<<t->name_<<"(__P__,__C__);"<<std::endl;
+
+			srcFile_ << indent() << "std::unique_ptr<rpc::IProtocol> __P__(getProtocol()->createProtoBuffer());" << std::endl;
+			srcFile_ << indent() << "__P__->setBuffer(msg->recvMsg_.buf);"<<std::endl;
+
+			deSerializeFields(t->argrs_,"__P__.get()");
+			srcFile_ << indent() << "auto result = " << t->name_ << "(";
+			genFunAgrList(srcFile_, t->argrs_, PT_Value);
+			srcFile_ <<  ");"<<std::endl;
+
+			if (!t->result_->is_void())
+			{
+				srcFile_ << indent() << "invoke(msg);"<<std::endl;
+			}
+
 			indent_down();
 			srcFile_<<indent()<<"}"<<std::endl;
 			++it_inner;
 		}
 		srcFile_<<indent()<<"default:"<<std::endl;
 		srcFile_<<indent()<<"{"<<std::endl;
-		srcFile_<<indent()<<"	return false;"<<std::endl;
+		indent_up();
+		srcFile_<<indent()<<"return false;"<<std::endl;
+		indent_down();
 		srcFile_<<indent()<<"}"<<std::endl;
 		indent_down();
 		srcFile_<<indent()<<"}//switch"<<std::endl;
 		indent_down();
 		srcFile_<<indent()<<"}//dispatch"<<std::endl;
 		//
-		it_inner=(*it)->funs_.begin();
-		while(it_inner!=(*it)->funs_.end())
-		{
-			FuctionDefType*& t=*it_inner;
-			srcFile_<<indent()<<"bool "<<className<<"::"<<"recv_"<<t->name_<<"(IProtocol* __P__,"<<className<<"* __C__)"<<std::endl;
-			srcFile_<<indent()<<"{"<<std::endl;
-			indent_up();
-			deSerializeFields(t->argrs_);
-			srcFile_<<indent()<<"return __C__->"<<t->name_<<"(";
-			genFunAgrList(srcFile_,t->argrs_,true);
-			srcFile_<<");"<<std::endl;
-			indent_down();
-			srcFile_<<indent()<<"}"<<std::endl;
-			++it_inner;
-		}
 		++it;
 	}
 }
 
-void CppGenerator::genFunAgrList( std::ofstream& stream,StructDefType* agrList,bool onlyValue)
+void CppGenerator::genFunAgrList( std::ofstream& stream,StructDefType* agrList,ParamType paramType)
 {
 	std::vector<FieldDefType*>::iterator it_inner=agrList->members_.begin();
 	bool first=true;
 	while(it_inner!=agrList->members_.end())
 	{
 		FieldDefType*& t=*it_inner;
-		if (first)
+		if (!first)
 		{
-			if (onlyValue)
-			{
-				stream<<t->name_;
-			}
-			else
-			{
-				stream<<typeName(t->type_,true)<<"  "<<t->name_;
-			}
-			first=false;
+			stream<<",";
 		}
-		else
+		if (paramType==PT_Value)
 		{
-			if (onlyValue)
-			{
-				stream<<","<<t->name_;
-			}
-			else
-			{
-				stream<<","<<typeName(t->type_,true)<<"  "<<t->name_;
-			}
+			stream<<t->name_;
 		}
+		else if(paramType==PT_TypeValue)
+		{
+			stream<<typeName(t->type_,true)<<"  "<<t->name_;
+		}
+		else if (paramType==PT_Type) 
+		{
+			stream<<typeName(t->type_,true);
+		}
+		first = false;
 		++it_inner;
 	}
 }
@@ -885,7 +966,26 @@ void CppGenerator::genFunStubDeclare( ServiceDefType* service )
 		FuctionDefType*& t=*it_inner;
 		headerFile_<<indent()<<"void "<<t->name_<<"(";
 		genFunAgrList(headerFile_,t->argrs_);
+		if (!t->result_->is_void())
+		{
+			if (!t->argrs_->members_.empty()) {
+				headerFile_ << ",";
+			}
+			headerFile_ <<"std::function<int("<<typeName(t->result_)<<")> cb";
+		}
 		headerFile_<<");"<<std::endl;
+		++it_inner;
+	}
+	headerFile_ << std::endl;
+	headerFile_<<"protected:"<<std::endl;
+	it_inner=service->funs_.begin();
+	while (it_inner != service->funs_.end())
+	{
+		FuctionDefType*& t=*it_inner;
+		if (!t->result_->is_void())
+		{
+			headerFile_ << indent() << "std::function<int(" << typeName(t->result_) << ")> " << t->name_ << "CallBack;" << std::endl;
+		}
 		++it_inner;
 	}
 }
@@ -896,28 +996,28 @@ void CppGenerator::genFunProxyDeclare( ServiceDefType* service )
 	while(it_inner!=service->funs_.end())
 	{
 		FuctionDefType*& t=*it_inner;
-		headerFile_<<indent()<<"virtual bool "<<t->name_<<"(";
+		headerFile_ << indent() << "virtual std::tuple<int";
+		if (t->result_->is_void())
+		{
+			headerFile_ << ">";
+		}
+		else 
+		{
+			headerFile_ <<","<<typeName(t->result_)<< ">";
+		}
+		headerFile_<<t->name_<<"(";
 		genFunAgrList(headerFile_,t->argrs_);
 		headerFile_<<")=0;"<<std::endl;
 		++it_inner;
 	}
-	std::string className=service->name_+"Proxy";
-	headerFile_<<std::endl;
-	it_inner=service->funs_.begin();
-	while(it_inner!=service->funs_.end())
-	{
-		FuctionDefType*& t=*it_inner;
-		headerFile_<<indent()<<"static bool "<<"recv_"<<t->name_<<"(IProtocol* p,"<<className<<"* __C__);"<<std::endl;;
-		++it_inner;
-	}
 }
 
-void CppGenerator::serializeFields( StructDefType* t )
+void CppGenerator::serializeFields( StructDefType* t ,const std::string& prefix)
 {
 	std::vector<FieldDefType*>::iterator it_inner=t->members_.begin();
 	while(it_inner!=t->members_.end())
 	{
-		serializeField((*it_inner)->type_,(*it_inner)->name_);
+		serializeField((*it_inner)->type_,(*it_inner)->name_,prefix);
 		srcFile_<<std::endl;
 		++it_inner;
 	}
@@ -971,13 +1071,13 @@ void CppGenerator::serializeJsonFields( StructDefType* t )
 }
 
 
-void CppGenerator::deSerializeFields( StructDefType* t )
+void CppGenerator::deSerializeFields( StructDefType* t ,const std::string& prefix)
 {
 	std::vector<FieldDefType*>::iterator it_inner=t->members_.begin();
 	while(it_inner!=t->members_.end())
 	{
 		srcFile_<<indent()<<typeName((*it_inner)->type_)<<" "<<(*it_inner)->name_<<";"<<std::endl;
-		deSerializeField((*it_inner)->type_,(*it_inner)->name_);
+		deSerializeField((*it_inner)->type_,(*it_inner)->name_,prefix);
 		srcFile_<<std::endl;
 		++it_inner;
 	}
@@ -989,11 +1089,7 @@ void CppGenerator::genIncludeHeader( std::ofstream& stream )
 	std::vector<std::string>::iterator it=	program_->include_.begin();
 	while(it!=program_->include_.end())
 	{
-		size_t found=(*it).find(".");
-		if (found==std::string::npos)
-			found=0;
-		std::string baseName=(*it).substr(0,found);
-		stream<<"#include \""<<baseName<<".h\""<<std::endl;
+		stream<<"#include \""<<*it<<".h\""<<std::endl;
 		++it;
 	}
 }

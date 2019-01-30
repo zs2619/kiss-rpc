@@ -10,7 +10,7 @@ extern "C"{
 #include <event2/listener.h>
 #include <event2/buffer.h>
 }
-#include "EndPoint.h"
+#include "rpc/EndPoint.h"
 
 namespace rpc {
 class NetEvent {

@@ -1,4 +1,4 @@
-#include "EventHandler.h"
+#include "rpc/EventHandler.h"
 
 void rpc::EventHandler::conn_eventcb(bufferevent * bev, short events, void * userData) {
     EventHandler* handler = (EventHandler*)userData;

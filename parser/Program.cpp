@@ -27,6 +27,15 @@ Context * Program::getFileContext(const std::string & name) {
 	return it->second;
 }
 
+Context * Program::getGenerateContext() {
+	auto it = contexts_.find(getBaseName());
+	if (it == contexts_.end()) {
+		return nullptr;
+	} else {
+		return contexts_[getBaseName()];
+	}
+}
+
 bool Program::parseArg(int argc,char** argv) 
 {
 	return false;

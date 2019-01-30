@@ -3,7 +3,7 @@
 
 #include <string>
 #include <sstream>
-#include "NetEvent.h"
+#include "rpc/NetEvent.h"
 	
 
 namespace rpc {

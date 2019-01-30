@@ -1,98 +1,99 @@
+#ifndef	__HELLOMSG_H__
+#define	__HELLOMSG_H__
 
-#ifndef __RPC_HELLOMSG_H__
-#define __RPC_HELLOMSG_H__
-
-#include <functional>  
-#include <type_traits>
+#include <functional>
+#include "rpc/Common.h"
+#include "rpc/Protocol.h"
 #include "rpc/ClientStub.h"
 #include "rpc/ServiceProxy.h"
-#include "rpc/Protocol.h"
+namespace shuai{
 
-class HelloMsgStub  : public rpc::ClientStub{
+enum SexType
+{ 
+	male,
+	famale,
+}; 
+extern rpc::EnumMap RpcEnum(SexType);
+
+class role
+{ 
 public: 
-	HelloMsgStub() {}
-	virtual ~HelloMsgStub() {}
+	role();
+	virtual ~role();
+	static const char* strFingerprint;
+	SexType	sexType;
+	bool	b;
+	rpc::int8	i8;
+	rpc::uint8	ui8;
+	rpc::int16	i16;
+	rpc::uint16	ui16;
+	rpc::int32	i32;
+	rpc::uint32	ui32;
+	rpc::int64	i64;
+	std::string	str;
 
-	void test(int a, std::function<int(int)>  cb) {
-		std::unique_ptr<IProtocol> outWriter(getProtocol()->createProtoBuffer());
-		
-		outWriter->writeInt32(a);
-		std::vector<uint8> h{1};
-		outWriter->writeVec(h);
-		testCallBack=cb;
-		invokeAsync(outWriter.get());
-	}
+	//serialize
+	void serialize(rpc::IProtocol* __P__); 
 
-	void testMsg(std::string& s,std::function<int(const std::string&)> cb){
+	//deSerialize
+	bool deSerialize(rpc::IProtocol* __P__);
+} ;//struct
 
-		std::unique_ptr<IProtocol> outWriter(getProtocol()->createProtoBuffer());
-		outWriter->writeString(s);
+class user
+{ 
+public: 
+	user();
+	virtual ~user();
+	static const char* strFingerprint;
+	std::map<rpc::int32,role>	roleMap;
+	std::vector<rpc::int32> 	items;
+	std::vector<role> 	roles;
 
-		testMsgCallBack=cb;
-		invokeAsync(outWriter.get());
-	}
+	//serialize
+	void serialize(rpc::IProtocol* __P__); 
 
-	void invokeAsync( const IProtocol* p) {
- 	    std::shared_ptr<RpcMsg> msg = std::make_shared<RpcMsg>();
-		msg->sendMsg_.buf=p->getBuffer();
-		invoke(msg);
-	}
+	//deSerialize
+	bool deSerialize(rpc::IProtocol* __P__);
+} ;//struct
 
-	virtual void dispatch(std::shared_ptr<RpcMsg> msg){
-		if (msg->recvMsg_.msgId==1){
+class opServiceStub: public rpc::ClientStub
+{ 
+public: 
+	static const char* strFingerprint;
+	enum {
+		momo_Id,
+		xixi_Id,
+		lala_Id,
+		ping_Id,
+	};
+	opServiceStub(){}
+	virtual ~opServiceStub(){}
+	void invokeAsync(const rpc::IProtocol* p);
+	virtual bool dispatch(std::shared_ptr<rpc::RpcMsg> msg);
+	void momo(rpc::int8  i8,rpc::int64  i64);
+	void xixi(user&  u,std::function<int(rpc::int8)> cb);
+	void lala(std::map<rpc::int32,role>&  m,std::vector<rpc::int32> &  ai,std::vector<role> &  ar,std::function<int(std::vector<role> )> cb);
+	void ping(std::function<int(rpc::int8)> cb);
 
-			std::unique_ptr<IProtocol> inReader(getProtocol()->createProtoBuffer());
-			inReader->setBuffer(msg->recvMsg_.buf);
-			int i=0;
-			inReader->readInt32(i);
-
-			int ret=testCallBack(i);
-
-		} else if (msg->recvMsg_.msgId==2){
-
-			std::unique_ptr<IProtocol> inReader(getProtocol()->createProtoBuffer());
-			inReader->setBuffer(msg->recvMsg_.buf);
-
-			std::string s;
-			inReader->readString(s);
-
-			int ret=testMsgCallBack(s);
-		}
-	}
 protected:
-     std::function<int(int)> testCallBack;
-     std::function<int(const std::string&)> testMsgCallBack;
-};
+	std::function<int(rpc::int8)> xixiCallBack;
+	std::function<int(std::vector<role> )> lalaCallBack;
+	std::function<int(rpc::int8)> pingCallBack;
+};//class
 
+class opServiceProxyIF: public rpc::ServiceProxy 
+{ 
+public: 
+	static const char* strFingerprint;
+	opServiceProxyIF(){}
+	virtual ~opServiceProxyIF(){}
+	virtual std::tuple<int>momo(rpc::int8  i8,rpc::int64  i64)=0;
+	virtual std::tuple<int,rpc::int8>xixi(user&  u)=0;
+	virtual std::tuple<int,std::vector<role> >lala(std::map<rpc::int32,role>&  m,std::vector<rpc::int32> &  ai,std::vector<role> &  ar)=0;
+	virtual std::tuple<int,rpc::int8>ping()=0;
+	virtual bool dispatch(std::shared_ptr<rpc::RpcMsg> msg);
 
-class HelloMsgProxyIF: public rpc::ServiceProxy{
+};//class
 
-	virtual std::pair<int,int> test(int a)=0;
-	virtual std::pair<int,std::string> testMsg(std::string s)=0;
-
-	virtual void dispatch(std::shared_ptr<RpcMsg> msg){
-		if (msg->recvMsg_.msgId==1){
-
-			std::unique_ptr<IProtocol> inReader(getProtocol()->createProtoBuffer());
-			inReader->setBuffer(msg->recvMsg_.buf);
-			int a=1;
-			inReader->readInt32(a);
-
-			auto result = test(a);
-			IProtocol* outWriter=getProtocol()->createProtoBuffer();
-
-			invoke(msg);
-
-		} else if (msg->recvMsg_.msgId==2){
-			std::unique_ptr<IProtocol> inReader(getProtocol()->createProtoBuffer());
-			inReader->setBuffer(msg->recvMsg_.buf);
-
-			std::string str;
-			inReader->readString(str);
-			auto result = testMsg(str);
-
-			invoke(msg);
-		}
-	}
-};
+}///namespace
 #endif

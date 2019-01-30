@@ -3,8 +3,8 @@
 #define __RPC_RPCSERVICE_H__
 
 #include <string>
-#include "NetEvent.h"
-#include "EndPoint.h"
+#include "rpc/NetEvent.h"
+#include "rpc/EndPoint.h"
 
 namespace rpc {
 template<typename E,typename T,typename P>
