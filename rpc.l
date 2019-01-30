@@ -15,6 +15,7 @@ symbol        ([:;\,\{\}\(\)\=<>\[\]\"])
 #include <string>
 #include "Global.h"
 #include "DefType.h"
+#include "Program.h"
 #include "rpc.tab.hpp"
 
 void reserved_keyword(char* keyword) {
@@ -27,33 +28,36 @@ struct myBuffer
 	std::string		name_;
 	YY_BUFFER_STATE state_;
 };
-
 myBuffer include_stack[MAX_INCLUDE_DEPTH];
 int include_stack_ptr = 0;
 
-void switchBuf(const char* s)
+void switchBuf(std::string& includeName)
 {
 	if ( include_stack_ptr >= MAX_INCLUDE_DEPTH )
 	{
 		yyerror( "Includes nested too deeply" );
 	}
      
-	int i=include_stack_ptr++;
-	include_stack[i].state_ = YY_CURRENT_BUFFER;
-	include_stack[i].name_=curFileName;
-	curFileName=s;
-	yyin = std::fopen( s, "r" );
+	std::string f=Program::inst()->getInputDir()+includeName;
+	include_stack[include_stack_ptr].state_ = YY_CURRENT_BUFFER;
+	include_stack[include_stack_ptr].name_=curFileName;
+	include_stack_ptr++;
+
+	curFileName=getBaseName(includeName);
+
+	yyin = std::fopen( f.c_str(), "r" );
 	if(!yyin)
 	{
-		yyerror( "open %s fail ",s);
+		yyerror( "open %s fail ",f.c_str());
 	}
 
 	yy_switch_to_buffer( yy_create_buffer( yyin, YY_BUF_SIZE ) );
-	BEGIN(0);
+    BEGIN(0);
 }
 %}
 
 
+%x INCL
 %%
 
 "bool"              { return tok_bool;}
@@ -102,13 +106,27 @@ void switchBuf(const char* s)
 
 {identifier}		 { yylval.str_ = new std::string(yytext, yyleng); return tok_identifier; } 
 {fileName}			 { yylval.str_ = new std::string(yytext, yyleng); return tok_fileName; } 
+"#include"[ \t]*   { BEGIN(INCL); }
+
+<INCL>"\"".*"\""   {
+
+	std::string includeName=std::string(yytext+1,yyleng-2);
+	if(Program::inst()->addIncludeFile(getBaseName(includeName)))
+	{
+		switchBuf(includeName);
+	}
+}
+
 <<EOF>> {
-             if ( --include_stack_ptr < 0 ){
+			--include_stack_ptr ;
+             if ( include_stack_ptr < 0 ){
                 yyterminate();
              } else {
                 yy_delete_buffer( YY_CURRENT_BUFFER );
+				fclose(yyin);
                 yy_switch_to_buffer( include_stack[include_stack_ptr].state_ );
                 curFileName=include_stack[include_stack_ptr].name_;
             }
+
 	}    
 %%

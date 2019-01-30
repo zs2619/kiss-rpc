@@ -96,11 +96,7 @@ int main(int argc,char** argv)
 	split(genStr,";",gen);
 
 	std::string fileName=argv[i];
-	size_t found=fileName.find(".");
-	if (found==std::string::npos)
-		found=0;
-	std::string baseName=fileName.substr(0,found);
-	option.baseName_=baseName;
+	option.baseName_=getBaseName(fileName);
 
 	std::string f=option.inputDir_+fileName;
 	option.fileName_=f;
@@ -108,9 +104,9 @@ int main(int argc,char** argv)
 	Program::inst()->option_ = option;
 	misc::mkdir(Program::inst()->getOutputDir().c_str());
 
+	curFileName=option.baseName_;
+	Program::inst()->contexts_[curFileName]=new Context(curFileName);
 	yyin = std::fopen(f.c_str() , "r" );
-	curFileName=f;
-	Program::inst()->contexts_[curFileName]=new Context;
 	if(!yyin)
 	{
 		std::cerr<<"open fail "<< errno<<std::endl;

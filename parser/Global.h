@@ -19,6 +19,7 @@ extern int yylex();
 extern int   yylineno;
 extern char  yytext[];
 extern FILE* yyin;
-extern void switchBuf(const char* s);
+extern void switchBuf(std::string& includeName);
 extern std::string curFileName;
+extern std::string getBaseName(const std::string& includeName);
 #endif

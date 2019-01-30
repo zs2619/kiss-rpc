@@ -34,8 +34,6 @@ public:
 	}
 	bool addDef(T	t) {
 		assert(t);
-		if(Program::inst()->findDefByName(t->name_))
-			return false;
 		defs_.push_back(t);
 		return true;
 	}

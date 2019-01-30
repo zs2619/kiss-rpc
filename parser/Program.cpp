@@ -9,19 +9,14 @@
 #include "Program.h"
 #include "DefType.h"
 
-bool Program::addIncludeFile( const std::string& includeName )
+bool Program::addIncludeFile( const std::string& baseName )
 {
-	size_t found=includeName.find(".");
-	if (found==std::string::npos)
-		found=0;
-	std::string baseName=includeName.substr(0,found);
-
 	auto it = std::find(include_.begin(), include_.end(), baseName);
 	if (it != include_.end())
 		return false;
 
 	include_.push_back(baseName);
-    contexts_[baseName]=new Context;
+    contexts_[baseName]=new Context(baseName);
 	return true;
 }
 

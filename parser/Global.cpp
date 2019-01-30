@@ -25,3 +25,10 @@ void yyerror(const char* fmt, ...) {
 	fprintf(stderr, "\n");
 	exit(1);
 }
+std::string  getBaseName(const std::string & includeName) {
+	size_t found = includeName.find(".");
+	if (found == std::string::npos)
+		found = 0;
+	std::string baseName = includeName.substr(0, found);
+	return baseName;
+}

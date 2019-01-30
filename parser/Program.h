@@ -19,7 +19,9 @@
   
 class Context{
 public:
+	Context(const std::string& baseName):baseName_(baseName){}
     NameSpaceType     ns_;
+	std::string baseName_;
 };
 class Program 
 {
@@ -39,6 +41,7 @@ public:
     bool addEnumDefType(EnumDefType* d){
         if (!enums_.addDef(d)){
     		yyerror("enum name repeat: \"%s\"\n", d->name_.c_str());
+			return false;
         }
         return true;
     }
@@ -46,12 +49,14 @@ public:
     bool addStructDefType(StructDefType* d){
         if (!structs_.addDef(d)){
     		yyerror("struct name repeat: \"%s\"\n", d->name_.c_str());
+			return false;
         }
         return true;
     }
     bool addServiceDefType(ServiceDefType* d){
         if (!services_.addDef(d)){
     		yyerror("serviece name repeat: \"%s\"\n", d->name_.c_str());
+			return false;
         }
         return true;
     }

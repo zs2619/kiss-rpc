@@ -1,4 +1,6 @@
+%error-verbose
 %{
+#define YYDEBUG 1
 #include <stdio.h>
 #include <string>
 #include "Global.h"
@@ -76,20 +78,9 @@
 %start Program
 
 %%
-Program :Header NameSpace
-		 |Header
-		 |NameSpace
+Program : NameSpaceS
 
-Header:  Header HeaderDef |
-
-HeaderDef :tok_include '\"' tok_fileName '\"'
-		{
-			if(Program::inst()->addIncludeFile(*$3))
-			{
-				std::string f=Program::inst()->getInputDir()+ *$3;
-				switchBuf(f.c_str());
-			}
-		}
+NameSpaceS: NameSpaceS NameSpace|NameSpace
 
 NameSpace : tok_namespace tok_identifier '{' DefinitionList'}'
         {
@@ -106,7 +97,11 @@ DefinitionList: DefinitionList Definition
 
 Definition:Struct
 		{
+			if(Program::inst()->findDefByName($1->name_)) {
+				yyerror("name confict error: %s \"%s\"\n",$1->name_.c_str(), curFileName.c_str());
+			}
 			Program::inst()->addStructDefType($1);
+
             Context* c=Program::inst()->getFileContext(curFileName);
             if (c==nullptr){
 				yyerror("context error: \"%s\"\n", curFileName.c_str());
@@ -115,6 +110,9 @@ Definition:Struct
 		}
         |Enum
         {
+			if(Program::inst()->findDefByName($1->name_)) {
+				yyerror("name confict error: %s \"%s\"\n",$1->name_.c_str(), curFileName.c_str());
+			}
 			Program::inst()->addEnumDefType($1);
             Context* c=Program::inst()->getFileContext(curFileName);
             if (c==nullptr){
@@ -124,6 +122,9 @@ Definition:Struct
         }
         |Service
         {
+			if(Program::inst()->findDefByName($1->name_)) {
+				yyerror("name confict error: %s \"%s\"\n",$1->name_.c_str(), curFileName.c_str());
+			}
 			Program::inst()->addServiceDefType($1);
             Context* c=Program::inst()->getFileContext(curFileName);
             if (c==nullptr){
