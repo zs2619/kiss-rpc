@@ -1,15 +1,27 @@
 
-struct RequestPacket{
-    int8         packetType_;
-    string       serviceName_;
-    int16        funcId_;
-    int          requestId_;
-    int          timeout_;
-	array<int8>  buff_;
+namespace rpc {
+
+enum MsgProtocolType
+{
+    MPT_Bin,
+    MPT_Json,
+}
+
+struct RpcHeader {
+    uint8            version;
+    MsgProtocolType  msgType;
+    uint16           bodyLen;
+}
+
+struct RequestMsg {
+	int64 msgSeqId;
+	uint16 msgId;
+	array<int8>  buf;
 };
 
-struct ResponsePacket{
-    int8         packetType_;
-    int          requestId_;
-	array<int8>  buff;
+struct ResponseMsg {
+	int64 msgSeqId;
+	uint16 msgId;
+	array<int8>  buf;
 };
+}

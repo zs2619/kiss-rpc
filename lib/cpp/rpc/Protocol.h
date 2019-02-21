@@ -153,7 +153,7 @@ namespace rpc {
             uint16 len=uint16(str.length());
             if(write((int8*)&len,2))
             {
-                return write((int8*)str.c_str(),str.length());
+                return write((int8*)str.c_str(),uint32(str.length()));
             }
             return false;
         };

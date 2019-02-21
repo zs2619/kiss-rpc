@@ -28,4 +28,5 @@ typedef unsigned long  long uint64;
 #include <vector>
 #include <chrono>
 #include "EnumMap.h"
+#define RpcAssert(E) assert(E)
 #endif

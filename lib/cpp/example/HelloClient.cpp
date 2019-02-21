@@ -12,9 +12,9 @@ int main(int argc,char ** argv)
     std::string url("127.0.0.1:2619");
     rpc::EndPoint ep(url);
 
-    rpc::RpcChannel<HelloMsgStub,TcpTransport,BinaryProtocol> chan(rpc::NetEvent::getInstance());
+    rpc::RpcChannel<shuai::opServiceStub,rpc::TcpTransport,rpc::BinaryProtocol> chan(rpc::NetEvent::getInstance());
 
-    HelloMsgStub* client=nullptr;
+    shuai::opServiceStub* client=nullptr;
     int ret=chan.createStub(client,ep);
     if (ret==-1){
 		std::cerr << "chan.createStub" << std::endl;
@@ -22,7 +22,7 @@ int main(int argc,char ** argv)
     }
 	rpc::NetEvent::getInstance()->scheduleTimer([](evutil_socket_t fd, short what, void *arg) -> void{
 
-	    HelloMsgStub* client=(HelloMsgStub*)arg;
+	    shuai::opServiceStub* client=(shuai::opServiceStub*)arg;
 	    client->test(100,[](int a)->int{
 	        std::cout<<a<<std::endl;
 	        return 0;
@@ -31,5 +31,6 @@ int main(int argc,char ** argv)
 
     rpc::NetEvent::getInstance()->eventLoop();
 
+    client->fini();
     return 0;
 }

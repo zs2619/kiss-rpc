@@ -13,10 +13,10 @@ public:
 	virtual ~ClientStub() {}
 
 	virtual int invoke(std::shared_ptr<RpcMsg> msg) {
-		msg->sendMsg_.msgSeqId=maxMsgSeqId_++;
+		msg->requestMsg_.msgSeqId=maxMsgSeqId_++;
 		msg->time_= std::chrono::system_clock::now();
-		MsgQueue_[msg->sendMsg_.msgId]=msg;
-		getTransport()->sendRequestMsg(msg->sendMsg_);
+		MsgQueue_[msg->requestMsg_.msgSeqId]=msg;
+		getTransport()->sendRequestMsg(msg->requestMsg_);
 		return 0; 
 	};
 
@@ -28,10 +28,10 @@ public:
 
 		auto it = MsgQueue_.find(respMsg.msgSeqId);
 		if (it == MsgQueue_.end()) {
-
+			return -1;
 		}
 		std::shared_ptr<RpcMsg> msg=it->second;
-		msg->recvMsg_ = respMsg;
+		msg->responseMsg_ = respMsg;
 		dispatch(msg);
 		MsgQueue_.erase(it);
 	

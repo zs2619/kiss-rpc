@@ -3,6 +3,7 @@
 #define __RPC_RPCSERVICE_H__
 
 #include <string>
+#include "rpc/Common.h"
 #include "rpc/NetEvent.h"
 #include "rpc/EndPoint.h"
 
@@ -52,7 +53,7 @@ public:
 private:
     static int  makeServiceHandler(EventHandler*& eh,struct bufferevent * be) {
         eh=new E();
-        return eh->init(new T(),new P(),be);
+        return eh->init(std::make_shared<T>(),std::make_shared<P>(),be);
     }
 
     static void listener_cb(struct evconnlistener *listener, evutil_socket_t fd,
@@ -67,8 +68,9 @@ private:
             return;
         }
 
-        EventHandler* handler;
+        EventHandler* handler=nullptr;
         RpcService::makeServiceHandler(handler,bev);
+        RpcAssert(handler);
 		handler->setHandler();
     }
 

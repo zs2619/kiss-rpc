@@ -12,17 +12,20 @@ class  HelloMsgProxy :public shuai::opServiceProxyIF
 
 
 	virtual std::tuple<int>momo(rpc::int8  i8, rpc::int64  i64) {
-	  return std::make_tuple(1); 
+	  return std::make_tuple(0); 
 	};
 	virtual std::tuple<int, rpc::int8>xixi(shuai::user&  u) {
-	  return std::make_tuple(1,1); 
+	  return std::make_tuple(0,1); 
 	};
 	virtual std::tuple<int, std::vector<shuai::role> >lala(std::map<rpc::int32, shuai::role>&  m, std::vector<rpc::int32> &  ai, std::vector<shuai::role> &  ar) {
 	  std::vector<shuai::role> roles;
-	  return std::make_tuple(1,roles); 
+	  return std::make_tuple(0,roles); 
 	};
 	virtual std::tuple<int, rpc::int8>ping() {
-	  return std::make_tuple(1,1); 
+	  return std::make_tuple(0,1); 
+	};
+	virtual std::tuple<int, rpc::int8>test(rpc::int8 i8) {
+	  return std::make_tuple(0,1); 
 	};
 
 };
@@ -35,5 +38,6 @@ int main(int argc,char ** argv)
 	}
 
     int ret=rpc::NetEvent::getInstance()->eventLoop();
+    service.close();
     return 0;
 }

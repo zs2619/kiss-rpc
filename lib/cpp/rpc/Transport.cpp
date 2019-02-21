@@ -1,39 +1,75 @@
 #include "rpc/Transport.h"
+#include "rpc/NetEvent.h"
 
 int rpc::TcpTransport::sendRequestMsg(const RequestMsg & msg) {
-    return bufferevent_write(bev_, msg.buf.data(), msg.buf.size());
+    BinaryProtocol proto;
+    msg.serialize(&proto);
+
+	struct evbuffer * buff= evbuffer_new();
+	uint16 len = uint16(proto.getBuffer().size());
+    evbuffer_add(buff,(int8*)&len, 2);
+    evbuffer_add(buff,proto.getBuffer().data(), proto.getBuffer().size());
+
+	int ret = bufferevent_write_buffer(bev_, buff);
+	evbuffer_free(buff);
+	return ret;
 }
 
 int rpc::TcpTransport::recvResponseMsg(std::vector<int8>& buff, ResponseMsg & msg) {
-    buff_.insert(buff_.end(), buff.begin(), buff.end());
-    if (buff_.size() <= 2) {
+    recvbuff_.insert(recvbuff_.end(), buff.begin(), buff.end());
+    if (recvbuff_.size() <= 2) {
         return -1;
     }
-    uint16 len = *(uint16*)buff_.data();
-    if (buff_.size()<size_t(len + 2)) {
+    uint16 len = *(uint16*)recvbuff_.data();
+    if (recvbuff_.size()<size_t(len + 2)) {
         return -1;
     }
+	if (uint16(recvbuff_.size()) < len + 2) {
+        return -1;
+	}
 
-    buff_.insert(buff_.begin(), buff_.begin() + len + 2, buff_.end());
+    BinaryProtocol proto;
+	proto.setBuffer(std::vector<int8>(recvbuff_.begin() + 2, recvbuff_.end()));
+	msg.deSerialize(&proto);
+
+    recvbuff_.insert(recvbuff_.begin(), recvbuff_.begin() + len + 2, recvbuff_.end());
+
     return 0;
 }
 
 int rpc::TcpTransport::sendResponseMsg(const ResponseMsg & msg) {
-    return bufferevent_write(bev_, msg.buf.data(), msg.buf.size());
+
+    BinaryProtocol proto;
+    msg.serialize(&proto);
+
+	struct evbuffer * buff= evbuffer_new();
+	uint16 len = uint16(proto.getBuffer().size());
+    evbuffer_add(buff,(int8*)&len, 2);
+    evbuffer_add(buff,proto.getBuffer().data(), proto.getBuffer().size());
+
+	int ret = bufferevent_write_buffer(bev_, buff);
+	evbuffer_free(buff);
+	return ret;
 }
 
 int rpc::TcpTransport::recvRequestMsg(std::vector<int8>& buff, RequestMsg & msg) {
-    buff_.insert(buff_.end(), buff.begin(), buff.end());
-    if (buff_.size() <= 2) {
+    recvbuff_.insert(recvbuff_.end(), buff.begin(), buff.end());
+    if (recvbuff_.size() <= 2) {
         return -1;
     }
-    uint16 len = *(uint16*)buff_.data();
-    if (buff_.size()<size_t(len + 2)) {
+    uint16 len = *(uint16*)recvbuff_.data();
+    if (recvbuff_.size()<size_t(len + 2)) {
         return -1;
     }
+	if (uint16(recvbuff_.size()) < len + 2) {
+        return -1;
+	}
 
+    BinaryProtocol proto;
+	proto.setBuffer(std::vector<int8>(recvbuff_.begin() + 2, recvbuff_.end()));
+	msg.deSerialize(&proto);
 
-    buff_.insert(buff_.begin(), buff_.begin() + len + 2, buff_.end());
+    recvbuff_.insert(recvbuff_.begin(), recvbuff_.begin() + len + 2, recvbuff_.end());
 
     return 0;
 }

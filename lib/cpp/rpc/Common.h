@@ -22,6 +22,7 @@ typedef signed	 int 	int32;
 
 typedef signed	 long long 	int64;
 typedef unsigned long  long uint64;
+#define RpcAssert(E) assert(E)
 }
 
 #include <string>
@@ -29,5 +30,6 @@ typedef unsigned long  long uint64;
 #include <sstream>
 #include <vector>
 #include <chrono>
+#include <assert.h>
 #include "rpc/EnumMap.h"
 #endif

@@ -11,18 +11,24 @@ namespace rpc {
 class EventHandler{
 
  public:
-    EventHandler(){}
+    EventHandler():isValid_(false){}
     virtual ~EventHandler(){
         trans_=nullptr;
         proto_=nullptr;
         bev_=nullptr;
     }
 
-    int init(ITransport* trans,IProtocol* proto, struct bufferevent *bev){
-        trans_=trans;
-        proto_=proto;
+    int init(std::shared_ptr<ITransport> trans,std::shared_ptr<IProtocol> proto, struct bufferevent *bev){
+        trans_= trans;
+        proto_= proto;
 		bev_ = bev;
 		trans_->setBufferEvent(bev_);
+		return 0;
+    }
+    int fini(){
+        if (bev_)
+            bufferevent_free(bev_);
+        delete this;
 		return 0;
     }
     void setBufferEvent(struct bufferevent *bev){
@@ -44,16 +50,17 @@ class EventHandler{
     virtual int handleOutput()=0;
     virtual int handleClose()=0;
 
-    IProtocol* getProtocol(){return proto_;}
-    ITransport* getTransport(){return trans_;}
+    IProtocol* getProtocol(){return proto_.get();}
+    ITransport* getTransport(){return trans_.get();}
 
 private:
-    ITransport*   trans_;
-    IProtocol*    proto_;
+    std::shared_ptr<ITransport>   trans_;
+    std::shared_ptr<IProtocol>   proto_;
     struct bufferevent *bev_;
+	bool        isValid_;
 
  protected:
-     static void conn_eventcb(struct bufferevent *bev, short events, void *userData);
+    static void conn_eventcb(struct bufferevent *bev, short events, void *userData);
 
     static void conn_readcb(struct bufferevent *bev, void *userData);
 

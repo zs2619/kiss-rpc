@@ -33,7 +33,7 @@ public:
 	std::string	str;
 
 	//serialize
-	void serialize(rpc::IProtocol* __P__); 
+	void serialize(rpc::IProtocol* __P__) const ;
 
 	//deSerialize
 	bool deSerialize(rpc::IProtocol* __P__);
@@ -50,7 +50,7 @@ public:
 	std::vector<role> 	roles;
 
 	//serialize
-	void serialize(rpc::IProtocol* __P__); 
+	void serialize(rpc::IProtocol* __P__) const ;
 
 	//deSerialize
 	bool deSerialize(rpc::IProtocol* __P__);
@@ -62,20 +62,23 @@ public:
 	static const char* strFingerprint;
 	enum {
 		momo_Id,
+		test_Id,
 		xixi_Id,
 		lala_Id,
 		ping_Id,
 	};
 	opServiceStub(){}
 	virtual ~opServiceStub(){}
-	void invokeAsync(const rpc::IProtocol* p);
+	void invokeAsync(rpc::uint16 msgId,const rpc::IProtocol* p);
 	virtual bool dispatch(std::shared_ptr<rpc::RpcMsg> msg);
 	void momo(rpc::int8  i8,rpc::int64  i64);
+	void test(rpc::int8  i8,std::function<int(rpc::int8)> cb);
 	void xixi(user&  u,std::function<int(rpc::int8)> cb);
 	void lala(std::map<rpc::int32,role>&  m,std::vector<rpc::int32> &  ai,std::vector<role> &  ar,std::function<int(std::vector<role> )> cb);
 	void ping(std::function<int(rpc::int8)> cb);
 
 protected:
+	std::function<int(rpc::int8)> testCallBack;
 	std::function<int(rpc::int8)> xixiCallBack;
 	std::function<int(std::vector<role> )> lalaCallBack;
 	std::function<int(rpc::int8)> pingCallBack;
@@ -88,6 +91,7 @@ public:
 	opServiceProxyIF(){}
 	virtual ~opServiceProxyIF(){}
 	virtual std::tuple<int>momo(rpc::int8  i8,rpc::int64  i64)=0;
+	virtual std::tuple<int,rpc::int8>test(rpc::int8  i8)=0;
 	virtual std::tuple<int,rpc::int8>xixi(user&  u)=0;
 	virtual std::tuple<int,std::vector<role> >lala(std::map<rpc::int32,role>&  m,std::vector<rpc::int32> &  ai,std::vector<role> &  ar)=0;
 	virtual std::tuple<int,rpc::int8>ping()=0;

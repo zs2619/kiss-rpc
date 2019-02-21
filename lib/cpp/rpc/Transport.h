@@ -11,6 +11,8 @@ extern "C"{
 namespace rpc {
 	class ITransport {
 	public:
+		ITransport():bev_(nullptr),connStatus_(0){}
+		virtual ~ITransport(){}
 
 		void setBufferEvent(bufferevent* bev) {
 			bev_ = bev;
@@ -29,14 +31,14 @@ namespace rpc {
 
 	class TcpTransport :public ITransport {
 	public:
-		virtual int sendRequestMsg(const RequestMsg& msg);;
+		virtual int sendRequestMsg(const RequestMsg& msg);
+		virtual int recvResponseMsg(std::vector<int8>& buff, ResponseMsg& msg);
 
-		virtual int recvResponseMsg(std::vector<int8>& buff, ResponseMsg& msg);;
+		virtual int sendResponseMsg(const ResponseMsg& msg);
+		virtual int recvRequestMsg(std::vector<int8>& buff, RequestMsg& msg);
 
-		virtual int sendResponseMsg(const ResponseMsg& msg);;
-
-		virtual int recvRequestMsg(std::vector<int8>& buff, RequestMsg& msg);;
-		std::vector<int8> buff_;
+		std::vector<int8> recvbuff_;
+		std::vector<int8> sendbuff_;
 	};
 
 	class HttpTransport :public ITransport {

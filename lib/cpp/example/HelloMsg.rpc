@@ -35,6 +35,7 @@ service opService
 		int8 hehe(string s ,float f);
 	}
 	void momo(int8 i8,int64 i64);
+    int8 test(int8 i8);
 	int8 xixi(user u);
 	array<role> lala(map<int32,role> m,array<int32> ai,array<role> ar);
 	int8 ping();

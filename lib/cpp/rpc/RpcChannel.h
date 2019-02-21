@@ -28,7 +28,7 @@ public:
 			return -1;
 		}
         eh=new E();
-        eh->init(new T(),new P(),be);
+        eh->init(std::make_shared<T>(),std::make_shared<P>(),be);
         int  ret= connect(eh,ep);
         return ret;
     }
@@ -46,7 +46,6 @@ private:
             handler->setHandler();
         }else if (events&BEV_EVENT_TIMEOUT)
         {
-
         }
     }
 

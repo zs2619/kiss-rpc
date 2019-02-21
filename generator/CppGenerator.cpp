@@ -25,14 +25,17 @@ void CppGenerator::generateProgram()
 	headerFile_<<std::endl;
 	// include 
 
+	Context*  generateContext = program_->getGenerateContext();
 	headerFile_<<"#include <functional>"<<std::endl;
 	headerFile_<<"#include \"rpc/Common.h\""<<std::endl;
 	headerFile_<<"#include \"rpc/Protocol.h\""<<std::endl;
-	headerFile_<<"#include \"rpc/ClientStub.h\""<<std::endl;
-	headerFile_<<"#include \"rpc/ServiceProxy.h\""<<std::endl;
+	if (!generateContext->ns_.services_.defs_.empty())
+	{
+		headerFile_<<"#include \"rpc/ClientStub.h\""<<std::endl;
+		headerFile_<<"#include \"rpc/ServiceProxy.h\""<<std::endl;
+	}
 	genIncludeHeader(headerFile_);
 
-	Context*  generateContext = program_->getGenerateContext();
 	headerFile_<<"namespace "<<generateContext->ns_.name_<<"{"<<std::endl;
 
 	srcFile_<<"#include\""<<program_->getBaseName()+".h"<<"\""<<std::endl;
@@ -133,7 +136,7 @@ void CppGenerator::generateStructHeader()
 		}
 		headerFile_<<std::endl;
 		headerFile_<<indent()<<"//serialize"<<std::endl;
-		headerFile_<<indent()<<"void serialize(rpc::IProtocol* __P__); "<<std::endl;
+		headerFile_<<indent()<<"void serialize(rpc::IProtocol* __P__) const ;"<<std::endl;
 		
 		headerFile_<<std::endl;
 		headerFile_<<indent()<<"//deSerialize"<<std::endl;
@@ -197,7 +200,7 @@ void CppGenerator::generateStructSrc()
 
 		srcFile_<<std::endl;
 		srcFile_<<indent()<<"//serialize"<<std::endl;
-		srcFile_<<indent()<<"void "<<generateContext->ns_.name_<<"::"<<(*it)->name_<<"::serialize(rpc::IProtocol* __P__) "<<std::endl;
+		srcFile_<<indent()<<"void "<<generateContext->ns_.name_<<"::"<<(*it)->name_<<"::serialize(rpc::IProtocol* __P__) const "<<std::endl;
 		srcFile_<<"{ "<<std::endl;
 		indent_up();
 		serializeFields(*it,"__P__");
@@ -551,7 +554,7 @@ void CppGenerator::serializeField( DefType* t ,const std::string& fieldName,cons
 	{
 		srcFile_<<indent()<<prefix<<"->writeUInt16(rpc::uint16("<<fieldName<<".size()));"<<std::endl;
 		std::string temp="_it_"+fieldName+"_";
-		srcFile_<<indent()<<typeName(t)<<"::iterator "<<temp<<" = "<<fieldName<<".begin();"<<std::endl;
+		srcFile_<<indent()<<typeName(t)<<"::const_iterator "<<temp<<" = "<<fieldName<<".begin();"<<std::endl;
 		srcFile_<<indent()<<"while("<<temp<<"!="<<fieldName<<".end())"<<std::endl;
 		srcFile_<<indent()<<"{"<<std::endl;
 		indent_up();
@@ -723,7 +726,7 @@ void CppGenerator::genServiceStubHeader()
 		headerFile_<<indent()<<className<<"(){}"<<std::endl;
 		headerFile_<<indent()<<"virtual ~"<<className<<"(){}"<<std::endl;
 
-		headerFile_<<indent()<< "void invokeAsync(const rpc::IProtocol* p);"<<std::endl;
+		headerFile_<<indent()<< "void invokeAsync(rpc::uint16 msgId,const rpc::IProtocol* p);"<<std::endl;
 		headerFile_<<indent()<< "virtual bool dispatch(std::shared_ptr<rpc::RpcMsg> msg);" <<std::endl;
 
 		genFunStubDeclare(*it);
@@ -749,10 +752,11 @@ void CppGenerator::genServiceStubSrc()
 		//fingerprint
 		srcFile_<<indent()<<"const char* "<<generateContext->ns_.name_<<"::"<<(*it)->name_<<"Stub::"<<"strFingerprint=\""<<md5((*it)->getFingerPrint())<<"\";"<<std::endl;
 
-		srcFile_ <<indent()<< "void  "<<generateContext->ns_.name_<<"::"<<(*it)->name_<<"Stub::"<<"invokeAsync(const rpc::IProtocol* p) {" << std::endl;
+		srcFile_ <<indent()<< "void  "<<generateContext->ns_.name_<<"::"<<(*it)->name_<<"Stub::"<<"invokeAsync(rpc::uint16 msgId,const rpc::IProtocol* p) {" << std::endl;
 		indent_up();
 		srcFile_ <<indent()<<"std::shared_ptr<rpc::RpcMsg> msg = std::make_shared<rpc::RpcMsg>();" << std::endl;
-		srcFile_ <<indent()<<"msg->sendMsg_.buf = p->getBuffer();"<<std::endl;
+		srcFile_ <<indent()<<"msg->requestMsg_.msgId = msgId;"<<std::endl;
+		srcFile_ <<indent()<<"msg->requestMsg_.buff = p->getBuffer();"<<std::endl;
 		srcFile_ <<indent()<<"invoke(msg);" << std::endl;
 		indent_down();
 		srcFile_ <<indent()<< "}" << std::endl;
@@ -760,7 +764,7 @@ void CppGenerator::genServiceStubSrc()
 		srcFile_ <<indent()<< "bool  "<<generateContext->ns_.name_<<"::"<<(*it)->name_<<"Stub::"<<"dispatch(std::shared_ptr<rpc::RpcMsg> msg) {" << std::endl;
 		indent_up();
 
-		srcFile_ << indent() << "auto id=msg->recvMsg_.msgId;" << std::endl;
+		srcFile_ << indent() << "auto id=msg->responseMsg_.msgId;" << std::endl;
 		srcFile_ << indent() << "switch (id)" << std::endl;
 		srcFile_ << indent() << "{" << std::endl;
 		int i = 0;
@@ -768,7 +772,6 @@ void CppGenerator::genServiceStubSrc()
 		auto it_inner=(*it)->funs_.begin();
 		while (it_inner != (*it)->funs_.end())
 		{
-			i++;
 			FuctionDefType*& t = *it_inner;
 			if (!t->result_->is_void())
 			{
@@ -777,7 +780,7 @@ void CppGenerator::genServiceStubSrc()
 				srcFile_ << indent() << "{" << std::endl;
 				indent_up();
 				srcFile_ << indent() << "std::unique_ptr<rpc::IProtocol> __P__(getProtocol()->createProtoBuffer());" << std::endl;
-				srcFile_ << indent() << "__P__->setBuffer(msg->recvMsg_.buf);" << std::endl;
+				srcFile_ << indent() << "__P__->setBuffer(msg->responseMsg_.buff);" << std::endl;
 				srcFile_ << indent() << typeName(t->result_) << " ret ;" << std::endl;
 
 				deSerializeField(t->result_, "ret","__P__.get()");
@@ -787,6 +790,7 @@ void CppGenerator::genServiceStubSrc()
 				indent_down();
 				srcFile_ << indent() << "}" << std::endl;
 			}
+			i++;
 			it_inner++;
 		}
 
@@ -803,6 +807,7 @@ void CppGenerator::genServiceStubSrc()
 		indent_down();
 		srcFile_ <<indent()<< "}" << std::endl;
 
+        i=0;
 		it_inner=(*it)->funs_.begin();
 		while(it_inner!=(*it)->funs_.end())
 		{
@@ -818,7 +823,6 @@ void CppGenerator::genServiceStubSrc()
 			}
 			srcFile_<<")"<<std::endl;
 			srcFile_<<indent()<<"{"<<std::endl;
-
 			indent_up();
 			srcFile_<<indent()<<"std::unique_ptr<rpc::IProtocol> __P__(getProtocol()->createProtoBuffer());"<<std::endl;
 			serializeFields(t->argrs_,"__P__.get()");
@@ -827,11 +831,12 @@ void CppGenerator::genServiceStubSrc()
 			{
 				srcFile_ << indent() <<t->name_<< "CallBack = cb;" << std::endl;
 			}
-			srcFile_<<indent()<<"invokeAsync(__P__.get());"<<std::endl;
+			srcFile_<<indent()<<"invokeAsync("<<i<<",__P__.get());"<<std::endl;
 			indent_down();
 
 			srcFile_<<indent()<<"}"<<std::endl;
 			++it_inner;
+			i++;
 		}
 		++it;
 	}
@@ -885,7 +890,7 @@ void CppGenerator::genServiceProxySrc()
 		srcFile_<<indent()<<"bool "<<generateContext->ns_.name_<<"::"<<className<<"::dispatch(std::shared_ptr<rpc::RpcMsg> msg)"<<std::endl;
 		srcFile_<<indent()<<"{"<<std::endl;
 		indent_up();
-		srcFile_<<indent()<<"auto id=msg->recvMsg_.msgId;"<<std::endl;
+		srcFile_<<indent()<<"auto id=msg->requestMsg_.msgId;"<<std::endl;
 		srcFile_<<indent()<<"switch (id)"<<std::endl;
 		srcFile_<<indent()<<"{"<<std::endl;
 		indent_up();
@@ -899,7 +904,7 @@ void CppGenerator::genServiceProxySrc()
 			indent_up();
 
 			srcFile_ << indent() << "std::unique_ptr<rpc::IProtocol> __P__(getProtocol()->createProtoBuffer());" << std::endl;
-			srcFile_ << indent() << "__P__->setBuffer(msg->recvMsg_.buf);"<<std::endl;
+			srcFile_ << indent() << "__P__->setBuffer(msg->requestMsg_.buff);"<<std::endl;
 
 			deSerializeFields(t->argrs_,"__P__.get()");
 			srcFile_ << indent() << "auto result = " << t->name_ << "(";
@@ -908,7 +913,16 @@ void CppGenerator::genServiceProxySrc()
 
 			if (!t->result_->is_void())
 			{
+				srcFile_ << indent() << "if (std::get<0>(result)==0)"<<std::endl;
+                srcFile_ << indent() <<"{"<<std::endl;
+			    indent_up();
+			    srcFile_ << indent() << "std::unique_ptr<rpc::IProtocol> __P__(getProtocol()->createProtoBuffer());" << std::endl;
+				srcFile_ << indent() <<typeName(t->result_)<<" ret="<<"std::get<1>(result);"<<std::endl;
+                serializeField(t->result_, "ret","__P__.get()");
+				srcFile_ << indent() << "msg->responseMsg_.buff=__P__->getBuffer();"<<std::endl;
 				srcFile_ << indent() << "invoke(msg);"<<std::endl;
+			    indent_down();
+                srcFile_ << indent() <<"}"<<std::endl;
 			}
 
 			indent_down();
