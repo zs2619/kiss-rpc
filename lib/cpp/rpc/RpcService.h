@@ -71,7 +71,7 @@ private:
         EventHandler* handler=nullptr;
         RpcService::makeServiceHandler(handler,bev);
         RpcAssert(handler);
-		handler->setHandler();
+		handler->handleConnction();
     }
 
 

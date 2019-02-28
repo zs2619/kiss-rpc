@@ -3,10 +3,10 @@
 #define __RPC_RPCCHANNEL_H__
 
 #include <string>
-#include "EndPoint.h"
-#include "NetEvent.h"
-#include "EventHandler.h"
-#include "RpcMessage.h"
+#include "rpc/EndPoint.h"
+#include "rpc/NetEvent.h"
+#include "rpc/EventHandler.h"
+#include "rpc/RpcMessage.h"
 
 
 namespace rpc {
@@ -43,7 +43,7 @@ private:
         }else if (events & BEV_EVENT_ERROR) {
 			handler->handleClose();
         }else if (events & BEV_EVENT_CONNECTED) {
-            handler->setHandler();
+            handler->handleConnction();
         }else if (events&BEV_EVENT_TIMEOUT)
         {
         }

@@ -2,10 +2,9 @@
 #ifndef	__RPC_CLIENTSTUB_H__
 #define	__RPC_CLIENTSTUB_H__
 
-#include <unordered_map>
-#include <iostream>
-#include "RpcMessage.h"
-#include "EventHandler.h"
+#include "rpc/Common.h"
+#include "rpc/RpcMessage.h"
+#include "rpc/EventHandler.h"
 namespace rpc {
 class  ClientStub:public EventHandler{
 public:
@@ -13,6 +12,9 @@ public:
 	virtual ~ClientStub() {}
 
 	virtual int invoke(std::shared_ptr<RpcMsg> msg) {
+        if (!isValid_) {
+
+        }
 		msg->requestMsg_.msgSeqId=maxMsgSeqId_++;
 		msg->time_= std::chrono::system_clock::now();
 		MsgQueue_[msg->requestMsg_.msgSeqId]=msg;
@@ -39,10 +41,15 @@ public:
 	}
     virtual int handleOutput(){
 		return 0;
-
 	}
+    virtual int handleConnction(){
+        return 0;
+    };
+
     virtual int handleClose(){
 		std::cout<<"handleClose"<<std::endl;
+        MsgQueue_.clear();
+        isValid_=false;
 		return 0;
 	}
 private:

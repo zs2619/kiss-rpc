@@ -7,7 +7,7 @@ extern "C"{
 #include <event2/util.h>
 #include <event2/bufferevent.h>
 }
-#include "RpcMessage.h"
+#include "rpc/RpcMessage.h"
 namespace rpc {
 	class ITransport {
 	public:

@@ -2,8 +2,9 @@
 #ifndef __RPC_SERVICEPROXY_H__
 #define __RPC_SERVICEPROXY_H__
 
-#include "RpcMessage.h"
-#include "EventHandler.h"
+#include "rpc/Common.h"
+#include "rpc/RpcMessage.h"
+#include "rpc/EventHandler.h"
 namespace rpc {
 class ServiceProxy:public EventHandler{
 public:
@@ -25,7 +26,6 @@ protected:
 	    if (-1==getTransport()->recvRequestMsg(buff,reqMsg)){
 			return -1;
 		}
-
  	    std::shared_ptr<RpcMsg> msg = std::make_shared<RpcMsg>();
 		msg->requestMsg_.msgId = reqMsg.msgId;
 		msg->requestMsg_.msgSeqId = reqMsg.msgSeqId;
@@ -38,8 +38,12 @@ protected:
 		return 0;
 	}
     virtual int handleClose(){
+		std::cout<<"handleClose"<<std::endl;
 		return 0;
 	}
+    virtual int handleConnction(){
+    	return 0;
+    };
 };
 }
 #endif

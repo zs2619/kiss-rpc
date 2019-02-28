@@ -1,6 +1,6 @@
 #include <sstream>
 #include <assert.h>
-#include "EndPoint.h"
+#include "rpc/EndPoint.h"
 
  rpc::EndPoint::EndPoint(const std::string & url) {
 	memset(&sockAddrIn_, 0, sizeof(sockaddr_in));

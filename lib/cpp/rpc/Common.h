@@ -31,5 +31,7 @@ typedef unsigned long  long uint64;
 #include <vector>
 #include <chrono>
 #include <assert.h>
+#include <unordered_map>
+#include <iostream>
 #include "rpc/EnumMap.h"
 #endif
