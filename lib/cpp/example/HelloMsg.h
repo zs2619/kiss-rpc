@@ -60,6 +60,7 @@ class opServiceStub: public rpc::ClientStub
 { 
 public: 
 	static const char* strFingerprint;
+	static const char* getObjName;
 	enum {
 		momo_Id,
 		test_Id,
@@ -88,6 +89,7 @@ class opServiceProxyIF: public rpc::ServiceProxy
 { 
 public: 
 	static const char* strFingerprint;
+	static const char* getObjName;
 	opServiceProxyIF(){}
 	virtual ~opServiceProxyIF(){}
 	virtual std::tuple<int>momo(rpc::int8  i8,rpc::int64  i64)=0;

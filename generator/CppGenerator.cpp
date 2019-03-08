@@ -710,6 +710,7 @@ void CppGenerator::genServiceStubHeader()
 
 		//fingerprint
 		headerFile_<<indent()<<"static const char* strFingerprint;"<<std::endl;
+		headerFile_<<indent()<<"static const char* getObjName;"<<std::endl;
 
 		headerFile_<<indent()<<"enum {"<<std::endl;
 		indent_up();
@@ -751,6 +752,7 @@ void CppGenerator::genServiceStubSrc()
 	{
 		//fingerprint
 		srcFile_<<indent()<<"const char* "<<generateContext->ns_.name_<<"::"<<(*it)->name_<<"Stub::"<<"strFingerprint=\""<<md5((*it)->getFingerPrint())<<"\";"<<std::endl;
+		srcFile_<<indent()<<"const char* "<<generateContext->ns_.name_<<"::"<<(*it)->name_<<"Stub::"<<"getObjName=\""<<generateContext->ns_.name_<<"."<<(*it)->name_<<".stub"<<"\";"<<std::endl;
 
 		srcFile_ <<indent()<< "void  "<<generateContext->ns_.name_<<"::"<<(*it)->name_<<"Stub::"<<"invokeAsync(rpc::uint16 msgId,const rpc::IProtocol* p) {" << std::endl;
 		indent_up();
@@ -859,6 +861,7 @@ void CppGenerator::genServiceProxyHeader()
 
 		//fingerprint
 		headerFile_<<indent()<<"static const char* strFingerprint;"<<std::endl;
+		headerFile_<<indent()<<"static const char* getObjName;"<<std::endl;
 
 		headerFile_<<indent()<<className<<"(){}"<<std::endl;
 		headerFile_<<indent()<<"virtual ~"<<className<<"(){}"<<std::endl;
@@ -885,6 +888,7 @@ void CppGenerator::genServiceProxySrc()
 	{
 		//fingerprint
 		srcFile_<<indent()<<"const char* "<<generateContext->ns_.name_<<"::"<<(*it)->name_<<"ProxyIF::"<<"strFingerprint=\""<<md5((*it)->getFingerPrint())<<"\";"<<std::endl;
+		srcFile_<<indent()<<"const char* "<<generateContext->ns_.name_<<"::"<<(*it)->name_<<"ProxyIF::"<<"getObjName=\""<<generateContext->ns_.name_ <<"."<< (*it)->name_<<".proxy"<<"\";"<<std::endl;
 		//dispatch
 		std::string className=(*it)->name_+"ProxyIF";
 		srcFile_<<indent()<<"bool "<<generateContext->ns_.name_<<"::"<<className<<"::dispatch(std::shared_ptr<rpc::RpcMsg> msg)"<<std::endl;

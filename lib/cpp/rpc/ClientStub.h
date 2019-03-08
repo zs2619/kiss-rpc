@@ -12,9 +12,6 @@ public:
 	virtual ~ClientStub() {}
 
 	virtual int invoke(std::shared_ptr<RpcMsg> msg) {
-        if (!isValid_) {
-
-        }
 		msg->requestMsg_.msgSeqId=maxMsgSeqId_++;
 		msg->time_= std::chrono::system_clock::now();
 		MsgQueue_[msg->requestMsg_.msgSeqId]=msg;
@@ -49,7 +46,6 @@ public:
     virtual int handleClose(){
 		std::cout<<"handleClose"<<std::endl;
         MsgQueue_.clear();
-        isValid_=false;
 		return 0;
 	}
 private:

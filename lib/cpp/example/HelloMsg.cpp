@@ -144,6 +144,7 @@ bool shuai::user::deSerialize(rpc::IProtocol* __P__)
 }//deSerialize 
 
 const char* shuai::opServiceStub::strFingerprint="e5212fe49d9deba0e43271889ff23ec0";
+const char* shuai::opServiceStub::getObjName="shuai.opService.stub";
 void  shuai::opServiceStub::invokeAsync(rpc::uint16 msgId,const rpc::IProtocol* p) {
 	std::shared_ptr<rpc::RpcMsg> msg = std::make_shared<rpc::RpcMsg>();
 	msg->requestMsg_.msgId = msgId;
@@ -261,6 +262,7 @@ void shuai::opServiceStub::ping(std::function<int(rpc::int8)> cb)
 	invokeAsync(4,__P__.get());
 }
 const char* shuai::opServiceProxyIF::strFingerprint="e5212fe49d9deba0e43271889ff23ec0";
+const char* shuai::opServiceProxyIF::getObjName="shuai.opService.proxy";
 bool shuai::opServiceProxyIF::dispatch(std::shared_ptr<rpc::RpcMsg> msg)
 {
 	auto id=msg->requestMsg_.msgId;

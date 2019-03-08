@@ -21,6 +21,7 @@ protected:
         return 0;
     };
 
+	virtual bool dispatch(std::shared_ptr<RpcMsg> m) { return true; };
     virtual int handleInput(std::vector<int8>& buff){
 	    RequestMsg reqMsg;
 	    if (-1==getTransport()->recvRequestMsg(buff,reqMsg)){

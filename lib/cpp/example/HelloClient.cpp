@@ -12,11 +12,10 @@ int main(int argc,char ** argv)
     std::string url("127.0.0.1:2619");
     rpc::EndPoint ep(url);
 
-    rpc::RpcChannel<shuai::opServiceStub,rpc::TcpTransport,rpc::BinaryProtocol> chan(rpc::NetEvent::getInstance());
+    rpc::RpcChannel<rpc::TcpTransport,rpc::BinaryProtocol> chan(rpc::NetEvent::getInstance(),ep);
 
-    shuai::opServiceStub* client=nullptr;
-    int ret=chan.createStub(client,ep);
-    if (ret==-1){
+    shuai::opServiceStub* client= chan.createStub<shuai::opServiceStub>();
+    if (client==nullptr){
 		std::cerr << "chan.createStub" << std::endl;
         return -1;
     }

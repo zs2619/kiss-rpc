@@ -2,7 +2,7 @@
 #include <iostream>
 #include <string>
 #include "HelloMsg.h"
-#include "rpc/RpcService.h"
+#include "rpc/RpcServer.h"
 #include "rpc/NetEvent.h"
 #include "rpc/EndPoint.h"
 
@@ -32,7 +32,7 @@ class  HelloMsgProxy :public shuai::opServiceProxyIF
 int main(int argc,char ** argv)
 {
     rpc::EndPoint ep(std::string(":2619"));
-    rpc::RpcService<HelloMsgProxy,rpc::TcpTransport,rpc::BinaryProtocol> service(rpc::NetEvent::getInstance(),ep);
+    rpc::RpcServer<rpc::TcpTransport,rpc::BinaryProtocol> service(rpc::NetEvent::getInstance(),ep);
 	if (-1 == service.open()) {
 		std::cerr << "service.open " << std::endl;
 	}

@@ -10,6 +10,7 @@ enum MsgProtocolType
 struct RpcHeader {
     uint8            version;
     MsgProtocolType  msgType;
+    string           serviceName;
     uint16           bodyLen;
 }
 

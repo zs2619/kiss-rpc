@@ -4,62 +4,68 @@
 
 #include <string>
 #include "rpc/EndPoint.h"
+#include "rpc/Connection.h"
 #include "rpc/NetEvent.h"
 #include "rpc/EventHandler.h"
 #include "rpc/RpcMessage.h"
 
 
 namespace rpc {
-template<typename E,typename T,typename P>
-class RpcChannel{
+template<typename T,typename P>
+class RpcChannel:public Connection{
 public:
 
-    RpcChannel(NetEvent*  event):event_(event){}
+    RpcChannel(NetEvent*  event,EndPoint ep):event_(event),ep_(ep){
+		struct event_base* base = event_->getInstance()->getEventBase();
+		bev_ = bufferevent_socket_new(base, -1, BEV_OPT_CLOSE_ON_FREE);
+		RpcAssert (bev_ != nullptr);
+        int  ret= connect();
+		RpcAssert (-1 != ret);
+    }
 	
     ~RpcChannel(){
         event_=nullptr;
+        bufferevent_free(bev_);
     }
-
-    int createStub(E*& eh,EndPoint ep){
-
-		struct event_base* base = event_->getInstance()->getEventBase();
-		struct bufferevent * be = bufferevent_socket_new(base, -1, BEV_OPT_CLOSE_ON_FREE);
-		if (be == nullptr){
-			return -1;
-		}
-        eh=new E();
-        eh->init(std::make_shared<T>(),std::make_shared<P>(),be);
-        int  ret= connect(eh,ep);
-        return ret;
+    template < typename E >
+    E* createStub(){
+        if (stubMap_.find(E::getObjName)!=stubMap_.end()) {
+            return (E*)stubMap_[E::getObjName];
+        }
+		E* eh=new E();
+        eh->init(std::make_shared<T>(),std::make_shared<P>());
+        stubMap_[E::getObjName]=eh;
+        return eh;
     }
 
 private:
 
     static void connect_cb(struct bufferevent *bev, short events, void *ctx){
 
-        EventHandler* handler=(EventHandler*)ctx;
+        RpcChannel* handler=(RpcChannel*)ctx;
         if (events & BEV_EVENT_EOF) {
-			handler->handleClose();
         }else if (events & BEV_EVENT_ERROR) {
-			handler->handleClose();
         }else if (events & BEV_EVENT_CONNECTED) {
-            handler->handleConnction();
+            handler->setHandler();
         }else if (events&BEV_EVENT_TIMEOUT)
         {
         }
     }
 
-    int connect(E* eh,const EndPoint& ep){
+    int connect(){
 
-        bufferevent_setcb(eh->getBufferEvent(), NULL , NULL , connect_cb, eh);
-        bufferevent_enable(eh->getBufferEvent(), EV_WRITE);
+        bufferevent_setcb(bev_, NULL , NULL , connect_cb, this);
+        bufferevent_enable(bev_, EV_WRITE);
 
-        if (0!=bufferevent_socket_connect(eh->getBufferEvent(),(const sockaddr*)ep.getAddrIn(),sizeof(struct sockaddr_in))){
+        if (0!=bufferevent_socket_connect(bev_,(const sockaddr*)ep_.getAddrIn(),sizeof(struct sockaddr_in))){
             return -1;
         }
         return 0;
     }
-    NetEvent*   event_; 
+    EndPoint                      ep_;
+    NetEvent*                     event_; 
+    struct bufferevent*           bev_;
+    std::map<const char* ,ClientStub*> stubMap_;
 };
 }
 #endif
