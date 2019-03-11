@@ -4,7 +4,7 @@
 #include <functional>
 #include "rpc/Common.h"
 #include "rpc/Protocol.h"
-#include "rpc/ClientStub.h"
+#include "rpc/ServiceStub.h"
 #include "rpc/ServiceProxy.h"
 namespace shuai{
 
@@ -56,7 +56,7 @@ public:
 	bool deSerialize(rpc::IProtocol* __P__);
 } ;//struct
 
-class opServiceStub: public rpc::ClientStub
+class opServiceStub: public rpc::ServiceStub
 { 
 public: 
 	static const char* strFingerprint;
@@ -68,9 +68,9 @@ public:
 		lala_Id,
 		ping_Id,
 	};
-	opServiceStub(){}
+	opServiceStub(const rpc::Connection* conn):ServiceStub(conn){}
 	virtual ~opServiceStub(){}
-	void invokeAsync(rpc::uint16 msgId,const rpc::IProtocol* p);
+	void invokeAsync(rpc::uint16 msgId,const rpc::IProtocol* p,const std::string& serviceName ,const std::string& functionName);
 	virtual bool dispatch(std::shared_ptr<rpc::RpcMsg> msg);
 	void momo(rpc::int8  i8,rpc::int64  i64);
 	void test(rpc::int8  i8,std::function<int(rpc::int8)> cb);
@@ -90,7 +90,7 @@ class opServiceProxyIF: public rpc::ServiceProxy
 public: 
 	static const char* strFingerprint;
 	static const char* getObjName;
-	opServiceProxyIF(){}
+	opServiceProxyIF(const rpc::Connection* conn):ServiceProxy(conn){}
 	virtual ~opServiceProxyIF(){}
 	virtual std::tuple<int>momo(rpc::int8  i8,rpc::int64  i64)=0;
 	virtual std::tuple<int,rpc::int8>test(rpc::int8  i8)=0;

@@ -9,7 +9,7 @@
 class  HelloMsgProxy :public shuai::opServiceProxyIF
 {
  public:
-
+	HelloMsgProxy(const rpc::Connection* conn=nullptr):opServiceProxyIF(conn){}
 
 	virtual std::tuple<int>momo(rpc::int8  i8, rpc::int64  i64) {
 	  return std::make_tuple(0); 
@@ -32,7 +32,7 @@ class  HelloMsgProxy :public shuai::opServiceProxyIF
 int main(int argc,char ** argv)
 {
     rpc::EndPoint ep(std::string(":2619"));
-    rpc::RpcServer<rpc::TcpTransport,rpc::BinaryProtocol> service(rpc::NetEvent::getInstance(),ep);
+    rpc::RpcServer<rpc::RpcService<rpc::TcpTransport,rpc::BinaryProtocol, HelloMsgProxy>> service(rpc::NetEvent::getInstance(),ep);
 	if (-1 == service.open()) {
 		std::cerr << "service.open " << std::endl;
 	}

@@ -5,14 +5,14 @@ enum MsgProtocolType
 {
     MPT_Bin,
     MPT_Json,
-}
+};
 
 struct RpcHeader {
     uint8            version;
     MsgProtocolType  msgType;
     string           serviceName;
     uint16           bodyLen;
-}
+};
 
 struct RequestMsg {
 	int64 msgSeqId;

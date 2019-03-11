@@ -8,35 +8,63 @@
 #include "rpc/NetEvent.h"
 #include "rpc/EventHandler.h"
 #include "rpc/RpcMessage.h"
+#include "rpc/ServiceStub.h"
 
 
 namespace rpc {
+	
 template<typename T,typename P>
 class RpcChannel:public Connection{
 public:
 
-    RpcChannel(NetEvent*  event,EndPoint ep):event_(event),ep_(ep){
-		struct event_base* base = event_->getInstance()->getEventBase();
-		bev_ = bufferevent_socket_new(base, -1, BEV_OPT_CLOSE_ON_FREE);
-		RpcAssert (bev_ != nullptr);
+    RpcChannel(NetEvent*  event,EndPoint ep):Connection(event,ep,nullptr,new T(),new P()){
         int  ret= connect();
 		RpcAssert (-1 != ret);
     }
 	
     ~RpcChannel(){
         event_=nullptr;
-        bufferevent_free(bev_);
     }
     template < typename E >
     E* createStub(){
         if (stubMap_.find(E::getObjName)!=stubMap_.end()) {
             return (E*)stubMap_[E::getObjName];
         }
-		E* eh=new E();
-        eh->init(std::make_shared<T>(),std::make_shared<P>());
+		E* eh=new E(this);
         stubMap_[E::getObjName]=eh;
         return eh;
     }
+    virtual int handleInput(struct evbuffer* buff ){
+
+		ResponseMsg respMsg;
+		if (-1==getTransport()->recvResponseMsg(buff,respMsg)){
+			return 0;
+		}
+
+		auto stub = stubMap_.find("test");
+        if (stub==stubMap_.end()) {
+            return 0;
+        }
+	
+        int ret=stub->second->stubMsgCallBack(respMsg);
+		return 0;
+	}
+    virtual int handleOutput(){
+		return 0;
+	}
+    virtual int handleConnction(){
+        setHandler();
+
+		getTransport()->setBufferEvent(bev_);
+        isValid_=true;
+        return 0;
+    };
+
+    virtual int handleClose(){
+		std::cout<<"handleClose"<<std::endl;
+        isValid_=false;
+		return 0;
+	}
 
 private:
 
@@ -44,28 +72,28 @@ private:
 
         RpcChannel* handler=(RpcChannel*)ctx;
         if (events & BEV_EVENT_EOF) {
+            handler->handleClose();
         }else if (events & BEV_EVENT_ERROR) {
+            handler->handleClose();
         }else if (events & BEV_EVENT_CONNECTED) {
-            handler->setHandler();
-        }else if (events&BEV_EVENT_TIMEOUT)
-        {
+            handler->handleConnction();
+        }else if (events&BEV_EVENT_TIMEOUT) {
+            handler->handleClose();
         }
+
     }
 
     int connect(){
 
         bufferevent_setcb(bev_, NULL , NULL , connect_cb, this);
         bufferevent_enable(bev_, EV_WRITE);
-
         if (0!=bufferevent_socket_connect(bev_,(const sockaddr*)ep_.getAddrIn(),sizeof(struct sockaddr_in))){
             return -1;
         }
         return 0;
     }
-    EndPoint                      ep_;
-    NetEvent*                     event_; 
-    struct bufferevent*           bev_;
-    std::map<const char* ,ClientStub*> stubMap_;
+
+    std::map<std::string,ServiceStub*> stubMap_;
 };
 }
 #endif

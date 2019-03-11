@@ -9,31 +9,42 @@
 #include "rpc/Connection.h"
 
 namespace rpc {
-template<typename T,typename P>
-class RpcService:public Connection ,public EventHandler{
+	class ServiceProxy;
+template<typename T,typename P,typename ... Types>
+class RpcService:public Connection  {
 
 public:
-    RpcService(){ }
+    RpcService(NetEvent*  event,EndPoint ep, struct bufferevent* bev)
+    :Connection(event,ep,bev,new T(),new P()){ 
+    }
 
     ~RpcService(){ 
     } 
 
-    static RpcService*  makeServiceHandler(struct bufferevent * be,std::map<const char* ,ServiceProxy> proxyMap) {
-        RpcService*  service=new RpcService<T,P>();
-        service->setHandler();
-        service->init(std::make_shared<T>(),std::make_shared<P>());
+   template<typename N>
+   static  void*  createProxy(RpcService<T,P>* conn) {
+	   conn->proxyMap_[N::getObjName] = new N(conn);
+	   return nullptr;
+   }
+
+    static RpcService<T, P>*  makeServiceHandler(NetEvent*   event,EndPoint   ep, struct bufferevent* bev) {
+        RpcService<T,P>*  service=new RpcService<T,P>(event,ep,bev);
+		service->handleConnction();
+        /*神奇代码 动态创建 模板不定参数类型 对象*/
+        auto f= { createProxy<Types>(service)... };
         return service;
     }
 
-	virtual bool dispatch(std::shared_ptr<RpcMsg> m){
-        return true;
-
-    };
-    virtual int invoke(std::shared_ptr<RpcMsg> msg) {
-        return 0;
-    };
-
-    virtual int handleInput(std::vector<int8>& buff){
+    virtual int handleInput(struct evbuffer* buff){
+	    RequestMsg reqMsg;
+	    if (-1==getTransport()->recvRequestMsg(buff,reqMsg)){
+			return -1;
+		}
+ 	    std::shared_ptr<RpcMsg> msg = std::make_shared<RpcMsg>();
+		msg->requestMsg_.msgId = reqMsg.msgId;
+		msg->requestMsg_.msgSeqId = reqMsg.msgSeqId;
+		msg->requestMsg_.buf = reqMsg.buf;
+		//dispatch(msg);
 		return 0;
 	}
 
@@ -45,8 +56,10 @@ public:
 		return 0;
 	}
     virtual int handleConnction(){
+        setHandler();
     	return 0;
     };
+
 
 
     std::map<const char* ,ServiceProxy*> proxyMap_;

@@ -30,6 +30,5 @@ int main(int argc,char ** argv)
 
     rpc::NetEvent::getInstance()->eventLoop();
 
-    client->fini();
     return 0;
 }

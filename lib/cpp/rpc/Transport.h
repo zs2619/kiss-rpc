@@ -11,18 +11,18 @@ extern "C"{
 namespace rpc {
 	class ITransport {
 	public:
-		ITransport():bev_(nullptr),connStatus_(0){}
+		ITransport():connStatus_(0){}
 		virtual ~ITransport(){}
 
 		void setBufferEvent(bufferevent* bev) {
 			bev_ = bev;
 		}
 
-		virtual int sendRequestMsg(const RequestMsg& msg) = 0;
-		virtual int recvResponseMsg(std::vector<int8>& buff, ResponseMsg& msg) = 0;
+		virtual int sendRequestMsg(struct evbuffer* buff) = 0;
+		virtual int recvResponseMsg(struct evbuffer* buff, ResponseMsg& msg) = 0;
 
-		virtual int sendResponseMsg(const ResponseMsg& msg) = 0;
-		virtual int recvRequestMsg(std::vector<int8>& buff, RequestMsg& msg) = 0;
+		virtual int sendResponseMsg(struct evbuffer* buff) = 0;
+		virtual int recvRequestMsg(struct evbuffer* buff, RequestMsg& msg) = 0;
 
 	protected:
 		int         connStatus_;
@@ -31,11 +31,14 @@ namespace rpc {
 
 	class TcpTransport :public ITransport {
 	public:
-		virtual int sendRequestMsg(const RequestMsg& msg);
-		virtual int recvResponseMsg(std::vector<int8>& buff, ResponseMsg& msg);
+		TcpTransport(){}
+		virtual ~TcpTransport(){}
 
-		virtual int sendResponseMsg(const ResponseMsg& msg);
-		virtual int recvRequestMsg(std::vector<int8>& buff, RequestMsg& msg);
+		virtual int sendRequestMsg(struct evbuffer* buff);
+		virtual int recvResponseMsg(struct evbuffer* buff, ResponseMsg& msg);
+
+		virtual int sendResponseMsg(struct evbuffer* buff);
+		virtual int recvRequestMsg(struct evbuffer* buff, RequestMsg& msg);
 
 		std::vector<int8> recvbuff_;
 		std::vector<int8> sendbuff_;

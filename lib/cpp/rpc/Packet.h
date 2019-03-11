@@ -6,6 +6,31 @@
 #include "rpc/Protocol.h"
 namespace rpc{
 
+enum MsgProtocolType
+{ 
+	MPT_Bin,
+	MPT_Json,
+}; 
+extern rpc::EnumMap RpcEnum(MsgProtocolType);
+
+class RpcHeader
+{ 
+public: 
+	RpcHeader();
+	virtual ~RpcHeader();
+	static const char* strFingerprint;
+	rpc::uint8	version;
+	MsgProtocolType	msgType;
+	std::string	serviceName;
+	rpc::uint16	bodyLen;
+
+	//serialize
+	void serialize(rpc::IProtocol* __P__) const ;
+
+	//deSerialize
+	bool deSerialize(rpc::IProtocol* __P__);
+} ;//struct
+
 class RequestMsg
 { 
 public: 
@@ -14,7 +39,7 @@ public:
 	static const char* strFingerprint;
 	rpc::int64	msgSeqId;
 	rpc::uint16	msgId;
-	std::vector<rpc::int8> 	buff;
+	std::vector<rpc::int8> 	buf;
 
 	//serialize
 	void serialize(rpc::IProtocol* __P__) const ;
@@ -31,7 +56,7 @@ public:
 	static const char* strFingerprint;
 	rpc::int64	msgSeqId;
 	rpc::uint16	msgId;
-	std::vector<rpc::int8> 	buff;
+	std::vector<rpc::int8> 	buf;
 
 	//serialize
 	void serialize(rpc::IProtocol* __P__) const ;

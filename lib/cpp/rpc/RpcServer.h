@@ -9,7 +9,7 @@
 #include "rpc/RpcService.h"
 
 namespace rpc {
-template<typename T,typename P>
+template<typename S>
 class RpcServer{
 public:
     RpcServer(NetEvent* event,EndPoint ep):event_(event),ep_(ep),listener_(nullptr){
@@ -46,11 +46,6 @@ public:
 }
 		return 0;
     }
-    template < typename E >
-    bool addService(){
-        proxyMap_[E::getObjName]=E();
-    }
-private:
 
     static void listener_cb(struct evconnlistener *listener, evutil_socket_t fd,
         struct sockaddr *sa, int socklen, void *userData){
@@ -64,13 +59,12 @@ private:
             return;
         }
 
-        RpcService<T,P>::makeServiceHandler(bev,server->proxyMap_);
+        S::makeServiceHandler(server->event_,server->ep_,bev);
     }
 
     NetEvent*   event_;
     EndPoint    ep_;
 
-    std::map<const char* ,ServiceProxy> proxyMap_;
 	struct evconnlistener *listener_;
 };
 }
