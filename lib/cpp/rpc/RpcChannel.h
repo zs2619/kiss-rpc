@@ -36,17 +36,21 @@ public:
     }
     virtual int handleInput(struct evbuffer* buff ){
 
-		ResponseMsg respMsg;
-		if (-1==getTransport()->recvResponseMsg(buff,respMsg)){
+		std::vector<ResponseMsg> respMsgList;
+        int ret=getTransport()->recvResponseMsg(buff,respMsgList);
+		if (-1==ret){
 			return 0;
 		}
 
-		auto stub = stubMap_.find("test");
-        if (stub==stubMap_.end()) {
-            return 0;
+        for ( auto& it:respMsgList){
+            auto stub = stubMap_.find(it.header.serviceName);
+            if (stub==stubMap_.end()) {
+                std::cout<<it.header.serviceName<<" error "<<std::endl;
+                continue;
+            }
+            ret=stub->second->stubMsgCallBack(it);
         }
-	
-        int ret=stub->second->stubMsgCallBack(respMsg);
+
 		return 0;
 	}
     virtual int handleOutput(){
@@ -54,8 +58,6 @@ public:
 	}
     virtual int handleConnction(){
         setHandler();
-
-		getTransport()->setBufferEvent(bev_);
         isValid_=true;
         return 0;
     };

@@ -11,18 +11,19 @@ struct RpcHeader {
     uint8            version;
     MsgProtocolType  msgType;
     string           serviceName;
-    uint16           bodyLen;
 };
 
 struct RequestMsg {
-	int64 msgSeqId;
-	uint16 msgId;
-	array<int8>  buf;
+    RpcHeader   header;
+	int64       msgSeqId;
+	uint16      msgId;
+	array<int8> buff;
 };
 
 struct ResponseMsg {
-	int64 msgSeqId;
-	uint16 msgId;
-	array<int8>  buf;
+    RpcHeader    header;
+	int64        msgSeqId;
+	uint16       msgId;
+	array<int8>  buff;
 };
 }

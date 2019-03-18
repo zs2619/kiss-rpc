@@ -65,9 +65,6 @@
     <ClCompile Include="parser\Program.cpp">
       <Filter>parser\src</Filter>
     </ClCompile>
-    <ClCompile Include="lib\cpp\IBinProtocol.cpp">
-      <Filter>lib\cpp</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="generator\CSharpGenerator.cpp">
       <Filter>generator\cshape</Filter>
@@ -103,18 +100,6 @@
     </ClInclude>
     <ClInclude Include="parser\Program.h">
       <Filter>parser\include</Filter>
-    </ClInclude>
-    <ClInclude Include="lib\cpp\Common.h">
-      <Filter>lib\cpp</Filter>
-    </ClInclude>
-    <ClInclude Include="lib\cpp\EnumMap.h">
-      <Filter>lib\cpp</Filter>
-    </ClInclude>
-    <ClInclude Include="lib\cpp\IBinProtocol.h">
-      <Filter>lib\cpp</Filter>
-    </ClInclude>
-    <ClInclude Include="lib\cpp\IProtocol.h">
-      <Filter>lib\cpp</Filter>
     </ClInclude>
     <ClInclude Include="generator\CSharpGenerator.h">
       <Filter>generator\cshape</Filter>

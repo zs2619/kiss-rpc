@@ -70,7 +70,7 @@ public:
 	};
 	opServiceStub(const rpc::Connection* conn):ServiceStub(conn){}
 	virtual ~opServiceStub(){}
-	void invokeAsync(rpc::uint16 msgId,const rpc::IProtocol* p,const std::string& serviceName ,const std::string& functionName);
+	void invokeAsync(rpc::uint16 msgId,const rpc::IProtocol* p,const std::string& functionName);
 	virtual bool dispatch(std::shared_ptr<rpc::RpcMsg> msg);
 	void momo(rpc::int8  i8,rpc::int64  i64);
 	void test(rpc::int8  i8,std::function<int(rpc::int8)> cb);

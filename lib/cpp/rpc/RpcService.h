@@ -36,15 +36,29 @@ public:
     }
 
     virtual int handleInput(struct evbuffer* buff){
-	    RequestMsg reqMsg;
-	    if (-1==getTransport()->recvRequestMsg(buff,reqMsg)){
-			return -1;
+
+		std::vector<RequestMsg> requestMsgList;
+        int ret=getTransport()->recvRequestMsg(buff,requestMsgList);
+		if (-1==ret){
+			return 0;
 		}
- 	    std::shared_ptr<RpcMsg> msg = std::make_shared<RpcMsg>();
-		msg->requestMsg_.msgId = reqMsg.msgId;
-		msg->requestMsg_.msgSeqId = reqMsg.msgSeqId;
-		msg->requestMsg_.buf = reqMsg.buf;
-		//dispatch(msg);
+
+        for ( auto& it:requestMsgList){
+
+            std::shared_ptr<RpcMsg> msg = std::make_shared<RpcMsg>();
+            msg->requestMsg_.header=it.header;
+            msg->requestMsg_.msgId = it.msgId;
+            msg->requestMsg_.msgSeqId = it.msgSeqId;
+            msg->requestMsg_.buff = it.buff;
+
+            auto proxy = proxyMap_.find(msg->requestMsg_.header.serviceName);
+            if (proxy == proxyMap_.end()) {
+                std::cout<<msg->requestMsg_.header.serviceName<<" error "<<std::endl;
+                return 0;
+            }
+            int ret= proxy->second->dispatch(msg);
+        }
+
 		return 0;
 	}
 
@@ -62,7 +76,7 @@ public:
 
 
 
-    std::map<const char* ,ServiceProxy*> proxyMap_;
+    std::map<std::string ,ServiceProxy*> proxyMap_;
 };
 }
 #endif

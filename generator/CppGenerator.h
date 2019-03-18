@@ -56,7 +56,6 @@ private:
 
 	void genIncludeHeader(std::ofstream& stream);
 
-	void genInterfaceDeclare(ServiceDefType* service);
 private:
 	std::ofstream	headerFile_;
 	std::ofstream	srcFile_;	

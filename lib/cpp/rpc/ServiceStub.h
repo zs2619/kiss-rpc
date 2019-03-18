@@ -17,24 +17,15 @@ public:
 
 		msg->requestMsg_.msgSeqId=maxMsgSeqId_++;
 		msg->time_= std::chrono::system_clock::now();
+        
+        msg->requestMsg_.header.version=0;
+        msg->requestMsg_.header.msgType=MPT_Bin;
+        msg->requestMsg_.header.serviceName=msg->serviceName_;
 
         BinaryProtocol proto;
         msg->requestMsg_.serialize(&proto);
 
-        RpcHeader header;
-        header.version=0;
-        header.msgType=MPT_Bin;
-        header.serviceName=msg->serviceName_;
-        header.bodyLen=uint16(proto.getBuffer().size());
-
-        BinaryProtocol headerProto;
-        header.serialize(&headerProto);
-
         struct evbuffer * buff= evbuffer_new();
-
-	    uint16 len = uint16(proto.getBuffer().size());
-        evbuffer_add(buff,(int8*)&len,MsgHeaderMaxSize );
-        evbuffer_add(buff,headerProto.getBuffer().data(),len );
         evbuffer_add(buff,proto.getBuffer().data(), proto.getBuffer().size());
 
 		int ret=chan_->getTransport()->sendRequestMsg(buff);

@@ -17,23 +17,14 @@ protected:
         msg->responseMsg_.msgId=msg->requestMsg_.msgId;
         msg->responseMsg_.msgSeqId=msg->requestMsg_.msgSeqId;
 
+        msg->responseMsg_.header.version=0;
+        msg->responseMsg_.header.msgType=MPT_Bin;
+        msg->responseMsg_.header.serviceName=msg->serviceName_;
+
         BinaryProtocol proto;
         msg->responseMsg_.serialize(&proto);
 
-        RpcHeader header;
-        header.version=0;
-        header.msgType=MPT_Bin;
-        header.serviceName=msg->serviceName_;
-        header.bodyLen=uint16(proto.getBuffer().size());
-
-
-        BinaryProtocol headerProto;
-        header.serialize(&headerProto);
-
         struct evbuffer * buff= evbuffer_new();
-	    uint16 len = uint16(proto.getBuffer().size());
-        evbuffer_add(buff,(int8*)&len,MsgHeaderMaxSize );
-        evbuffer_add(buff,headerProto.getBuffer().data(),len );
         evbuffer_add(buff,proto.getBuffer().data(), proto.getBuffer().size());
 
 	    if (-1==service_->getTransport()->sendResponseMsg(buff)){
@@ -41,7 +32,7 @@ protected:
 		}
         return 0;
     };
-
+public:
 	virtual bool dispatch(std::shared_ptr<RpcMsg> m) { return true; };
 
 protected:

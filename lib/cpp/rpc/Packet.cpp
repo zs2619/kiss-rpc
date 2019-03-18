@@ -6,11 +6,10 @@ void MsgProtocolTypeInit(rpc::EnumMap* e)
 } 
 rpc::EnumMap RpcEnum(MsgProtocolType)(MsgProtocolTypeInit);
 
-const char* rpc::RpcHeader::strFingerprint="04d60b1c355b04281ee50bf1070fb772";
+const char* rpc::RpcHeader::strFingerprint="28310e0dc8ad86ce46bf42a5037ee8d6";
 rpc::RpcHeader::RpcHeader()
 :version(0)
 ,msgType(MsgProtocolType(0))
-,bodyLen(0)
 { 
 } 
 rpc::RpcHeader::~RpcHeader()
@@ -26,8 +25,6 @@ void rpc::RpcHeader::serialize(rpc::IProtocol* __P__) const
 
 	__P__->writeString(serviceName);
 
-	__P__->writeUInt16(bodyLen);
-
 }// serialize
 
 //deSerialize
@@ -41,12 +38,10 @@ bool rpc::RpcHeader::deSerialize(rpc::IProtocol* __P__)
 
 	if(!__P__->readString(serviceName))return false;
 
-	if(!__P__->readUInt16(bodyLen))return false;
-
 	return true; 
 }//deSerialize 
 
-const char* rpc::RequestMsg::strFingerprint="97784b165bc31f74cc021909d44da108";
+const char* rpc::RequestMsg::strFingerprint="2017ec81ad4621da5e3b8bd32bc985fe";
 rpc::RequestMsg::RequestMsg()
 :msgSeqId(0)
 ,msgId(0)
@@ -59,14 +54,16 @@ rpc::RequestMsg::~RequestMsg()
 //serialize
 void rpc::RequestMsg::serialize(rpc::IProtocol* __P__) const 
 { 
+	header.serialize(__P__);
+
 	__P__->writeInt64(msgSeqId);
 
 	__P__->writeUInt16(msgId);
 
-	__P__->writeUInt16(rpc::uint16(buf.size()));
-	for (size_t _i_buf_=0;_i_buf_<buf.size();_i_buf_++)
+	__P__->writeUInt16(rpc::uint16(buff.size()));
+	for (size_t _i_buff_=0;_i_buff_<buff.size();_i_buff_++)
 	{
-		__P__->writeInt8(buf[_i_buf_]);
+		__P__->writeInt8(buff[_i_buff_]);
 	}
 
 }// serialize
@@ -74,22 +71,24 @@ void rpc::RequestMsg::serialize(rpc::IProtocol* __P__) const
 //deSerialize
 bool rpc::RequestMsg::deSerialize(rpc::IProtocol* __P__)
 { 
+	if(!header.deSerialize(__P__))return false;
+
 	if(!__P__->readInt64(msgSeqId))return false;
 
 	if(!__P__->readUInt16(msgId))return false;
 
-	rpc::uint16 _n_buf_array=0;
-	if(!__P__->readUInt16(_n_buf_array))return false;
-	buf.resize( _n_buf_array);
-	for (size_t _i_buf_=0;_i_buf_<_n_buf_array;_i_buf_++)
+	rpc::uint16 _n_buff_array=0;
+	if(!__P__->readUInt16(_n_buff_array))return false;
+	buff.resize( _n_buff_array);
+	for (size_t _i_buff_=0;_i_buff_<_n_buff_array;_i_buff_++)
 	{
-		if(!__P__->readInt8(buf[_i_buf_]))return false;
+		if(!__P__->readInt8(buff[_i_buff_]))return false;
 	}
 
 	return true; 
 }//deSerialize 
 
-const char* rpc::ResponseMsg::strFingerprint="828608596d841596d1cf25c96c0b59e3";
+const char* rpc::ResponseMsg::strFingerprint="ac24ea21771056228cb098ed462458e0";
 rpc::ResponseMsg::ResponseMsg()
 :msgSeqId(0)
 ,msgId(0)
@@ -102,14 +101,16 @@ rpc::ResponseMsg::~ResponseMsg()
 //serialize
 void rpc::ResponseMsg::serialize(rpc::IProtocol* __P__) const 
 { 
+	header.serialize(__P__);
+
 	__P__->writeInt64(msgSeqId);
 
 	__P__->writeUInt16(msgId);
 
-	__P__->writeUInt16(rpc::uint16(buf.size()));
-	for (size_t _i_buf_=0;_i_buf_<buf.size();_i_buf_++)
+	__P__->writeUInt16(rpc::uint16(buff.size()));
+	for (size_t _i_buff_=0;_i_buff_<buff.size();_i_buff_++)
 	{
-		__P__->writeInt8(buf[_i_buf_]);
+		__P__->writeInt8(buff[_i_buff_]);
 	}
 
 }// serialize
@@ -117,16 +118,18 @@ void rpc::ResponseMsg::serialize(rpc::IProtocol* __P__) const
 //deSerialize
 bool rpc::ResponseMsg::deSerialize(rpc::IProtocol* __P__)
 { 
+	if(!header.deSerialize(__P__))return false;
+
 	if(!__P__->readInt64(msgSeqId))return false;
 
 	if(!__P__->readUInt16(msgId))return false;
 
-	rpc::uint16 _n_buf_array=0;
-	if(!__P__->readUInt16(_n_buf_array))return false;
-	buf.resize( _n_buf_array);
-	for (size_t _i_buf_=0;_i_buf_<_n_buf_array;_i_buf_++)
+	rpc::uint16 _n_buff_array=0;
+	if(!__P__->readUInt16(_n_buff_array))return false;
+	buff.resize( _n_buff_array);
+	for (size_t _i_buff_=0;_i_buff_<_n_buff_array;_i_buff_++)
 	{
-		if(!__P__->readInt8(buf[_i_buf_]))return false;
+		if(!__P__->readInt8(buff[_i_buff_]))return false;
 	}
 
 	return true; 

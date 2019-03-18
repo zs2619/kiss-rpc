@@ -22,7 +22,6 @@ public:
 	rpc::uint8	version;
 	MsgProtocolType	msgType;
 	std::string	serviceName;
-	rpc::uint16	bodyLen;
 
 	//serialize
 	void serialize(rpc::IProtocol* __P__) const ;
@@ -37,9 +36,10 @@ public:
 	RequestMsg();
 	virtual ~RequestMsg();
 	static const char* strFingerprint;
+	RpcHeader	header;
 	rpc::int64	msgSeqId;
 	rpc::uint16	msgId;
-	std::vector<rpc::int8> 	buf;
+	std::vector<rpc::int8> 	buff;
 
 	//serialize
 	void serialize(rpc::IProtocol* __P__) const ;
@@ -54,9 +54,10 @@ public:
 	ResponseMsg();
 	virtual ~ResponseMsg();
 	static const char* strFingerprint;
+	RpcHeader	header;
 	rpc::int64	msgSeqId;
 	rpc::uint16	msgId;
-	std::vector<rpc::int8> 	buf;
+	std::vector<rpc::int8> 	buff;
 
 	//serialize
 	void serialize(rpc::IProtocol* __P__) const ;

@@ -120,7 +120,6 @@ bison.exe -d -v -o parser\rpc.tab.cpp rpc.y
     <ClCompile Include="parser\Global.cpp" />
     <ClCompile Include="parser\lex.yy.cpp" />
     <ClCompile Include="parser\Program.cpp" />
-    <ClCompile Include="lib\cpp\IBinProtocol.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="parser\rpc.tab.cpp" />
   </ItemGroup>
@@ -136,10 +135,6 @@ bison.exe -d -v -o parser\rpc.tab.cpp rpc.y
     <ClInclude Include="parser\Global.h" />
     <ClInclude Include="parser\Program.h" />
     <ClInclude Include="parser\rpc.tab.hpp" />
-    <ClInclude Include="lib\cpp\Common.h" />
-    <ClInclude Include="lib\cpp\EnumMap.h" />
-    <ClInclude Include="lib\cpp\IBinProtocol.h" />
-    <ClInclude Include="lib\cpp\IProtocol.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="lib\as3\BigInt.as" />

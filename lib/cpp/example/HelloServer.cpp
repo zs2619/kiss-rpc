@@ -25,14 +25,16 @@ class  HelloMsgProxy :public shuai::opServiceProxyIF
 	  return std::make_tuple(0,1); 
 	};
 	virtual std::tuple<int, rpc::int8>test(rpc::int8 i8) {
-	  return std::make_tuple(0,1); 
+		std::cout << int(i8) << std::endl;
+	  return std::make_tuple(0,i8); 
 	};
 
 };
 int main(int argc,char ** argv)
 {
     rpc::EndPoint ep(std::string(":2619"));
-    rpc::RpcServer<rpc::RpcService<rpc::TcpTransport,rpc::BinaryProtocol, HelloMsgProxy>> service(rpc::NetEvent::getInstance(),ep);
+	using rpcServiceType = rpc::RpcService<rpc::TcpTransport, rpc::BinaryProtocol, HelloMsgProxy>;
+    rpc::RpcServer<rpcServiceType> service(rpc::NetEvent::getInstance(),ep);
 	if (-1 == service.open()) {
 		std::cerr << "service.open " << std::endl;
 	}

@@ -727,7 +727,7 @@ void CppGenerator::genServiceStubHeader()
 		headerFile_<<indent()<<className<<"(const rpc::Connection* conn):ServiceStub(conn){}"<<std::endl;
 		headerFile_<<indent()<<"virtual ~"<<className<<"(){}"<<std::endl;
 
-		headerFile_<<indent()<< "void invokeAsync(rpc::uint16 msgId,const rpc::IProtocol* p,"<<"const std::string& serviceName ,const std::string& functionName);"<<std::endl;
+		headerFile_<<indent()<< "void invokeAsync(rpc::uint16 msgId,const rpc::IProtocol* p,"<<"const std::string& functionName);"<<std::endl;
 		headerFile_<<indent()<< "virtual bool dispatch(std::shared_ptr<rpc::RpcMsg> msg);" <<std::endl;
 
 		genFunStubDeclare(*it);
@@ -752,16 +752,16 @@ void CppGenerator::genServiceStubSrc()
 	{
 		//fingerprint
 		srcFile_<<indent()<<"const char* "<<generateContext->ns_.name_<<"::"<<(*it)->name_<<"Stub::"<<"strFingerprint=\""<<md5((*it)->getFingerPrint())<<"\";"<<std::endl;
-		srcFile_<<indent()<<"const char* "<<generateContext->ns_.name_<<"::"<<(*it)->name_<<"Stub::"<<"getObjName=\""<<generateContext->ns_.name_<<"."<<(*it)->name_<<".stub"<<"\";"<<std::endl;
+		srcFile_<<indent()<<"const char* "<<generateContext->ns_.name_<<"::"<<(*it)->name_<<"Stub::"<<"getObjName=\""<<generateContext->ns_.name_<<"."<<(*it)->name_<<"\";"<<std::endl;
 
 		srcFile_ <<indent()<< "void  "<<generateContext->ns_.name_<<"::"<<(*it)->name_
-			<<"Stub::"<<"invokeAsync(rpc::uint16 msgId,const rpc::IProtocol* p,const std::string& serviceName ,const std::string& functionName) {" << std::endl;
+			<<"Stub::"<<"invokeAsync(rpc::uint16 msgId,const rpc::IProtocol* p ,const std::string& functionName) {" << std::endl;
 		indent_up();
 		srcFile_ <<indent()<<"std::shared_ptr<rpc::RpcMsg> msg = std::make_shared<rpc::RpcMsg>();" << std::endl;
-		srcFile_ <<indent()<<"msg->serviceName_= serviceName ;" << std::endl;
+		srcFile_ <<indent()<<"msg->serviceName_= getObjName ;" << std::endl;
 		srcFile_ <<indent()<<"msg->functionName_= functionName ;" << std::endl;
 		srcFile_ <<indent()<<"msg->requestMsg_.msgId = msgId;"<<std::endl;
-		srcFile_ <<indent()<<"msg->requestMsg_.buf = p->getBuffer();"<<std::endl;
+		srcFile_ <<indent()<<"msg->requestMsg_.buff = p->getBuffer();"<<std::endl;
 		srcFile_ <<indent()<<"invoke(msg);" << std::endl;
 		indent_down();
 		srcFile_ <<indent()<< "}" << std::endl;
@@ -785,7 +785,7 @@ void CppGenerator::genServiceStubSrc()
 				srcFile_ << indent() << "{" << std::endl;
 				indent_up();
 				srcFile_ << indent() << "std::unique_ptr<rpc::IProtocol> __P__(chan_->getProtocol()->createProtoBuffer());" << std::endl;
-				srcFile_ << indent() << "__P__->setBuffer(msg->responseMsg_.buf);" << std::endl;
+				srcFile_ << indent() << "__P__->setBuffer(msg->responseMsg_.buff);" << std::endl;
 				srcFile_ << indent() << typeName(t->result_) << " ret ;" << std::endl;
 
 				deSerializeField(t->result_, "ret","__P__.get()");
@@ -836,7 +836,7 @@ void CppGenerator::genServiceStubSrc()
 			{
 				srcFile_ << indent() <<t->name_<< "CallBack = cb;" << std::endl;
 			}
-			srcFile_<<indent()<<"invokeAsync("<<i<<",__P__.get(),"<<"\""<< (*it)->name_<<"\",\"" << t->name_<<"\");"<<std::endl;
+			srcFile_<<indent()<<"invokeAsync("<<i<<",__P__.get()"<<",\"" << t->name_<<"\");"<<std::endl;
 			indent_down();
 
 			srcFile_<<indent()<<"}"<<std::endl;
@@ -891,13 +891,14 @@ void CppGenerator::genServiceProxySrc()
 	{
 		//fingerprint
 		srcFile_<<indent()<<"const char* "<<generateContext->ns_.name_<<"::"<<(*it)->name_<<"ProxyIF::"<<"strFingerprint=\""<<md5((*it)->getFingerPrint())<<"\";"<<std::endl;
-		srcFile_<<indent()<<"const char* "<<generateContext->ns_.name_<<"::"<<(*it)->name_<<"ProxyIF::"<<"getObjName=\""<<generateContext->ns_.name_ <<"."<< (*it)->name_<<".proxy"<<"\";"<<std::endl;
+		srcFile_<<indent()<<"const char* "<<generateContext->ns_.name_<<"::"<<(*it)->name_<<"ProxyIF::"<<"getObjName=\""<<generateContext->ns_.name_ <<"."<< (*it)->name_<<"\";"<<std::endl;
 		//dispatch
 		std::string className=(*it)->name_+"ProxyIF";
 		srcFile_<<indent()<<"bool "<<generateContext->ns_.name_<<"::"<<className<<"::dispatch(std::shared_ptr<rpc::RpcMsg> msg)"<<std::endl;
 		srcFile_<<indent()<<"{"<<std::endl;
 		indent_up();
 		srcFile_<<indent()<<"auto id=msg->requestMsg_.msgId;"<<std::endl;
+		srcFile_<<indent()<< "msg->serviceName_=getObjName;" << std::endl;
 		srcFile_<<indent()<<"switch (id)"<<std::endl;
 		srcFile_<<indent()<<"{"<<std::endl;
 		indent_up();
@@ -911,7 +912,7 @@ void CppGenerator::genServiceProxySrc()
 			indent_up();
 
 			srcFile_ << indent() << "std::unique_ptr<rpc::IProtocol> __P__(service_->getProtocol()->createProtoBuffer());" << std::endl;
-			srcFile_ << indent() << "__P__->setBuffer(msg->requestMsg_.buf);"<<std::endl;
+			srcFile_ << indent() << "__P__->setBuffer(msg->requestMsg_.buff);"<<std::endl;
 
 			deSerializeFields(t->argrs_,"__P__.get()");
 			srcFile_ << indent() << "auto result = " << t->name_ << "(";
@@ -926,7 +927,7 @@ void CppGenerator::genServiceProxySrc()
 			    srcFile_ << indent() << "std::unique_ptr<rpc::IProtocol> __P__(service_->getProtocol()->createProtoBuffer());" << std::endl;
 				srcFile_ << indent() <<typeName(t->result_)<<" ret="<<"std::get<1>(result);"<<std::endl;
                 serializeField(t->result_, "ret","__P__.get()");
-				srcFile_ << indent() << "msg->responseMsg_.buf=__P__->getBuffer();"<<std::endl;
+				srcFile_ << indent() << "msg->responseMsg_.buff=__P__->getBuffer();"<<std::endl;
 				srcFile_ << indent() << "invoke(msg);"<<std::endl;
 			    indent_down();
                 srcFile_ << indent() <<"}"<<std::endl;
@@ -1115,18 +1116,4 @@ void CppGenerator::genIncludeHeader( std::ofstream& stream )
 	}
 }
 
-void CppGenerator::genInterfaceDeclare( ServiceDefType* service )
-{
-	std::string IFName=program_->getInputDir()+program_->getBaseName()+"IF.h";
-	ifFile_.open(IFName.c_str());
-	std::vector<FuctionDefType*>::iterator it_inner=service->funs_.begin();
-	while(it_inner!=service->funs_.end())
-	{
-		FuctionDefType*& t=*it_inner;
-		ifFile_<<indent()<<"virtual bool "<<t->name_<<"(";
-		genFunAgrList(ifFile_,t->argrs_);
-		ifFile_<<");"<<std::endl;
-		++it_inner;
-	}
-	ifFile_.close();
-}
+
