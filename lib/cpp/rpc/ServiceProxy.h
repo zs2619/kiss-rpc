@@ -21,13 +21,8 @@ protected:
         msg->responseMsg_.header.msgType=MPT_Bin;
         msg->responseMsg_.header.serviceName=msg->serviceName_;
 
-        BinaryProtocol proto;
-        msg->responseMsg_.serialize(&proto);
 
-        struct evbuffer * buff= evbuffer_new();
-        evbuffer_add(buff,proto.getBuffer().data(), proto.getBuffer().size());
-
-	    if (-1==service_->getTransport()->sendResponseMsg(buff)){
+	    if (-1==service_->getTransport()->sendResponseMsg(msg->responseMsg_)){
             return -1;
 		}
         return 0;

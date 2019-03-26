@@ -22,19 +22,14 @@ public:
         msg->requestMsg_.header.msgType=MPT_Bin;
         msg->requestMsg_.header.serviceName=msg->serviceName_;
 
-        BinaryProtocol proto;
-        msg->requestMsg_.serialize(&proto);
 
-        struct evbuffer * buff= evbuffer_new();
-        evbuffer_add(buff,proto.getBuffer().data(), proto.getBuffer().size());
-
-		int ret=chan_->getTransport()->sendRequestMsg(buff);
+		int ret=chan_->getTransport()->sendRequestMsg(msg->requestMsg_);
         if (ret==-1){
             std::cout<<"chan_->getTransport()->sendRequestMsg"<<std::endl;
         }
 
 		MsgQueue_[msg->requestMsg_.msgSeqId]=msg;
-	    evbuffer_free(buff);
+	    
 		return 0; 
 	};
 

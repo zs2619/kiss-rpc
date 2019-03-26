@@ -34,6 +34,9 @@ public:
         stubMap_[E::getObjName]=eh;
         return eh;
     }
+    int close(){
+
+    }
     virtual int handleInput(struct evbuffer* buff ){
 
 		std::vector<ResponseMsg> respMsgList;

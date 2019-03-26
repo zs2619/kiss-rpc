@@ -3,14 +3,18 @@
 
 
 
-int rpc::TcpTransport::sendRequestMsg( struct evbuffer* buff) {
+int rpc::TcpTransport::sendRequestMsg( const RequestMsg& reqMsg) {
 
-	uint16 len = uint16(evbuffer_get_length(buff));
+    BinaryProtocol proto;
+    reqMsg.serialize(&proto);
+
+	uint16 len = uint16(proto.getBuffer().size());
     struct evbuffer * msgbuff= evbuffer_new();
     evbuffer_add(msgbuff,(int8*)&len,MsgHeaderMaxSize);
-    evbuffer_add_buffer(msgbuff,buff);
+    evbuffer_add(msgbuff,proto.getBuffer().data(), proto.getBuffer().size());
 
 	int ret = bufferevent_write_buffer(bev_, msgbuff);
+
 	evbuffer_free(msgbuff);
 
 	return ret;
@@ -49,14 +53,18 @@ int rpc::TcpTransport::recvResponseMsg(struct evbuffer* buff,std::vector<Respons
     return ret;
 }
 
-int rpc::TcpTransport::sendResponseMsg(struct evbuffer* buff) {
+int rpc::TcpTransport::sendResponseMsg(const ResponseMsg& respMsg) {
 	
-	uint16 len = uint16(evbuffer_get_length(buff));
+    BinaryProtocol proto;
+    respMsg.serialize(&proto);
+
+	uint16 len = uint16(proto.getBuffer().size());
     struct evbuffer * msgbuff= evbuffer_new();
     evbuffer_add(msgbuff,(int8*)&len,MsgHeaderMaxSize);
-    evbuffer_add_buffer(msgbuff,buff);
+    evbuffer_add(msgbuff,proto.getBuffer().data(), proto.getBuffer().size());
 
 	int ret = bufferevent_write_buffer(bev_, msgbuff);
+
 	evbuffer_free(msgbuff);
 
 	return ret;

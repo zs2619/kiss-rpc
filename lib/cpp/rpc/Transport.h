@@ -18,10 +18,10 @@ namespace rpc {
 			bev_ = bev;
 		}
 
-		virtual int sendRequestMsg(struct evbuffer* buff) = 0;
+		virtual int sendRequestMsg(const RequestMsg& reqMsg) = 0;
 		virtual int recvResponseMsg(struct evbuffer* buff, std::vector<ResponseMsg>& msg) = 0;
 
-		virtual int sendResponseMsg(struct evbuffer* buff) = 0;
+		virtual int sendResponseMsg(const ResponseMsg& respMsg) = 0;
 		virtual int recvRequestMsg(struct evbuffer* buff, std::vector<RequestMsg>& msgVec) = 0;
 
 	protected:
@@ -34,10 +34,10 @@ namespace rpc {
 		TcpTransport(){}
 		virtual ~TcpTransport(){}
 
-		virtual int sendRequestMsg(struct evbuffer* buff);
+		virtual int sendRequestMsg(const RequestMsg& reqMsg);
 		virtual int recvResponseMsg(struct evbuffer* buff, std::vector<ResponseMsg>& msg) ;
 
-		virtual int sendResponseMsg(struct evbuffer* buff);
+		virtual int sendResponseMsg(const ResponseMsg& respMsg);
 		virtual int recvRequestMsg(struct evbuffer* buff, std::vector<RequestMsg>& msgVec);
 
 		std::vector<int8> recvbuff_;
