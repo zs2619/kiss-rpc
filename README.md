@@ -27,7 +27,7 @@ make
 ## 使用
 ```
 Usage: rpc [options] file
-Options:<br/>
+Options:
   -o   dir    output file directory
   -i   dir    input  file directory
   -gen lang   cpp as3 cs go Generate code
