@@ -77,7 +77,6 @@ public:
 private:
 
 	static void connect_cb(struct bufferevent *bev, short events, void *ctx){
-
 		RpcChannel* handler=(RpcChannel*)ctx;
 		if (events & BEV_EVENT_EOF) {
 			handler->handleClose();
@@ -92,7 +91,6 @@ private:
 	}
 
 	int connect(){
-
 		bufferevent_setcb(bev_, NULL , NULL , connect_cb, this);
 		bufferevent_enable(bev_, EV_WRITE);
 		if (0!=bufferevent_socket_connect(bev_,(const sockaddr*)ep_.getAddrIn(),sizeof(struct sockaddr_in))){

@@ -59,8 +59,8 @@ public:
 
 
 protected:
-	int			indent_;	
-	Program*	program_;
+	int         indent_;	
+	Program*    program_;
 	std::string name_;	
 };
 

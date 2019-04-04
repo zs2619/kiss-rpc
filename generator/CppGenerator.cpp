@@ -11,7 +11,6 @@
 
 CppGenerator::CppGenerator( Program* pro,const std::string& name ) :Generator(pro,name)
 {
-
 }
 
 void CppGenerator::generateProgram()
@@ -265,7 +264,8 @@ std::string CppGenerator::DefaultValue( DefType* t )
 		case SimpleDefType::floatType : return "0.0";
 		default : assert(0&&"type error"); return "";
 		}
-	}else if (t->is_enum())
+	}
+	else if (t->is_enum())
 	{
 		std::string temp("(0)");
 		temp=t->name_+temp;
@@ -287,7 +287,8 @@ std::string CppGenerator::typeName(DefType* t,bool isAgr)
 			temp+="&";
 		}
 		return temp;
-	}else if(t->is_map())
+	}
+	else if(t->is_map())
 	{
 		MapDefType* map=(MapDefType*)t;
 		std::string temp="std::map<";
@@ -297,7 +298,8 @@ std::string CppGenerator::typeName(DefType* t,bool isAgr)
 			temp+="&";
 		}
 		return temp;
-	}else if (t->is_simple_type())
+	}
+	else if (t->is_simple_type())
 	{
 		SimpleDefType* s=(SimpleDefType*)t;
 		switch (s->t_)
@@ -451,7 +453,6 @@ void CppGenerator::serializeJsonField( DefType* t ,const std::string& key, const
 		else
 		{
 			srcFile_<<std::endl<<indent()<<"__json__<<\",\";"<<std::endl;
-
 		}
 		indent_down();
 		srcFile_<<indent()<<"}//if"<<std::endl;
@@ -546,7 +547,6 @@ void CppGenerator::serializeField( DefType* t ,const std::string& fieldName,cons
 	else if (t->is_enum()) 
 	{
 		srcFile_<<indent()<<prefix<<"->writeInt16((rpc::int16)"<<fieldName<<");"<<std::endl;
-
 	}
 	else if(t->is_map()) 
 	{
@@ -644,14 +644,16 @@ void CppGenerator::deSerializeField( DefType* t ,const std::string& fieldName ,c
 		indent_down();
 		srcFile_<<indent()<<"}"<<std::endl;
 
-	}else if (t->is_enum())
+	}
+	else if (t->is_enum())
 	{
 		std::string tempName=" __temp_enum__"+fieldName;
 		srcFile_<<indent()<<"rpc::int16 "<<tempName<<" =0;"<<std::endl;
 		srcFile_<<indent()<<"if(!"<<prefix<<"->readInt16((rpc::int16&)"<<tempName<<"))return false;"<<std::endl;
 		srcFile_<<indent()<<fieldName<<"=("<<typeName(t)<<")"<<tempName<<";"<<std::endl;
 
-	}else if(t->is_map())
+	}
+	else if(t->is_map())
 	{
 		std::string size="_n_"+fieldName+"_map_";
 		srcFile_<<indent()<<"rpc::uint16 "<<size<<"=0;"<<std::endl;
@@ -681,7 +683,6 @@ void CppGenerator::generateServiceHeader()
 {
 	genServiceStubHeader();
 	genServiceProxyHeader();
-
 }
 void CppGenerator::generateServiceSrc()
 {
@@ -742,7 +743,6 @@ void CppGenerator::genServiceStubSrc()
 	Context*  generateContext = program_->getGenerateContext();
 	if (generateContext->ns_.services_.defs_.empty())
 		return;
-
 
 	auto it=generateContext->ns_.services_.defs_.begin();
 	auto it_end=generateContext->ns_.services_.defs_.end();

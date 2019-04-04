@@ -2,7 +2,6 @@
 #include "rpc/NetEvent.h"
 
 int rpc::TcpTransport::sendRequestMsg( const RequestMsg& reqMsg) {
-
 	BinaryProtocol proto;
 	reqMsg.serialize(&proto);
 
@@ -19,7 +18,6 @@ int rpc::TcpTransport::sendRequestMsg( const RequestMsg& reqMsg) {
 }
 
 int rpc::TcpTransport::recvResponseMsg(struct evbuffer* buff,std::vector<ResponseMsg>& msgVec) {
-
 	int ret=0;
 	while(1){
 		if (evbuffer_get_length(buff) <= MsgHeaderMaxSize) {
@@ -52,7 +50,6 @@ int rpc::TcpTransport::recvResponseMsg(struct evbuffer* buff,std::vector<Respons
 }
 
 int rpc::TcpTransport::sendResponseMsg(const ResponseMsg& respMsg) {
-	
 	BinaryProtocol proto;
 	respMsg.serialize(&proto);
 
@@ -69,7 +66,6 @@ int rpc::TcpTransport::sendResponseMsg(const ResponseMsg& respMsg) {
 }
 
 int rpc::TcpTransport::recvRequestMsg(struct evbuffer* buff,std::vector<RequestMsg>& msgVec) {
-
 	int ret=0;
 	while(1){
 		if (evbuffer_get_length(buff) <= MsgHeaderMaxSize) {

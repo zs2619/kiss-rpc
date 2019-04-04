@@ -13,7 +13,7 @@ public:
 	virtual ~ServiceProxy() {}
 
 protected:
-		virtual int invoke(std::shared_ptr<RpcMsg> msg) {
+	virtual int invoke(std::shared_ptr<RpcMsg> msg) {
 		msg->responseMsg_.msgId=msg->requestMsg_.msgId;
 		msg->responseMsg_.msgSeqId=msg->requestMsg_.msgSeqId;
 		msg->responseMsg_.header.version=0;

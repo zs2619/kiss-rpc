@@ -21,7 +21,6 @@ public:
 		event_=nullptr;
 	}
 	struct evconnlistener* connListener(const EndPoint& ep , void*userData){
-
 		auto base=event_->getInstance()->getEventBase();
 
 		return evconnlistener_new_bind(base,

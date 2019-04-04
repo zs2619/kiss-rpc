@@ -78,7 +78,6 @@ public:
 	};
 	Option  option_;
 
-
 public:
 	EnumVector                 enums_;
 	StructVector               structs_;

@@ -14,7 +14,6 @@ public:
 	virtual ~ServiceStub() {chan_=nullptr;}
 
 	virtual int invoke(std::shared_ptr<RpcMsg> msg) {
-
 		msg->requestMsg_.msgSeqId=maxMsgSeqId_++;
 		msg->time_= std::chrono::system_clock::now();
 		msg->requestMsg_.header.version=0;
