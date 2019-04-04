@@ -5,6 +5,6 @@ type IRpcServiecFactroy interface {
 }
 
 type RpcService struct {
-	Connection
+	connection
 	proxyMap map[string]*ServiceProxy
 }

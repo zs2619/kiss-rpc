@@ -1,7 +1,7 @@
 package rpc
 
 type RpcChannel struct {
-	Connection
+	*connection
 	proxyMap map[string]*ServiceStub
 }
 
@@ -12,7 +12,7 @@ func (this *RpcChannel) Close() {
 
 }
 
-func NewRpcChannel(event *NetEvent, ep endPoint) *RpcChannel {
-
-	return nil
+func NewRpcChannel(event *NetEvent, ep endPoint, proto IProtocol, trans ITransport) *RpcChannel {
+	rpcChan := &RpcChannel{connection: NewConnection(event, ep, proto, trans)}
+	return rpcChan
 }

@@ -7,7 +7,7 @@ import (
 )
 
 type CommonMsg struct {
-	Conn *Connection
+	Conn *connection
 	Msg  *bytes.Buffer
 }
 type NetEvent struct {

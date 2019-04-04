@@ -8,7 +8,7 @@ import (
 	"sync"
 )
 
-type Connection struct {
+type connection struct {
 	proto    IProtocol
 	trans    ITransport
 	conn     *net.TCPConn
@@ -17,14 +17,18 @@ type Connection struct {
 	exitSync sync.WaitGroup
 }
 
-func (this *Connection) GetProtocol() IProtocol {
+func NewConnection(event *NetEvent, ep endPoint, proto IProtocol, trans ITransport) *connection {
+	return nil
+}
+
+func (this *connection) GetProtocol() IProtocol {
 	return this.proto
 }
-func (this *Connection) GetTransport() ITransport {
+func (this *connection) GetTransport() ITransport {
 	return this.trans
 }
 
-func (this *Connection) start() error {
+func (this *connection) start() error {
 
 	(*(this.conn)).SetNoDelay(true)
 	(*(this.conn)).SetKeepAlive(true)
@@ -39,7 +43,7 @@ func (this *Connection) start() error {
 	return nil
 }
 
-func (this *Connection) sendMsgLoop() {
+func (this *connection) sendMsgLoop() {
 
 	for msg := range this.sendCh {
 		if msg == nil || this.conn == nil {
@@ -57,7 +61,7 @@ func (this *Connection) sendMsgLoop() {
 	this.exitSync.Done()
 }
 
-func (this *Connection) recvMsgLoop() {
+func (this *connection) recvMsgLoop() {
 	var err error
 	var msgLen int
 	msgHeader := make([]byte, 2) //前2字节存msgLen
@@ -81,7 +85,7 @@ func (this *Connection) recvMsgLoop() {
 	this.exitSync.Done()
 }
 
-func (this *Connection) shutDown() {
+func (this *connection) shutDown() {
 	// 关闭连接
 	if this.conn != nil {
 		this.conn.Close()
