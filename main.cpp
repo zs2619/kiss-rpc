@@ -44,13 +44,13 @@ void split(std::string& s, const std::string& delim,std::vector< std::string >& 
 	size_t index=s.find_first_of(delim,last);
 	while (index!=std::string::npos)
 	{
-	ret.push_back(s.substr(last,index-last));
-	last=index+1;
-	index=s.find_first_of(delim,last);
+		ret.push_back(s.substr(last,index-last));
+		last=index+1;
+		index=s.find_first_of(delim,last);
 	}
 	if (index-last>0)
 	{
-	ret.push_back(s.substr(last,index-last));
+		ret.push_back(s.substr(last,index-last));
 	}
 }
 int main(int argc,char** argv)
@@ -63,24 +63,25 @@ int main(int argc,char** argv)
 
 	for (i = 1; i < argc-1; i++) 
 	{
-      if (strcmp(argv[i], "-o") == 0) 
-	  {
-		option.outputDir_=argv[++i];
-		option.outputDir_+="/";
+		if (strcmp(argv[i], "-o") == 0) 
+		{
+			option.outputDir_=argv[++i];
+			option.outputDir_+="/";
 
-      } else if (strcmp(argv[i], "-i") == 0)
-	  {
-		option.inputDir_=argv[++i];
-		option.inputDir_+="/";
-	  }
-	  else if (strcmp(argv[i], "-gen") == 0)
-	  {
-		  genStr=argv[++i];
-	  }
-	  else if (strcmp(argv[i], "-json") ==0 )
-	  {
-		  option.json_=true;
-	  }
+		}
+		else if (strcmp(argv[i], "-i") == 0)
+		{
+			option.inputDir_=argv[++i];
+			option.inputDir_+="/";
+		}
+		else if (strcmp(argv[i], "-gen") == 0)
+		{
+			genStr=argv[++i];
+		}
+		else if (strcmp(argv[i], "-json") ==0 )
+		{
+			option.json_=true;
+		}
 	}
 	if (argv[i] == NULL) {
 		std::cerr<<"missing file name"<<std::endl;
@@ -119,7 +120,9 @@ int main(int argc,char** argv)
 			std::cerr<<"parser error ."<<std::endl;
 			return 0;
 		}
-	} catch (std::string x) {
+	}
+	catch (std::string x) 
+	{
 		std::cerr<<x<<std::endl;
 	}
 
@@ -135,11 +138,13 @@ int main(int argc,char** argv)
 		{
 			std::unique_ptr<Generator> as3(new As3Generator(Program::inst(),"as3"));
 			as3->generateProgram();
-		}else if(it=="cs")
+		}
+		else if(it=="cs")
 		{
 			std::unique_ptr<Generator> cs(new CSharpGenerator(Program::inst(),"cs"));
 			cs->generateProgram();
-		}else if(it=="go")
+		}
+		else if(it=="go")
 		{
 			std::unique_ptr<Generator> go(new GoGenerator(Program::inst(),"go"));
 			go->generateProgram();
