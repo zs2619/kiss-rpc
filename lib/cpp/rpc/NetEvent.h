@@ -16,14 +16,12 @@ namespace rpc {
 class NetEvent {
 
 public:
-
 	~NetEvent();
 
 	static NetEvent* getInstance();
 
-    typedef void (*event_callback_fn)(evutil_socket_t, short, void *);
-    struct event_base* getEventBase(){ return base_; }
-
+	typedef void (*event_callback_fn)(evutil_socket_t, short, void *);
+	struct event_base* getEventBase(){ return base_; }
 
 	event* scheduleTimer(event_callback_fn cb,void* arg, const timeval& delay, const timeval & interval);
 	void cancelTimer(event* ev);
@@ -32,7 +30,7 @@ public:
 	int endEventLoop();
 
 private:
-	static NetEvent*	event_;
+	static NetEvent*    event_;
 	struct event_base*  base_;
 
 private:

@@ -8,11 +8,11 @@ namespace rpc {
 
 class EventHandler{
 
- public:
+public:
     EventHandler(){}
     virtual ~EventHandler(){ }
 
-	virtual bool dispatch(std::shared_ptr<RpcMsg> m)=0;
+    virtual bool dispatch(std::shared_ptr<RpcMsg> m)=0;
     virtual int invoke(std::shared_ptr<RpcMsg> msg)=0;
 };
 

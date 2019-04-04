@@ -49,14 +49,14 @@ class DefType : public Definition
 {
 public:
 	virtual bool is_simple_type() const { return false; }
-	virtual bool is_enum()      const { return false; }
-	virtual bool is_struct()    const { return false; }
-	virtual bool is_array()     const { return false; }
-	virtual bool is_map()       const { return false; }
-	virtual bool is_service()   const { return false; }
-	virtual bool is_function()   const { return false; }
-	virtual bool is_group()      const { return false; }
-	virtual bool is_void()      const { return false; }
+	virtual bool is_enum()        const { return false; }
+	virtual bool is_struct()      const { return false; }
+	virtual bool is_array()       const { return false; }
+	virtual bool is_map()         const { return false; }
+	virtual bool is_service()     const { return false; }
+	virtual bool is_function()    const { return false; }
+	virtual bool is_group()       const { return false; }
+	virtual bool is_void()        const { return false; }
 
 	virtual std::string getFingerPrint()=0;
 
@@ -106,20 +106,17 @@ public:
 	{
 		switch (t_)
 		{
-		case	SimpleDefType::boolType : return " boolType ";
-
-		case	SimpleDefType::uint8Type : return " uint8Type ";
-		case	SimpleDefType::int8Type : return " int8Type ";
-		case	SimpleDefType::uint16Type : return " uint16Type ";
-		case	SimpleDefType::int16Type : return " int16Type ";
-
-		case	SimpleDefType::uint32Type : return " uint32Type ";
-		case	SimpleDefType::int32Type : return " int32Type ";
-
-		case	SimpleDefType::int64Type : return " int64Type ";
-		case	SimpleDefType::floatType : return " floatType ";
-		case	SimpleDefType::stringType : return " stringType ";
-		default          : assert(0&&"type error"); return "";
+		case SimpleDefType::boolType : return " boolType ";
+		case SimpleDefType::uint8Type : return " uint8Type ";
+		case SimpleDefType::int8Type : return " int8Type ";
+		case SimpleDefType::uint16Type : return " uint16Type ";
+		case SimpleDefType::int16Type : return " int16Type ";
+		case SimpleDefType::uint32Type : return " uint32Type ";
+		case SimpleDefType::int32Type : return " int32Type ";
+		case SimpleDefType::int64Type : return " int64Type ";
+		case SimpleDefType::floatType : return " floatType ";
+		case SimpleDefType::stringType : return " stringType ";
+		default    : assert(0&&"type error"); return "";
 		}
 	}
 	dataType t_;
@@ -136,8 +133,8 @@ class StructDefType:public DefType
 {
 public:
 	virtual bool is_struct()    const { return true; }
-	bool	addStructValue(FieldDefType* value);
-	bool	fineValueByName(const std::string& value);
+	bool addStructValue(FieldDefType* value);
+	bool fineValueByName(const std::string& value);
 
 	std::string getFingerPrint();
 	std::vector<FieldDefType*>		members_;
@@ -146,7 +143,7 @@ public:
 class MapDefType:public DefType
 {
 public:
-	virtual bool is_map()       const { return true; }
+	virtual bool is_map()  const { return true; }
 
 	SimpleDefType* keyDef_;
 	DefType*	   valueDef_;
@@ -156,7 +153,7 @@ public:
 class ArrayDefType:public DefType
 {
 public:
-	virtual bool is_array()      const { return true; }
+	virtual bool is_array()  const { return true; }
 	std::string getFingerPrint() 
 	{
 		return "array"+valueDef_->getFingerPrint();
@@ -179,7 +176,7 @@ public:
 class GroupDefType :public Definition
 {
 public:
-	virtual bool is_group()      const { return true; }
+	virtual bool is_group()  const { return true; }
 
 	std::vector<FuctionDefType*>	funs_;
 };

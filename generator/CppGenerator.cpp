@@ -254,18 +254,16 @@ std::string CppGenerator::DefaultValue( DefType* t )
 		SimpleDefType* s=(SimpleDefType*)t;
 		switch (s->t_)
 		{
-		case	SimpleDefType::boolType : return "false";
-		case	SimpleDefType::uint8Type : return "0";
-		case	SimpleDefType::int8Type : return "0";
-		case	SimpleDefType::uint16Type : return "0";
-		case	SimpleDefType::int16Type : return "0";
-
-		case	SimpleDefType::uint32Type : return "0";
-		case	SimpleDefType::int32Type : return "0";
-
-		case	SimpleDefType::int64Type : return "0";
-		case	SimpleDefType::floatType : return "0.0";
-		default          : assert(0&&"type error"); return "";
+		case SimpleDefType::boolType : return "false";
+		case SimpleDefType::uint8Type : return "0";
+		case SimpleDefType::int8Type : return "0";
+		case SimpleDefType::uint16Type : return "0";
+		case SimpleDefType::int16Type : return "0";
+		case SimpleDefType::uint32Type : return "0";
+		case SimpleDefType::int32Type : return "0";
+		case SimpleDefType::int64Type : return "0";
+		case SimpleDefType::floatType : return "0.0";
+		default : assert(0&&"type error"); return "";
 		}
 	}else if (t->is_enum())
 	{
@@ -812,7 +810,7 @@ void CppGenerator::genServiceStubSrc()
 		indent_down();
 		srcFile_ <<indent()<< "}" << std::endl;
 
-        i=0;
+		i=0;
 		it_inner=(*it)->funs_.begin();
 		while(it_inner!=(*it)->funs_.end())
 		{
@@ -922,15 +920,15 @@ void CppGenerator::genServiceProxySrc()
 			if (!t->result_->is_void())
 			{
 				srcFile_ << indent() << "if (std::get<0>(result)==0)"<<std::endl;
-                srcFile_ << indent() <<"{"<<std::endl;
-			    indent_up();
-			    srcFile_ << indent() << "std::unique_ptr<rpc::IProtocol> __P__(service_->getProtocol()->createProtoBuffer());" << std::endl;
+				srcFile_ << indent() <<"{"<<std::endl;
+				indent_up();
+				srcFile_ << indent() << "std::unique_ptr<rpc::IProtocol> __P__(service_->getProtocol()->createProtoBuffer());" << std::endl;
 				srcFile_ << indent() <<typeName(t->result_)<<" ret="<<"std::get<1>(result);"<<std::endl;
-                serializeField(t->result_, "ret","__P__.get()");
+				serializeField(t->result_, "ret","__P__.get()");
 				srcFile_ << indent() << "msg->responseMsg_.buff=__P__->getBuffer();"<<std::endl;
 				srcFile_ << indent() << "invoke(msg);"<<std::endl;
-			    indent_down();
-                srcFile_ << indent() <<"}"<<std::endl;
+				indent_down();
+				srcFile_ << indent() <<"}"<<std::endl;
 			}
 
 			indent_down();

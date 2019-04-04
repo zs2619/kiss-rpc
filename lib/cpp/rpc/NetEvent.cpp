@@ -17,7 +17,7 @@ rpc::NetEvent::~NetEvent() {
 	}
 }
 
- rpc::NetEvent * rpc::NetEvent::getInstance() {
+rpc::NetEvent * rpc::NetEvent::getInstance() {
 	if (event_ == nullptr) {
 		event_ = new NetEvent();
 	}
@@ -26,7 +26,7 @@ rpc::NetEvent::~NetEvent() {
 
 
 
- int rpc::NetEvent::eventLoop() {
+int rpc::NetEvent::eventLoop() {
 	return  event_base_dispatch(base_);
 }
 

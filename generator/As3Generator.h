@@ -17,9 +17,9 @@ public:
 	As3Generator(Program* pro,const std::string& name):Generator(pro,name){}
 
 	virtual void generateProgram();
-	void	generateEnum();
-	void    generateStruct();
-	void	generateService();
+	void generateEnum();
+	void generateStruct();
+	void generateService();
 
 	void genServiceStub();
 	void genServiceProxy();
@@ -34,7 +34,7 @@ public:
 	void serializeFields( StructDefType* t );
 	void deSerializeFields( StructDefType* t );
 private:
-	std::ofstream	as3File_;
+	std::ofstream as3File_;
 };
 
 #endif

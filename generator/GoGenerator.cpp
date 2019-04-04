@@ -606,19 +606,19 @@ std::string GoGenerator::typeName(DefType* t)
 		SimpleDefType* s=(SimpleDefType*)t;
 		switch (s->t_)
 		{
-		case	SimpleDefType::boolType : return "bool";
-		case	SimpleDefType::uint8Type : return "uint8";
-		case	SimpleDefType::int8Type : return "int8";
-		case	SimpleDefType::uint16Type : return "uint16";
-		case	SimpleDefType::int16Type : return "int16";
+		case SimpleDefType::boolType : return "bool";
+		case SimpleDefType::uint8Type : return "uint8";
+		case SimpleDefType::int8Type : return "int8";
+		case SimpleDefType::uint16Type : return "uint16";
+		case SimpleDefType::int16Type : return "int16";
 
-		case	SimpleDefType::uint32Type : return "uint32";
-		case	SimpleDefType::int32Type : return "int32";
+		case SimpleDefType::uint32Type : return "uint32";
+		case SimpleDefType::int32Type : return "int32";
 
-		case	SimpleDefType::int64Type : return "int64";
-		case	SimpleDefType::floatType : return "float32";
-		case	SimpleDefType::stringType : return "string";
-		default          : assert(0&&"type error"); return "";
+		case SimpleDefType::int64Type : return "int64";
+		case SimpleDefType::floatType : return "float32";
+		case SimpleDefType::stringType : return "string";
+		default : assert(0&&"type error"); return "";
 		}
 	}
 	else if(t->is_struct())

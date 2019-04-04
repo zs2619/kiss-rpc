@@ -12,16 +12,16 @@
 #include <chrono>
 #include "rpc/Packet.h"
 namespace rpc {
-    const uint16 MsgHeaderMaxSize=2;
-	class RpcMsg {
-	public:
-		RpcMsg() {}
-		~RpcMsg() {}
-        std::string serviceName_;
-        std::string functionName_;
-		std::chrono::system_clock::time_point time_;
-		RequestMsg 	 requestMsg_;
-		ResponseMsg  responseMsg_;
-	};
+const uint16 MsgHeaderMaxSize=2;
+class RpcMsg {
+public:
+	RpcMsg() {}
+	~RpcMsg() {}
+	std::string serviceName_;
+	std::string functionName_;
+	std::chrono::system_clock::time_point time_;
+	RequestMsg 	 requestMsg_;
+	ResponseMsg  responseMsg_;
+};
 }
 #endif

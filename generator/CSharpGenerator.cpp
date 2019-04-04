@@ -134,20 +134,17 @@ std::string CSharpGenerator::DefaultValue( DefType* t )
 		SimpleDefType* s=(SimpleDefType*)t;
 		switch (s->t_)
 		{
-		case	SimpleDefType::boolType : return "false";
-
-		case	SimpleDefType::uint8Type : return "0";
-		case	SimpleDefType::int8Type : return "0";
-		case	SimpleDefType::uint16Type : return "0";
-		case	SimpleDefType::int16Type : return "0";
-
-		case	SimpleDefType::uint32Type : return "0";
-		case	SimpleDefType::int32Type : return "0";
-
-		case	SimpleDefType::int64Type : return "0";
-		case	SimpleDefType::floatType : return "0.0f";
-		case	SimpleDefType::stringType : return "\"\"";
-		default          : assert(0&&"type error"); return "";
+		case SimpleDefType::boolType : return "false";
+		case SimpleDefType::uint8Type : return "0";
+		case SimpleDefType::int8Type : return "0";
+		case SimpleDefType::uint16Type : return "0";
+		case SimpleDefType::int16Type : return "0";
+		case SimpleDefType::uint32Type : return "0";
+		case SimpleDefType::int32Type : return "0";
+		case SimpleDefType::int64Type : return "0";
+		case SimpleDefType::floatType : return "0.0f";
+		case SimpleDefType::stringType : return "\"\"";
+		default: assert(0&&"type error"); return "";
 		}
 	}
 	else if(t->is_struct())
@@ -183,20 +180,20 @@ std::string CSharpGenerator::typeName( DefType* t )
 		SimpleDefType* s=(SimpleDefType*)t;
 		switch (s->t_)
 		{
-		case	SimpleDefType::boolType : return "bool";
+		case SimpleDefType::boolType : return "bool";
 
-		case	SimpleDefType::uint8Type : return "byte";
-		case	SimpleDefType::int8Type : return "sbyte";
-		case	SimpleDefType::uint16Type : return "ushort";
-		case	SimpleDefType::int16Type : return "short";
+		case SimpleDefType::uint8Type : return "byte";
+		case SimpleDefType::int8Type : return "sbyte";
+		case SimpleDefType::uint16Type : return "ushort";
+		case SimpleDefType::int16Type : return "short";
 
-		case	SimpleDefType::uint32Type : return "uint";
-		case	SimpleDefType::int32Type : return "int";
+		case SimpleDefType::uint32Type : return "uint";
+		case SimpleDefType::int32Type : return "int";
 
-		case	SimpleDefType::int64Type : return "long";
-		case	SimpleDefType::floatType : return "float";
-		case	SimpleDefType::stringType : return "string";
-		default          : assert(0&&"type error"); return "";
+		case SimpleDefType::int64Type : return "long";
+		case SimpleDefType::floatType : return "float";
+		case SimpleDefType::stringType : return "string";
+		default: assert(0&&"type error"); return "";
 		}
 	}
 	else if(t->is_struct())

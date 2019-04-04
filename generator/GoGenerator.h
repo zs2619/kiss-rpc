@@ -10,7 +10,7 @@
 #define	__GOGENERATOR_H__
 #include "Generator.h"
 
-/** Éú³Égo ºó¶Ë*/
+/** ï¿½ï¿½ï¿½ï¿½go ï¿½ï¿½ï¿½*/
 class GoGenerator: public Generator
 {
 public:
@@ -19,9 +19,9 @@ public:
 	virtual void generateProgram();
 
 private:
-	void	generateEnum();
-	void    generateStruct();
-	void	generateService();
+	void generateEnum();
+	void generateStruct();
+	void generateService();
 
 private:
 	std::string typeName(DefType* t);

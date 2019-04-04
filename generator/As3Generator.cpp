@@ -63,23 +63,20 @@ std::string As3Generator::DefaultValue( DefType* t )
 		SimpleDefType* s=(SimpleDefType*)t;
 		switch (s->t_)
 		{
-		case	SimpleDefType::boolType : return "false";
-
-		case	SimpleDefType::uint8Type : return "0";
-		case	SimpleDefType::int8Type : return "0";
-		case	SimpleDefType::uint16Type : return "0";
-		case	SimpleDefType::int16Type : return "0";
-
-		case	SimpleDefType::uint32Type : return "0";
-		case	SimpleDefType::int32Type : return "0";
-
-		case	SimpleDefType::int64Type : return "new BigInt";
-		case	SimpleDefType::floatType : return "0";
-		case	SimpleDefType::stringType : return "new String";
-		default          : assert(0&&"type error"); return "";
+		case SimpleDefType::boolType : return "false";
+		case SimpleDefType::uint8Type : return "0";
+		case SimpleDefType::int8Type : return "0";
+		case SimpleDefType::uint16Type : return "0";
+		case SimpleDefType::int16Type : return "0";
+		case SimpleDefType::uint32Type : return "0";
+		case SimpleDefType::int32Type : return "0";
+		case SimpleDefType::int64Type : return "new BigInt";
+		case SimpleDefType::floatType : return "0";
+		case SimpleDefType::stringType : return "new String";
+		default : assert(0&&"type error"); return "";
 		}
 	}
-	else if(t->is_struct())
+else if(t->is_struct())
 	{
 		std::string temp =" new ";
 		temp+=t->name_;
@@ -111,20 +108,17 @@ std::string As3Generator::typeName( DefType* t )
 		SimpleDefType* s=(SimpleDefType*)t;
 		switch (s->t_)
 		{
-		case	SimpleDefType::boolType : return "Boolean";
-
-		case	SimpleDefType::uint8Type : return "uint";
-		case	SimpleDefType::int8Type : return "int";
-		case	SimpleDefType::uint16Type : return "uint";
-		case	SimpleDefType::int16Type : return "int";
-
-		case	SimpleDefType::uint32Type : return "uint";
-		case	SimpleDefType::int32Type : return "int";
-
-		case	SimpleDefType::int64Type : return "BigInt";
-		case	SimpleDefType::floatType : return "Number";
-		case	SimpleDefType::stringType : return "String";
-		default          : assert(0&&"type error"); return "";
+		case SimpleDefType::boolType : return "Boolean";
+		case SimpleDefType::uint8Type : return "uint";
+		case SimpleDefType::int8Type : return "int";
+		case SimpleDefType::uint16Type : return "uint";
+		case SimpleDefType::int16Type : return "int";
+		case SimpleDefType::uint32Type : return "uint";
+		case SimpleDefType::int32Type : return "int";
+		case SimpleDefType::int64Type : return "BigInt";
+		case SimpleDefType::floatType : return "Number";
+		case SimpleDefType::stringType : return "String";
+		default: assert(0&&"type error"); return "";
 		}
 	}
 	else if(t->is_struct())
