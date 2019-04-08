@@ -2,6 +2,7 @@ package rpc
 
 type ServiceProxy struct {
 	*connection
+	RpcMsgDispatchCB func(msg *RpcMsg) bool
 }
 
 func (this *ServiceProxy) Invoke(m *RpcMsg) int {

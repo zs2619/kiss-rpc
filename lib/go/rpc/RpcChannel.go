@@ -1,8 +1,14 @@
 package rpc
 
+import (
+	"bytes"
+	"net"
+)
+
 type RpcChannel struct {
 	*connection
-	proxyMap map[string]*ServiceStub
+	transFactory ITransportFactory
+	stubMap      map[string]*ServiceStub
 }
 
 func (this *RpcChannel) Open() {
@@ -12,7 +18,26 @@ func (this *RpcChannel) Close() {
 
 }
 
-func NewRpcChannel(event *NetEvent, ep endPoint, proto IProtocol, trans ITransport) *RpcChannel {
-	rpcChan := &RpcChannel{connection: NewConnection(event, ep, proto, trans)}
+func NewRpcChannel(event *NetEvent, ep endPoint, proto IProtocol, transFactory ITransportFactory) *RpcChannel {
+	tcpConn, err := net.DialTCP("tcp", nil, ep.GetTcpAddr())
+	if err != nil {
+		return nil
+	}
+
+	conn := NewConnection(event, ep, tcpConn, proto, transFactory.NewTransport())
+	rpcChan := &RpcChannel{connection: conn, transFactory: transFactory, stubMap: make(map[string]*ServiceStub)}
+	rpcChan.connection.cb = rpcChan.handleInput
 	return rpcChan
+}
+
+func (this *RpcChannel) handleInput(buff *bytes.Buffer) error {
+	responseMsg, err := this.GetTransport().recvResponseMsg(buff)
+	if err != nil {
+	}
+
+	stub, ok := this.stubMap[responseMsg.serviceName]
+	if ok {
+		stub.stubMsgCallBack(responseMsg)
+	}
+	return nil
 }

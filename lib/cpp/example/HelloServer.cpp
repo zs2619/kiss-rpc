@@ -32,14 +32,14 @@ class  HelloMsgProxy :public shuai::opServiceProxyIF
 };
 int main(int argc,char ** argv)
 {
-    rpc::EndPoint ep(std::string(":2619"));
+	rpc::EndPoint ep(std::string(":2619"));
 	using rpcServiceType = rpc::RpcService<rpc::TcpTransport, rpc::BinaryProtocol, HelloMsgProxy>;
-    rpc::RpcServer<rpcServiceType> server(rpc::NetEvent::getInstance(),ep);
+	rpc::RpcServer<rpcServiceType> server(rpc::NetEvent::getInstance(),ep);
 	if (-1 == server.open()) {
 		std::cerr << "service.open " << std::endl;
 	}
 
-    int ret=rpc::NetEvent::getInstance()->eventLoop();
-    server.close();
-    return 0;
+	int ret=rpc::NetEvent::getInstance()->eventLoop();
+	server.close();
+	return 0;
 }
