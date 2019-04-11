@@ -14,6 +14,14 @@ KissRPC 是个简单、可扩展 、跨语言的异步RPC框架。可以应用�
 ```
 flex and bison
 ```
+## 目录结构
+目录名称 |功能
+------------------|----------------
+[tools](https://github.com/zs2619/kiss-rpc/tree/master/tools/GnuWin32) |flex bison Windows库
+[examples](https://github.com/zs2619/kiss-rpc/tree/master/example)     |rpc 编译器测试
+[parser](https://github.com/zs2619/kiss-rpc/tree/master/parser)        |rpc编译器代码
+[generator](https://github.com/zs2619/kiss-rpc/tree/master/parser)     |rpc编译器后端生成各种语言的代码实现
+[lib](https://github.com/zs2619/kiss-rpc/tree/master/lib)       |rpc各种语言的框架代码实现和列子
 
 ## 构建
 ### Linux 
@@ -23,6 +31,7 @@ make
 ```
 
 ## 使用
+* rpc编译IDL文件，生成前后端代码
 ```
 Usage: rpc [options] file
 Options:
@@ -31,3 +40,4 @@ Options:
   -gen lang   cpp as3 cs go Generate code
   -json       serialize json
 ```
+* 参考lib下对应语言列子
