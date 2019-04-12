@@ -3,19 +3,23 @@ package rpc
 import (
 	"bytes"
 	"net"
+	"reflect"
 )
 
 type IRpcServiecFactroy interface {
 	NewRpcService(event *NetEvent, ep endPoint, tcpConn *net.TCPConn) *RpcService
 }
 type RpcServiecFactroy struct {
-	transFactory ITransportFactory
-	protoFactory IProtocolFactory
+	TransFactory     ITransportFactory
+	ProtoFactory     IProtocolFactory
+	ServiceProxyType []reflect.Type
 }
 
-func (this *RpcServiecFactroy) NewRpcService(event *NetEvent, ep endPoint, tcpConn *net.TCPConn) *RpcService {
-	conn := NewConnection(event, ep, tcpConn, this.protoFactory.NewProtocol(), this.transFactory.NewTransport())
-	return &RpcService{connection: conn, proxyMap: make(map[string]*ServiceProxy)}
+func (this RpcServiecFactroy) NewRpcService(event *NetEvent, ep endPoint, tcpConn *net.TCPConn) *RpcService {
+	conn := NewConnection(event, ep, tcpConn, this.ProtoFactory.NewProtocol(), this.TransFactory.NewTransport())
+	proxyMap := make(map[string]*ServiceProxy)
+
+	return &RpcService{connection: conn, proxyMap: proxyMap}
 }
 
 type RpcService struct {
@@ -30,7 +34,11 @@ func (this *RpcService) handleInput(buff *bytes.Buffer) error {
 	}
 
 	proxy, ok := this.proxyMap[requestMsg.serviceName]
-	if ok {
+	if !ok {
+		return nil
 	}
+	rpcMsg := &RpcMsg{}
+	proxy.RpcMsgDispatchCB(rpcMsg)
+
 	return nil
 }

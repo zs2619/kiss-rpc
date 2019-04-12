@@ -41,7 +41,7 @@ type IProtocolFactory interface {
 type BinaryProtocolFactory struct {
 }
 
-func (this *BinaryProtocolFactory) NewProtocol() IProtocol {
+func (this BinaryProtocolFactory) NewProtocol() IProtocol {
 	return &BinaryProtocol{}
 }
 

@@ -8,7 +8,7 @@ type RpcServer struct {
 	ep                endPoint
 	netEvent          *NetEvent
 	listener          *net.TCPListener
-	RpcServiecFactroy IRpcServiecFactroy
+	rpcServiecFactroy IRpcServiecFactroy
 	tcpAddr           *net.TCPAddr
 }
 
@@ -39,14 +39,15 @@ func (this *RpcServer) accept() {
 		if err != nil {
 			return
 		}
-		this.RpcServiecFactroy.NewRpcService(this.netEvent, this.ep, tcpConn)
+		this.rpcServiecFactroy.NewRpcService(this.netEvent, this.ep, tcpConn)
 	}
 }
 
-func NewRpcServer(ep endPoint, event *NetEvent) *RpcServer {
+func NewRpcServer(event *NetEvent, ep endPoint, factroy RpcServiecFactroy) *RpcServer {
 
 	return &RpcServer{
-		ep:       ep,
-		netEvent: event,
+		rpcServiecFactroy: factroy,
+		ep:                ep,
+		netEvent:          event,
 	}
 }

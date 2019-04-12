@@ -20,7 +20,7 @@ type ITransportFactory interface {
 type TcpTransportFactory struct {
 }
 
-func (this *TcpTransportFactory) NewTransport() ITransport {
+func (this TcpTransportFactory) NewTransport() ITransport {
 	return &TcpTransport{}
 }
 
@@ -30,7 +30,7 @@ type TcpTransport struct {
 
 func (this *TcpTransport) sendRequestMsg(reqMsg *RequestMsg) error {
 	var proto BinaryProtocol
-	reqMsg.serialize(&proto)
+	//reqMsg.serialize(&proto)
 
 	this.SendBuffer(proto.GetBuffer())
 	return nil
@@ -40,7 +40,7 @@ func (this *TcpTransport) recvResponseMsg(buff *bytes.Buffer) (*ResponseMsg, err
 	var proto BinaryProtocol
 	proto.SetBuffer(buff)
 	var msg ResponseMsg
-	msg.deSerialize(&proto)
+	//msg.deSerialize(&proto)
 	return &msg, nil
 
 }
@@ -48,7 +48,7 @@ func (this *TcpTransport) recvResponseMsg(buff *bytes.Buffer) (*ResponseMsg, err
 func (this *TcpTransport) sendResponseMsg(respMsg *ResponseMsg) error {
 
 	var proto BinaryProtocol
-	respMsg.serialize(&proto)
+	//respMsg.serialize(&proto)
 
 	this.SendBuffer(proto.GetBuffer())
 
@@ -59,7 +59,7 @@ func (this *TcpTransport) recvRequestMsg(buff *bytes.Buffer) (*RequestMsg, error
 	var proto BinaryProtocol
 	proto.SetBuffer(buff)
 	var msg RequestMsg
-	msg.deSerialize(&proto)
+	//msg.deSerialize(&proto)
 	return &msg, nil
 }
 func (this *TcpTransport) start(conn *connection) error {
