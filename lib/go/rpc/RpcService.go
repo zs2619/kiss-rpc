@@ -17,14 +17,25 @@ type RpcServiecFactroy struct {
 
 func (this RpcServiecFactroy) NewRpcService(event *NetEvent, ep endPoint, tcpConn *net.TCPConn) *RpcService {
 	conn := NewConnection(event, ep, tcpConn, this.ProtoFactory.NewProtocol(), this.TransFactory.NewTransport())
-	proxyMap := make(map[string]*ServiceProxy)
+	proxyMap := make(map[string]IServiceProxy)
 
-	return &RpcService{connection: conn, proxyMap: proxyMap}
+	service := &RpcService{connection: conn}
+
+	for _, t := range this.ServiceProxyType {
+		spValue := reflect.New(t)
+		vv := spValue.Elem().Interface().(IServiceProxyFactory)
+		proxy := vv.NewServiceProxy(service)
+		proxyMap[proxy.GetObjName()] = proxy
+	}
+	service.proxyMap = proxyMap
+	conn.cb = service.handleInput
+	return service
+
 }
 
 type RpcService struct {
 	*connection
-	proxyMap map[string]*ServiceProxy
+	proxyMap map[string]IServiceProxy
 }
 
 func (this *RpcService) handleInput(buff *bytes.Buffer) error {
@@ -38,7 +49,7 @@ func (this *RpcService) handleInput(buff *bytes.Buffer) error {
 		return nil
 	}
 	rpcMsg := &RpcMsg{}
-	proxy.RpcMsgDispatchCB(rpcMsg)
+	proxy.Dispatch(rpcMsg)
 
 	return nil
 }

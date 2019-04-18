@@ -21,7 +21,7 @@ flex and bison
 [examples](https://github.com/zs2619/kiss-rpc/tree/master/example)     |rpc 编译器测试
 [parser](https://github.com/zs2619/kiss-rpc/tree/master/parser)        |rpc编译器代码
 [generator](https://github.com/zs2619/kiss-rpc/tree/master/parser)     |rpc编译器后端生成各种语言的代码实现
-[lib](https://github.com/zs2619/kiss-rpc/tree/master/lib)       |rpc各种语言的框架代码实现和列子
+[lib](https://github.com/zs2619/kiss-rpc/tree/master/lib)       |rpc各种语言的框架代码实现和例子
 
 ## 构建
 ### Linux 
@@ -40,4 +40,4 @@ Options:
   -gen lang   cpp as3 cs go Generate code
   -json       serialize json
 ```
-* 参考lib下对应语言列子
+* 参考lib下对应语言例子,然后自己看着办。

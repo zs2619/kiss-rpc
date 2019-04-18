@@ -11,13 +11,6 @@ type RpcChannel struct {
 	stubMap      map[string]*ServiceStub
 }
 
-func (this *RpcChannel) Open() {
-
-}
-func (this *RpcChannel) Close() {
-
-}
-
 func NewRpcChannel(event *NetEvent, ep endPoint, proto IProtocol, transFactory ITransportFactory) *RpcChannel {
 	tcpConn, err := net.DialTCP("tcp", nil, ep.GetTcpAddr())
 	if err != nil {

@@ -11,7 +11,7 @@ func (this *endPoint) GetPort() (string, error) {
 	return "", nil
 }
 func (this *endPoint) GetHostName() string {
-	return ""
+	return this.hostName
 }
 func (this *endPoint) GetTcpAddr() *net.TCPAddr {
 	return this.tcpAddr

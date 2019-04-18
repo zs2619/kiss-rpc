@@ -1,8 +1,15 @@
 package rpc
 
+type IServiceProxyFactory interface {
+	NewServiceProxy(rpcService *RpcService) IServiceProxy
+}
+type IServiceProxy interface {
+	Dispatch(msg *RpcMsg) bool
+	GetObjName() string
+}
+
 type ServiceProxy struct {
 	*connection
-	RpcMsgDispatchCB func(msg *RpcMsg) bool
 }
 
 func (this *ServiceProxy) Invoke(m *RpcMsg) int {
@@ -10,7 +17,7 @@ func (this *ServiceProxy) Invoke(m *RpcMsg) int {
 	return 0
 }
 
-func NewServiceProxy(conn *connection) *ServiceProxy {
-	proxy := &ServiceProxy{connection: conn}
+func NewServiceProxy(rpcService *RpcService) *ServiceProxy {
+	proxy := &ServiceProxy{connection: rpcService.connection}
 	return proxy
 }

@@ -18,7 +18,8 @@ type connection struct {
 }
 
 func NewConnection(event *NetEvent, ep endPoint, tcpConn *net.TCPConn, proto IProtocol, trans ITransport) *connection {
-	conn := &connection{event: event, proto: proto, trans: trans, conn: tcpConn, sendCh: make(chan *bytes.Buffer, 1024), IsValid: true}
+	conn := &connection{event: event, proto: proto, trans: trans, conn: tcpConn,
+		sendCh: make(chan *bytes.Buffer, 1024), IsValid: true}
 	trans.start(conn)
 	return conn
 }

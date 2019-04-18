@@ -1,8 +1,8 @@
 package main
 
 import (
-	"zs/rpc"
-	"zs/shuai"
+	"kiss/rpc"
+	"kiss/shuai"
 )
 
 func main() {

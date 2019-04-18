@@ -1,10 +1,12 @@
 package shuai
 
-import "zs/rpc"
+import "kiss/rpc"
 
 type OpServiceStub struct {
 	*rpc.ServiceStub
-	testCallBack TestOpServiceStubCallBackType
+	testCallBack   TestOpServiceStubCallBackType
+	strFingerprint string
+	getObjName     string
 }
 type TestOpServiceStubCallBackType func(int32) int32
 
@@ -35,12 +37,39 @@ func (this *OpServiceStub) Test(i int32, cb TestOpServiceStubCallBackType) bool 
 }
 
 func NewOpServiceStub(rpcChan *rpc.RpcChannel) *OpServiceStub {
-	stub := &OpServiceStub{ServiceStub: rpc.NewServiceStub(rpcChan)}
+	stub := &OpServiceStub{strFingerprint: "shuai", getObjName: "OpService", ServiceStub: rpc.NewServiceStub(rpcChan)}
 	stub.ServiceStub.RpcMsgDispatchCB = stub.Dispatch
 	return stub
 }
+func (this *OpServiceStub) GetObjName() string {
+	return this.getObjName
+}
+func (this *OpServiceStub) GetStrFingerprint() string {
+	return this.strFingerprint
+}
 
-type opServiceProxyIF interface {
+type OpServiceProxyIF interface {
 	Test(i int32) int32
-	Dispatch(msg *rpc.RpcMsg) bool
+}
+
+type OpServiceProxy struct {
+	strFingerprint string
+	getObjName     string
+	*rpc.RpcService
+}
+
+func NewOpServiceProxy(rpcService *rpc.RpcService) *OpServiceProxy {
+	return &OpServiceProxy{strFingerprint: "shuai", getObjName: "OpService", RpcService: rpcService}
+}
+
+func (this *OpServiceProxy) Dispatch(msg *rpc.RpcMsg) bool {
+
+	return true
+}
+
+func (this *OpServiceProxy) GetObjName() string {
+	return this.getObjName
+}
+func (this *OpServiceProxy) GetStrFingerprint() string {
+	return this.strFingerprint
 }
