@@ -44,7 +44,7 @@ func (this *RpcService) handleInput(buff *bytes.Buffer) error {
 		return nil
 	}
 
-	proxy, ok := this.proxyMap[requestMsg.serviceName]
+	proxy, ok := this.proxyMap[requestMsg.Header.ServiceName]
 	if !ok {
 		return nil
 	}

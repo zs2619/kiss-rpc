@@ -4,7 +4,7 @@ type ServiceStub struct {
 	*RpcChannel
 	maxMsgSeqId      int64
 	msgQueue         map[int64]*RpcMsg
-	RpcMsgDispatchCB func(msg *RpcMsg) bool
+	RpcMsgDispatchCB func(msg *RpcMsg) error
 }
 
 func (this *ServiceStub) Invoke(msg *RpcMsg) int {

@@ -44,12 +44,6 @@ private:
 	void genServiceProxyHeader();
 	void genServiceProxySrc();
 
-	enum ParamType 
-	{
-		PT_Type,
-		PT_Value,
-		PT_TypeValue,
-	};
 	void genFunAgrList(std::ofstream& stream,StructDefType* agrList,ParamType paramType=PT_TypeValue);
 	void genFunStubDeclare(ServiceDefType* service);
 	void genFunProxyDeclare(ServiceDefType* service);

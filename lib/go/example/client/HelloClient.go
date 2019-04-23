@@ -12,8 +12,8 @@ func main() {
 		return
 	}
 	opServiceStub := shuai.NewOpServiceStub(rpcChan)
-	opServiceStub.Test(1, func(i int32) int32 {
-		return 0
+	opServiceStub.Test(1, func(i int8) error {
+		return nil
 	})
 	event.EventLoop()
 }

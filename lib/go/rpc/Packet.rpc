@@ -1,0 +1,33 @@
+
+/** 
+	rpc 内部使用消息格式 
+	buff 为proto协议层使用内容
+*/
+namespace rpc {
+
+enum MsgProtocolType
+{
+	MPT_Bin,
+	MPT_Json,
+};
+
+struct RpcHeader {
+	uint8            version;
+	MsgProtocolType  msgType;
+	string           serviceName;
+};
+
+struct RequestMsg {
+	RpcHeader   header;
+	int64       msgSeqId;
+	uint16      msgId;
+	array<int8> buff;
+};
+
+struct ResponseMsg {
+	RpcHeader    header;
+	int64        msgSeqId;
+	uint16       msgId;
+	array<int8>  buff;
+};
+}

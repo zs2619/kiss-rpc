@@ -10,7 +10,7 @@
 #define	__GOGENERATOR_H__
 #include "Generator.h"
 
-/** ����go ���*/
+/** go backend*/
 class GoGenerator: public Generator
 {
 public:
@@ -26,12 +26,12 @@ private:
 private:
 	std::string typeName(DefType* t);
 	void serializeField( DefType* t ,const std::string& fieldName ,const std::string& inner);
-	void deSerializeField( DefType* t ,const std::string& fieldName );
-	void deSerializeFields( StructDefType* t );
+	void deSerializeField( DefType* t ,const std::string& fieldName ,const std::string& inner);
+	void serializeFields( StructDefType* t ,std::string s);
+	void deSerializeFields( StructDefType* t ,std::string s);
 	void genServiceStub();
 	void genServiceProxy();
-	void genFunAgrList(std::ofstream& stream,StructDefType* agrList,bool onlyValue=false);
-	void serializeFields( StructDefType* t );
+	void genFunAgrList(std::ofstream& stream,StructDefType* agrList,ParamType paramType=PT_TypeValue);
 
 private:
 

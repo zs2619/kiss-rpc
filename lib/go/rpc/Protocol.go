@@ -42,7 +42,7 @@ type BinaryProtocolFactory struct {
 }
 
 func (this BinaryProtocolFactory) NewProtocol() IProtocol {
-	return &BinaryProtocol{}
+	return &BinaryProtocol{buff: new(bytes.Buffer)}
 }
 
 type BinaryProtocol struct {
@@ -57,7 +57,7 @@ func (this *BinaryProtocol) SetBuffer(buff *bytes.Buffer) {
 }
 
 func (this *BinaryProtocol) CreateProtoBuffer() IProtocol {
-	return nil
+	return &BinaryProtocol{buff: new(bytes.Buffer)}
 }
 
 /**  Writing functions. */

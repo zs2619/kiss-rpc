@@ -30,7 +30,7 @@ type TcpTransport struct {
 
 func (this *TcpTransport) sendRequestMsg(reqMsg *RequestMsg) error {
 	var proto BinaryProtocol
-	//reqMsg.serialize(&proto)
+	reqMsg.Serialize(&proto)
 
 	this.SendBuffer(proto.GetBuffer())
 	return nil

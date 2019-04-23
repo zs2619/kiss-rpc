@@ -6,20 +6,32 @@ import (
 	"reflect"
 )
 
-type shuaiOpServiceProxyFactory struct {
-}
-
-func (this *shuaiOpServiceProxyFactory) NewServiceProxy(rpcService *rpc.RpcService) rpc.IServiceProxy {
-	return &shuaiOpServiceProxy{OpServiceProxy: shuai.NewOpServiceProxy(rpcService)}
+func NewShuaiOpServiceProxyFactory(rpcService *rpc.RpcService) rpc.IServiceProxy {
+	return shuai.NewOpServiceProxy(rpcService, shuaiOpServiceProxy{})
 }
 
 type shuaiOpServiceProxy struct {
-	*shuai.OpServiceProxy
 }
 
-func (this *shuaiOpServiceProxy) Test(i int32) int32 {
+func (this *shuaiOpServiceProxy) Momo(i8 int8, i64 int64) error {
 
-	return 1
+	return nil
+}
+func (this *shuaiOpServiceProxy) Test(i8 int8) (int8, error) {
+
+	return 0, nil
+}
+func (this *shuaiOpServiceProxy) Xixi(u shuai.User) (int8, error) {
+
+	return 0, nil
+}
+func (this *shuaiOpServiceProxy) Lala(m map[int32]shuai.Role, ai []int32, ar []shuai.Role) ([]shuai.Role, error) {
+
+	return nil, nil
+}
+func (this *shuaiOpServiceProxy) Ping() (int8, error) {
+
+	return 0, nil
 }
 
 func main() {

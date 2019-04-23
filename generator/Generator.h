@@ -22,6 +22,12 @@ public:
 	Generator(Program* pro,const std::string& name):program_(pro),name_(name),indent_(0){}
 	const Program* getProgram() const { return program_; }
 
+	enum ParamType 
+	{
+		PT_Type,
+		PT_Value,
+		PT_TypeValue,
+	};
 	virtual void generateProgram()=0;
 	void indent_up(){
 		++indent_;

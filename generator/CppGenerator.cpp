@@ -60,22 +60,19 @@ void CppGenerator::generateEnumHeader()
 	Context*  generateContext = program_->getGenerateContext();
 	if (generateContext->ns_.enums_.defs_.empty())
 		return;
-	std::vector<EnumDefType*>::iterator it=generateContext->ns_.enums_.defs_.begin();
-	std::vector<EnumDefType*>::iterator it_end=generateContext->ns_.enums_.defs_.end();
-	while(it!=it_end)
+
+	for(auto& it :generateContext->ns_.enums_.defs_)
 	{
-		headerFile_<<"enum "<<(*it)->name_<<std::endl;
+		headerFile_<<"enum "<<it->name_<<std::endl;
 		headerFile_<<"{ "<<std::endl;
-		std::vector<std::string>::iterator it_inner=(*it)->defs_.begin();
 		indent_up();
-		while(it_inner!=(*it)->defs_.end())
+		for (auto& it_inner :it->defs_)
 		{
-			headerFile_<<indent()<<*it_inner<<","<<std::endl;
-			++it_inner;
+			headerFile_<<indent()<<it_inner<<","<<std::endl;
 		}
 		indent_down();
 		headerFile_<<"}; "<<std::endl;
-		headerFile_<<"extern rpc::EnumMap RpcEnum("<<(*it)->name_<<");"<<std::endl;
+		headerFile_<<"extern rpc::EnumMap RpcEnum("<<it->name_<<");"<<std::endl;
 		headerFile_<<std::endl;
 		++it;
 	}
@@ -86,22 +83,19 @@ void CppGenerator::generateEnumSrc()
 	Context*  generateContext = program_->getGenerateContext();
 	if (generateContext->ns_.enums_.defs_.empty())
 		return;
-	std::vector<EnumDefType*>::iterator it=generateContext->ns_.enums_.defs_.begin();
-	std::vector<EnumDefType*>::iterator it_end=generateContext->ns_.enums_.defs_.end();
-	while(it!=it_end)
+
+	for(auto& it :generateContext->ns_.enums_.defs_)
 	{
-		srcFile_<<"void "<<(*it)->name_<<"Init(rpc::EnumMap* e)"<<std::endl;
+		srcFile_<<"void "<<it->name_<<"Init(rpc::EnumMap* e)"<<std::endl;
 		srcFile_<<"{ "<<std::endl;
-		std::vector<std::string>::iterator it_inner=(*it)->defs_.begin();
 		indent_up();
-		while(it_inner!=(*it)->defs_.end())
+		for (auto& it_inner :it->defs_)
 		{
-			srcFile_<<indent()<<"e->addEnumValue(\""<<*it_inner<<"\")"<<";"<<std::endl;
-			++it_inner;
+			srcFile_<<indent()<<"e->addEnumValue(\""<<it_inner<<"\")"<<";"<<std::endl;
 		}
 		indent_down();
 		srcFile_<<"} "<<std::endl;
-		srcFile_<<"rpc::EnumMap"<<" RpcEnum("<<(*it)->name_<<")("<<(*it)->name_<<"Init);"<<std::endl;
+		srcFile_<<"rpc::EnumMap"<<" RpcEnum("<<it->name_<<")("<<it->name_<<"Init);"<<std::endl;
 		srcFile_<<std::endl;
 		++it;
 	}
@@ -110,28 +104,24 @@ void CppGenerator::generateEnumSrc()
 void CppGenerator::generateStructHeader()
 {
 	Context*  generateContext = program_->getGenerateContext();
-
 	if (generateContext->ns_.structs_.defs_.empty())
 		return;
-	std::vector<StructDefType*>::iterator it=generateContext->ns_.structs_.defs_.begin();
-	std::vector<StructDefType*>::iterator it_end=generateContext->ns_.structs_.defs_.end();
-	while(it!=it_end)
+
+	for(auto& it :generateContext->ns_.structs_.defs_)
 	{
-		headerFile_<<"class "<<(*it)->name_<<std::endl;
+		headerFile_<<"class "<<it->name_<<std::endl;
 		headerFile_<<"{ "<<std::endl;
 		headerFile_<<"public: "<<std::endl;
 		indent_up();
-		headerFile_<<indent()<<(*it)->name_<<"();"<<std::endl;
-		headerFile_<<indent()<<"virtual ~"<<(*it)->name_<<"();"<<std::endl;
+		headerFile_<<indent()<<it->name_<<"();"<<std::endl;
+		headerFile_<<indent()<<"virtual ~"<<it->name_<<"();"<<std::endl;
 		//fingerprint
 		headerFile_<<indent()<<"static const char* strFingerprint;"<<std::endl;
 
-		std::vector<FieldDefType*>::iterator it_inner=(*it)->members_.begin();
-		while(it_inner!=(*it)->members_.end())
+		for(auto& it_inner :it->members_)
 		{
-			FieldDefType*& t=*it_inner;
+			FieldDefType*& t=it_inner;
 			defineField(t);
-			++it_inner;
 		}
 		headerFile_<<std::endl;
 		headerFile_<<indent()<<"//serialize"<<std::endl;
@@ -153,7 +143,6 @@ void CppGenerator::generateStructHeader()
 		headerFile_<<std::endl;
 		++it;
 	}
-
 }
 
 void CppGenerator::generateStructSrc()
@@ -162,20 +151,16 @@ void CppGenerator::generateStructSrc()
 	if (generateContext->ns_.structs_.defs_.empty())
 		return;
 
-	std::vector<StructDefType*>::iterator it=generateContext->ns_.structs_.defs_.begin();
-	std::vector<StructDefType*>::iterator it_end=generateContext->ns_.structs_.defs_.end();
-	while(it!=it_end)
+	for(auto& it :generateContext->ns_.structs_.defs_)
 	{
 		//fingerprint
-		srcFile_<<indent()<<"const char* "<<generateContext->ns_.name_<<"::"<<(*it)->name_<<"::"<<"strFingerprint=\""<<md5((*it)->getFingerPrint())<<"\";"<<std::endl;
+		srcFile_<<indent()<<"const char* "<<generateContext->ns_.name_<<"::"<<it->name_<<"::"<<"strFingerprint=\""<<md5(it->getFingerPrint())<<"\";"<<std::endl;
 
-		srcFile_<<indent()<<generateContext->ns_.name_<<"::"<<(*it)->name_<<"::"<<(*it)->name_<<"()"<<std::endl;
-		std::vector<FieldDefType*>::iterator it_inner;
-		it_inner=(*it)->members_.begin();
+		srcFile_<<indent()<<generateContext->ns_.name_<<"::"<<it->name_<<"::"<<it->name_<<"()"<<std::endl;
 		bool first=true;
-		while(it_inner!=(*it)->members_.end())
+		for(auto& it_inner :it->members_)
 		{
-			FieldDefType*& t=*it_inner;
+			FieldDefType*& t=it_inner;
 			if (t->type_->is_enum()||(t->type_->is_simple_type()&&((SimpleDefType*)(t->type_))->t_!=SimpleDefType::stringType))
 			{
 				if (first)
@@ -193,28 +178,27 @@ void CppGenerator::generateStructSrc()
 		srcFile_<<"{ "<<std::endl;
 		srcFile_<<"} "<<std::endl;
 
-		srcFile_<<indent()<<generateContext->ns_.name_<<"::"<<(*it)->name_<<"::""~"<<(*it)->name_<<"()"<<std::endl;
+		srcFile_<<indent()<<generateContext->ns_.name_<<"::"<<it->name_<<"::""~"<<it->name_<<"()"<<std::endl;
 		srcFile_<<"{ "<<std::endl;
 		srcFile_<<"} "<<std::endl;
 
 		srcFile_<<std::endl;
 		srcFile_<<indent()<<"//serialize"<<std::endl;
-		srcFile_<<indent()<<"void "<<generateContext->ns_.name_<<"::"<<(*it)->name_<<"::serialize(rpc::IProtocol* __P__) const "<<std::endl;
+		srcFile_<<indent()<<"void "<<generateContext->ns_.name_<<"::"<<it->name_<<"::serialize(rpc::IProtocol* __P__) const "<<std::endl;
 		srcFile_<<"{ "<<std::endl;
 		indent_up();
-		serializeFields(*it,"__P__");
+		serializeFields(it,"__P__");
 		indent_down();
 		srcFile_<<"}// serialize"<<std::endl;
 		
 		srcFile_<<std::endl;
 		srcFile_<<indent()<<"//deSerialize"<<std::endl;
-		srcFile_<<indent()<<"bool "<<generateContext->ns_.name_<<"::"<<(*it)->name_<<"::deSerialize(rpc::IProtocol* __P__)"<<std::endl;
+		srcFile_<<indent()<<"bool "<<generateContext->ns_.name_<<"::"<<it->name_<<"::deSerialize(rpc::IProtocol* __P__)"<<std::endl;
 		srcFile_<<"{ "<<std::endl;
-		it_inner=(*it)->members_.begin();
 		indent_up();
-		while(it_inner!=(*it)->members_.end())
+		for(auto& it_inner :it->members_)
 		{
-			deSerializeField((*it_inner)->type_,(*it_inner)->name_,"__P__");
+			deSerializeField(it_inner->type_,it_inner->name_,"__P__");
 			srcFile_<<std::endl;
 			++it_inner;
 		}
@@ -227,11 +211,10 @@ void CppGenerator::generateStructSrc()
 		{
 			srcFile_<<std::endl;
 			srcFile_<<indent()<<"//serialize"<<std::endl;
-			srcFile_<<indent()<<"void "<<(*it)->name_<<"::serializeJson(std::stringstream& __json__)"<<std::endl;
+			srcFile_<<indent()<<"void "<<it->name_<<"::serializeJson(std::stringstream& __json__)"<<std::endl;
 			srcFile_<<"{ "<<std::endl;
-			it_inner=(*it)->members_.begin();
 			indent_up();
-			serializeJsonFields(*it);
+			serializeJsonFields(it);
 			indent_down();
 			srcFile_<<"}// serializeJson"<<std::endl;
 		}
@@ -692,16 +675,13 @@ void CppGenerator::generateServiceSrc()
 
 void CppGenerator::genServiceStubHeader()
 {
-
 	Context*  generateContext = program_->getGenerateContext();
-
 	if (generateContext->ns_.services_.defs_.empty())
 		return;
-	auto it=generateContext->ns_.services_.defs_.begin();
-	auto it_end=generateContext->ns_.services_.defs_.end();
-	while(it!=it_end)
+
+	for(auto& it:generateContext->ns_.services_.defs_)
 	{
-		std::string className=(*it)->name_+"Stub";
+		std::string className=it->name_+"Stub";
 		headerFile_<<"class "<<className<<": public rpc::ServiceStub"<<std::endl;
 		headerFile_<<"{ "<<std::endl;
 		headerFile_<<"public: "<<std::endl;
@@ -713,12 +693,11 @@ void CppGenerator::genServiceStubHeader()
 
 		headerFile_<<indent()<<"enum {"<<std::endl;
 		indent_up();
-		std::vector<FuctionDefType*>::iterator it_inner=(*it)->funs_.begin();
-		while(it_inner!=(*it)->funs_.end())
+
+		for(auto& it_inner:it->funs_)
 		{
-			FuctionDefType*& t=*it_inner;
+			FuctionDefType*& t=it_inner;
 			headerFile_<<indent()<<t->name_<<"_Id,"<<std::endl;
-			++it_inner;
 		}
 		indent_down();
 		headerFile_<<indent()<<"};"<<std::endl;
@@ -729,12 +708,11 @@ void CppGenerator::genServiceStubHeader()
 		headerFile_<<indent()<< "void invokeAsync(rpc::uint16 msgId,const rpc::IProtocol* p,"<<"const std::string& functionName);"<<std::endl;
 		headerFile_<<indent()<< "virtual bool dispatch(std::shared_ptr<rpc::RpcMsg> msg);" <<std::endl;
 
-		genFunStubDeclare(*it);
+		genFunStubDeclare(it);
 
 		indent_down();
 		headerFile_<<"};//class"<<std::endl;
 		headerFile_<<std::endl;
-		++it;
 	}
 }
 
@@ -744,15 +722,12 @@ void CppGenerator::genServiceStubSrc()
 	if (generateContext->ns_.services_.defs_.empty())
 		return;
 
-	auto it=generateContext->ns_.services_.defs_.begin();
-	auto it_end=generateContext->ns_.services_.defs_.end();
-	while(it!=it_end)
+	for(auto& it:generateContext->ns_.services_.defs_)
 	{
 		//fingerprint
-		srcFile_<<indent()<<"const char* "<<generateContext->ns_.name_<<"::"<<(*it)->name_<<"Stub::"<<"strFingerprint=\""<<md5((*it)->getFingerPrint())<<"\";"<<std::endl;
-		srcFile_<<indent()<<"const char* "<<generateContext->ns_.name_<<"::"<<(*it)->name_<<"Stub::"<<"getObjName=\""<<generateContext->ns_.name_<<"."<<(*it)->name_<<"\";"<<std::endl;
-
-		srcFile_ <<indent()<< "void  "<<generateContext->ns_.name_<<"::"<<(*it)->name_
+		srcFile_<<indent()<<"const char* "<<generateContext->ns_.name_<<"::"<<it->name_<<"Stub::"<<"strFingerprint=\""<<md5(it->getFingerPrint())<<"\";"<<std::endl;
+		srcFile_<<indent()<<"const char* "<<generateContext->ns_.name_<<"::"<<it->name_<<"Stub::"<<"getObjName=\""<<generateContext->ns_.name_<<"."<<it->name_<<"\";"<<std::endl;
+		srcFile_ <<indent()<< "void  "<<generateContext->ns_.name_<<"::"<<it->name_
 			<<"Stub::"<<"invokeAsync(rpc::uint16 msgId,const rpc::IProtocol* p ,const std::string& functionName) {" << std::endl;
 		indent_up();
 		srcFile_ <<indent()<<"std::shared_ptr<rpc::RpcMsg> msg = std::make_shared<rpc::RpcMsg>();" << std::endl;
@@ -764,21 +739,18 @@ void CppGenerator::genServiceStubSrc()
 		indent_down();
 		srcFile_ <<indent()<< "}" << std::endl;
 
-		srcFile_ <<indent()<< "bool  "<<generateContext->ns_.name_<<"::"<<(*it)->name_<<"Stub::"<<"dispatch(std::shared_ptr<rpc::RpcMsg> msg) {" << std::endl;
+		srcFile_ <<indent()<< "bool  "<<generateContext->ns_.name_<<"::"<<it->name_<<"Stub::"<<"dispatch(std::shared_ptr<rpc::RpcMsg> msg) {" << std::endl;
 		indent_up();
-
 		srcFile_ << indent() << "auto id=msg->responseMsg_.msgId;" << std::endl;
 		srcFile_ << indent() << "switch (id)" << std::endl;
 		srcFile_ << indent() << "{" << std::endl;
 		int i = 0;
 		indent_up();
-		auto it_inner=(*it)->funs_.begin();
-		while (it_inner != (*it)->funs_.end())
+		for(auto& it_inner:it->funs_)
 		{
-			FuctionDefType*& t = *it_inner;
+			FuctionDefType*& t = it_inner;
 			if (!t->result_->is_void())
 			{
-
 				srcFile_ << indent() << "case "<<i<<":"<< std::endl;
 				srcFile_ << indent() << "{" << std::endl;
 				indent_up();
@@ -794,7 +766,6 @@ void CppGenerator::genServiceStubSrc()
 				srcFile_ << indent() << "}" << std::endl;
 			}
 			i++;
-			it_inner++;
 		}
 
 		srcFile_ << indent() << "default:" << std::endl;
@@ -806,16 +777,14 @@ void CppGenerator::genServiceStubSrc()
 		indent_down();
 		srcFile_ << indent() << "}" << std::endl;
 
-
 		indent_down();
 		srcFile_ <<indent()<< "}" << std::endl;
 
 		i=0;
-		it_inner=(*it)->funs_.begin();
-		while(it_inner!=(*it)->funs_.end())
+		for(auto& it_inner:it->funs_)
 		{
-			FuctionDefType*& t=*it_inner;
-			srcFile_<<indent()<<"void "<<generateContext->ns_.name_<<"::"<<(*it)->name_<<+"Stub"<<"::"<<t->name_<<"(";
+			FuctionDefType*& t=it_inner;
+			srcFile_<<indent()<<"void "<<generateContext->ns_.name_<<"::"<<it->name_<<+"Stub"<<"::"<<t->name_<<"(";
 			genFunAgrList(srcFile_,t->argrs_);
 			if (!t->result_->is_void())
 			{
@@ -838,10 +807,8 @@ void CppGenerator::genServiceStubSrc()
 			indent_down();
 
 			srcFile_<<indent()<<"}"<<std::endl;
-			++it_inner;
 			i++;
 		}
-		++it;
 	}
 }
 
@@ -952,11 +919,10 @@ void CppGenerator::genServiceProxySrc()
 
 void CppGenerator::genFunAgrList( std::ofstream& stream,StructDefType* agrList,ParamType paramType)
 {
-	std::vector<FieldDefType*>::iterator it_inner=agrList->members_.begin();
 	bool first=true;
-	while(it_inner!=agrList->members_.end())
+	for (auto& it_inner:agrList->members_)
 	{
-		FieldDefType*& t=*it_inner;
+		FieldDefType*& t=it_inner;
 		if (!first)
 		{
 			stream<<",";
@@ -974,16 +940,14 @@ void CppGenerator::genFunAgrList( std::ofstream& stream,StructDefType* agrList,P
 			stream<<typeName(t->type_,true);
 		}
 		first = false;
-		++it_inner;
 	}
 }
 
 void CppGenerator::genFunStubDeclare( ServiceDefType* service )
 {
-	std::vector<FuctionDefType*>::iterator it_inner=service->funs_.begin();
-	while(it_inner!=service->funs_.end())
+	for (auto& it_inner:service->funs_)
 	{
-		FuctionDefType*& t=*it_inner;
+		FuctionDefType*& t=it_inner;
 		headerFile_<<indent()<<"void "<<t->name_<<"(";
 		genFunAgrList(headerFile_,t->argrs_);
 		if (!t->result_->is_void())
@@ -994,19 +958,17 @@ void CppGenerator::genFunStubDeclare( ServiceDefType* service )
 			headerFile_ <<"std::function<int("<<typeName(t->result_)<<")> cb";
 		}
 		headerFile_<<");"<<std::endl;
-		++it_inner;
 	}
 	headerFile_ << std::endl;
 	headerFile_<<"protected:"<<std::endl;
-	it_inner=service->funs_.begin();
-	while (it_inner != service->funs_.end())
+
+	for (auto& it_inner:service->funs_)
 	{
-		FuctionDefType*& t=*it_inner;
+		FuctionDefType*& t=it_inner;
 		if (!t->result_->is_void())
 		{
 			headerFile_ << indent() << "std::function<int(" << typeName(t->result_) << ")> " << t->name_ << "CallBack;" << std::endl;
 		}
-		++it_inner;
 	}
 }
 

@@ -28,7 +28,7 @@ func (this *RpcChannel) handleInput(buff *bytes.Buffer) error {
 	if err != nil {
 	}
 
-	stub, ok := this.stubMap[responseMsg.serviceName]
+	stub, ok := this.stubMap[responseMsg.Header.ServiceName]
 	if ok {
 		stub.stubMsgCallBack(responseMsg)
 	}
