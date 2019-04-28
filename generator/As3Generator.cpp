@@ -64,11 +64,8 @@ std::string As3Generator::DefaultValue( DefType* t )
 		switch (s->t_)
 		{
 		case SimpleDefType::boolType : return "false";
-		case SimpleDefType::uint8Type : return "0";
 		case SimpleDefType::int8Type : return "0";
-		case SimpleDefType::uint16Type : return "0";
 		case SimpleDefType::int16Type : return "0";
-		case SimpleDefType::uint32Type : return "0";
 		case SimpleDefType::int32Type : return "0";
 		case SimpleDefType::int64Type : return "new BigInt";
 		case SimpleDefType::floatType : return "0";
@@ -109,11 +106,8 @@ std::string As3Generator::typeName( DefType* t )
 		switch (s->t_)
 		{
 		case SimpleDefType::boolType : return "Boolean";
-		case SimpleDefType::uint8Type : return "uint";
 		case SimpleDefType::int8Type : return "int";
-		case SimpleDefType::uint16Type : return "uint";
 		case SimpleDefType::int16Type : return "int";
-		case SimpleDefType::uint32Type : return "uint";
 		case SimpleDefType::int32Type : return "int";
 		case SimpleDefType::int64Type : return "BigInt";
 		case SimpleDefType::floatType : return "Number";
@@ -219,29 +213,14 @@ void As3Generator::serializeField( DefType* t ,const std::string& fieldName )
 				as3File_<<indent()<<"__P__.writeBool("<<fieldName<<");"<<std::endl;
 				break;
 			} 
-		case	SimpleDefType::uint8Type : 
-			{
-				as3File_<<indent()<<"__P__.writeUInt8("<<fieldName<<");"<<std::endl;
-				break;
-			} 
 		case	SimpleDefType::int8Type : 
 			{
 				as3File_<<indent()<<"__P__.writeInt8("<<fieldName<<");"<<std::endl;
 				break;
 			} 
-		case	SimpleDefType::uint16Type :
-			{
-				as3File_<<indent()<<"__P__.writeUInt16("<<fieldName<<");"<<std::endl;
-				break;
-			} 
 		case	SimpleDefType::int16Type :
 			{
 				as3File_<<indent()<<"__P__.writeInt16("<<fieldName<<");"<<std::endl;
-				break;
-			} 
-		case	SimpleDefType::uint32Type :
-			{
-				as3File_<<indent()<<"__P__.writeUInt32("<<fieldName<<");"<<std::endl;
 				break;
 			} 
 		case	SimpleDefType::int32Type :
@@ -305,31 +284,19 @@ void As3Generator::deSerializeField( DefType* t ,const std::string& fieldName )
 				as3File_<<indent()<<fieldName<<"=__P__.readBool() ;"<<std::endl;
 				break;
 			} 
-		case	SimpleDefType::uint8Type : 
-			{
-				as3File_<<indent()<<fieldName<<"=__P__.readUInt8();"<<std::endl;
-				break;
-			} 
+
 		case	SimpleDefType::int8Type : 
 			{
 				as3File_<<indent()<<fieldName<<"=__P__.readInt8();"<<std::endl;
 				break;
 			} 
-		case	SimpleDefType::uint16Type :
-			{
-				as3File_<<indent()<<fieldName<<"=__P__.readUInt16();"<<std::endl;
-				break;
-			} 
+
 		case	SimpleDefType::int16Type :
 			{
 				as3File_<<indent()<<fieldName<<"=__P__.readInt16();"<<std::endl;
 				break;
 			} 
-		case	SimpleDefType::uint32Type :
-			{
-				as3File_<<indent()<<fieldName<<"=__P__.readUInt32();"<<std::endl;
-				break;
-			} 
+
 		case	SimpleDefType::int32Type :
 			{
 				as3File_<<indent()<<fieldName<<"=__P__.readInt32();"<<std::endl;

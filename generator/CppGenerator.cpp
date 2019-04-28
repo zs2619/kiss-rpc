@@ -74,7 +74,6 @@ void CppGenerator::generateEnumHeader()
 		headerFile_<<"}; "<<std::endl;
 		headerFile_<<"extern rpc::EnumMap RpcEnum("<<it->name_<<");"<<std::endl;
 		headerFile_<<std::endl;
-		++it;
 	}
 }
 
@@ -97,7 +96,6 @@ void CppGenerator::generateEnumSrc()
 		srcFile_<<"} "<<std::endl;
 		srcFile_<<"rpc::EnumMap"<<" RpcEnum("<<it->name_<<")("<<it->name_<<"Init);"<<std::endl;
 		srcFile_<<std::endl;
-		++it;
 	}
 }
 
@@ -141,7 +139,6 @@ void CppGenerator::generateStructHeader()
 		indent_down();
 		headerFile_<<"} ;//struct"<<std::endl;
 		headerFile_<<std::endl;
-		++it;
 	}
 }
 
@@ -161,19 +158,29 @@ void CppGenerator::generateStructSrc()
 		for(auto& it_inner :it->members_)
 		{
 			FieldDefType*& t=it_inner;
-			if (t->type_->is_enum()||(t->type_->is_simple_type()&&((SimpleDefType*)(t->type_))->t_!=SimpleDefType::stringType))
+			if (t->type_->is_struct()||t->type_->is_array()||t->type_->is_map())
 			{
-				if (first)
+				continue;
+			}
+			if (t->type_->is_simple_type())
+			{
+				if ( ((SimpleDefType*)(t->type_))->t_==SimpleDefType::stringType
+					  ||((SimpleDefType*)(t->type_))->t_==SimpleDefType::binaryType)
 				{
-					srcFile_<<":"<<t->name_<<"("<<DefaultValue(t->type_)<<")"<<std::endl;
-					first=false;
-				}
-				else
-				{
-					srcFile_<<","<<t->name_<<"("<<DefaultValue(t->type_)<<")"<<std::endl;
+					continue;
 				}
 			}
-			++it_inner;
+		
+			if (first)
+			{
+				srcFile_<<":"<<t->name_<<"("<<DefaultValue(t->type_)<<")"<<std::endl;
+				first=false;
+			}
+			else
+			{
+				srcFile_<<","<<t->name_<<"("<<DefaultValue(t->type_)<<")"<<std::endl;
+			}
+			
 		}
 		srcFile_<<"{ "<<std::endl;
 		srcFile_<<"} "<<std::endl;
@@ -200,7 +207,6 @@ void CppGenerator::generateStructSrc()
 		{
 			deSerializeField(it_inner->type_,it_inner->name_,"__P__");
 			srcFile_<<std::endl;
-			++it_inner;
 		}
 		srcFile_<<indent()<<"return true; "<<std::endl;
 		indent_down();
@@ -220,7 +226,6 @@ void CppGenerator::generateStructSrc()
 		}
 
 		srcFile_<<std::endl;
-		++it;
 	}
 
 }
@@ -236,16 +241,14 @@ std::string CppGenerator::DefaultValue( DefType* t )
 		SimpleDefType* s=(SimpleDefType*)t;
 		switch (s->t_)
 		{
-		case SimpleDefType::boolType : return "false";
-		case SimpleDefType::uint8Type : return "0";
-		case SimpleDefType::int8Type : return "0";
-		case SimpleDefType::uint16Type : return "0";
-		case SimpleDefType::int16Type : return "0";
-		case SimpleDefType::uint32Type : return "0";
-		case SimpleDefType::int32Type : return "0";
-		case SimpleDefType::int64Type : return "0";
-		case SimpleDefType::floatType : return "0.0";
-		default : assert(0&&"type error"); return "";
+			case SimpleDefType::boolType : return "false";
+			case SimpleDefType::byteType : return "0";
+			case SimpleDefType::int8Type : return "0";
+			case SimpleDefType::int16Type : return "0";
+			case SimpleDefType::int32Type : return "0";
+			case SimpleDefType::int64Type : return "0";
+			case SimpleDefType::floatType : return "0.0";
+			default : assert(0&&"type error"); return "";
 		}
 	}
 	else if (t->is_enum())
@@ -287,18 +290,14 @@ std::string CppGenerator::typeName(DefType* t,bool isAgr)
 		SimpleDefType* s=(SimpleDefType*)t;
 		switch (s->t_)
 		{
-		case	SimpleDefType::boolType : return "bool";
-		case	SimpleDefType::uint8Type : return "rpc::uint8";
-		case	SimpleDefType::int8Type : return "rpc::int8";
-		case	SimpleDefType::uint16Type : return "rpc::uint16";
-		case	SimpleDefType::int16Type : return "rpc::int16";
-
-		case	SimpleDefType::uint32Type : return "rpc::uint32";
-		case	SimpleDefType::int32Type : return "rpc::int32";
-
-		case	SimpleDefType::int64Type : return "rpc::int64";
-		case	SimpleDefType::floatType : return "rpc::float";
-		case	SimpleDefType::stringType : 
+			case	SimpleDefType::boolType : return "bool";
+			case	SimpleDefType::byteType : return "rpc::byte";
+			case	SimpleDefType::int8Type : return "rpc::int8";
+			case	SimpleDefType::int16Type : return "rpc::int16";
+			case	SimpleDefType::int32Type : return "rpc::int32";
+			case	SimpleDefType::int64Type : return "rpc::int64";
+			case	SimpleDefType::floatType : return "float";
+			case	SimpleDefType::stringType : 
 			{
 				if (isAgr)
 				{
@@ -309,7 +308,11 @@ std::string CppGenerator::typeName(DefType* t,bool isAgr)
 					return "std::string";
 				}
 			}
-		default : assert(0&&"type error"); return "";
+			case   SimpleDefType::binaryType : 
+			{
+				return "std::vector<byte>";
+			}
+			default : assert(0&&"type error"); return "";
 		}
 	}
 	else if(t->is_struct())
@@ -347,27 +350,12 @@ void CppGenerator::serializeJsonField( DefType* t ,const std::string& key, const
 				srcFile_<<indent()<<"__json__<<\"\\\""<<key<<"\\\":\""<<"<<("<<value<<"?\"true\":\"false\")";
 				break;
 			} 
-		case	SimpleDefType::uint8Type : 
-			{
-				srcFile_<<indent()<<"__json__<<\"\\\""<<key<<"\\\":\""<<"<<int32("<<value<<")";
-				break;
-			} 
 		case	SimpleDefType::int8Type : 
 			{
 				srcFile_<<indent()<<"__json__<<\"\\\""<<key<<"\\\":\""<<"<<int32("<<value<<")";
 				break;
 			} 
-		case	SimpleDefType::uint16Type :
-			{
-				srcFile_<<indent()<<"__json__<<\"\\\""<<key<<"\\\":\""<<"<<"<<value;
-				break;
-			} 
 		case	SimpleDefType::int16Type :
-			{
-				srcFile_<<indent()<<"__json__<<\"\\\""<<key<<"\\\":\""<<"<<"<<value;
-				break;
-			} 
-		case	SimpleDefType::uint32Type :
 			{
 				srcFile_<<indent()<<"__json__<<\"\\\""<<key<<"\\\":\""<<"<<"<<value;
 				break;
@@ -466,9 +454,14 @@ void CppGenerator::serializeField( DefType* t ,const std::string& fieldName,cons
 				srcFile_<<indent()<<prefix<<"->writeBool("<<fieldName<<");"<<std::endl;
 				break;
 			} 
-		case	SimpleDefType::uint8Type : 
+		case	SimpleDefType::binaryType : 
 			{
-				srcFile_<<indent()<<prefix<<"->writeUInt8("<<fieldName<<");"<<std::endl;
+				srcFile_<<indent()<<prefix<<"->writeBinary("<<fieldName<<");"<<std::endl;
+				break;
+			} 
+		case	SimpleDefType::byteType : 
+			{
+				srcFile_<<indent()<<prefix<<"->writeByte("<<fieldName<<");"<<std::endl;
 				break;
 			} 
 		case	SimpleDefType::int8Type : 
@@ -476,19 +469,9 @@ void CppGenerator::serializeField( DefType* t ,const std::string& fieldName,cons
 				srcFile_<<indent()<<prefix<<"->writeInt8("<<fieldName<<");"<<std::endl;
 				break;
 			} 
-		case	SimpleDefType::uint16Type :
-			{
-				srcFile_<<indent()<<prefix<<"->writeUInt16("<<fieldName<<");"<<std::endl;
-				break;
-			} 
 		case	SimpleDefType::int16Type :
 			{
 				srcFile_<<indent()<<prefix<<"->writeInt16("<<fieldName<<");"<<std::endl;
-				break;
-			} 
-		case	SimpleDefType::uint32Type :
-			{
-				srcFile_<<indent()<<prefix<<"->writeUInt32("<<fieldName<<");"<<std::endl;
 				break;
 			} 
 		case	SimpleDefType::int32Type :
@@ -511,12 +494,11 @@ void CppGenerator::serializeField( DefType* t ,const std::string& fieldName,cons
 				srcFile_<<indent()<<prefix<<"->writeString("<<fieldName<<");"<<std::endl;
 				break;
 			}
-
 		}
 	}
 	else if(t->is_array())
 	{
-		srcFile_<<indent()<<prefix<<"->writeUInt16(rpc::uint16("<<fieldName<<".size()));"<<std::endl;
+		srcFile_<<indent()<<prefix<<"->writeInt32(rpc::int32("<<fieldName<<".size()));"<<std::endl;
 		std::string temp="_i_"+fieldName+"_";
 		srcFile_<<indent()<<"for (size_t "<<temp<<"=0;"<<temp<<"<"<<fieldName<<".size();"<<temp<<"++)"<<std::endl;
 		srcFile_<<indent()<<"{"<<std::endl;
@@ -533,7 +515,7 @@ void CppGenerator::serializeField( DefType* t ,const std::string& fieldName,cons
 	}
 	else if(t->is_map()) 
 	{
-		srcFile_<<indent()<<prefix<<"->writeUInt16(rpc::uint16("<<fieldName<<".size()));"<<std::endl;
+		srcFile_<<indent()<<prefix<<"->writeInt32(rpc::int32("<<fieldName<<".size()));"<<std::endl;
 		std::string temp="_it_"+fieldName+"_";
 		srcFile_<<indent()<<typeName(t)<<"::const_iterator "<<temp<<" = "<<fieldName<<".begin();"<<std::endl;
 		srcFile_<<indent()<<"while("<<temp<<"!="<<fieldName<<".end())"<<std::endl;
@@ -560,54 +542,49 @@ void CppGenerator::deSerializeField( DefType* t ,const std::string& fieldName ,c
 		SimpleDefType* s=(SimpleDefType*)t;
 		switch (s->t_)
 		{
-		case	SimpleDefType::boolType : 
+			case	SimpleDefType::boolType : 
 			{
 				srcFile_<<indent()<<"if(!"<<prefix<<"->readBool("<<fieldName<<"))return false;"<<std::endl;
 				break;
 			} 
-		case	SimpleDefType::uint8Type : 
+			case    SimpleDefType::byteType :
 			{
-				srcFile_<<indent()<<"if(!"<<prefix<<"->readUInt8("<<fieldName<<"))return false;"<<std::endl;
+				srcFile_<<indent()<<"if(!"<<prefix<<"->readByte("<<fieldName<<"))return false;"<<std::endl;
 				break;
-			} 
-		case	SimpleDefType::int8Type : 
+			}
+			case	SimpleDefType::int8Type : 
 			{
 				srcFile_<<indent()<<"if(!"<<prefix<<"->readInt8("<<fieldName<<"))return false;"<<std::endl;
 				break;
 			} 
-		case	SimpleDefType::uint16Type :
-			{
-				srcFile_<<indent()<<"if(!"<<prefix<<"->readUInt16("<<fieldName<<"))return false;"<<std::endl;
-				break;
-			} 
-		case	SimpleDefType::int16Type :
+			case	SimpleDefType::int16Type :
 			{
 				srcFile_<<indent()<<"if(!"<<prefix<<"->readInt16("<<fieldName<<"))return false;"<<std::endl;
 				break;
 			} 
-		case	SimpleDefType::uint32Type :
-			{
-				srcFile_<<indent()<<"if(!"<<prefix<<"->readUInt32("<<fieldName<<"))return false;"<<std::endl;
-				break;
-			} 
-		case	SimpleDefType::int32Type :
+			case	SimpleDefType::int32Type :
 			{
 				srcFile_<<indent()<<"if(!"<<prefix<<"->readInt32("<<fieldName<<"))return false;"<<std::endl;
 				break;
 			} 
-		case	SimpleDefType::int64Type :
+			case	SimpleDefType::int64Type :
 			{
 				srcFile_<<indent()<<"if(!"<<prefix<<"->readInt64("<<fieldName<<"))return false;"<<std::endl;
 				break;
 			} 
-		case	SimpleDefType::floatType :
+			case	SimpleDefType::floatType :
 			{
 				srcFile_<<indent()<<"if(!"<<prefix<<"->readFloat("<<fieldName<<"))return false;"<<std::endl;
 				break;
 			} 
-		case	SimpleDefType::stringType :
+			case	SimpleDefType::stringType :
 			{
 				srcFile_<<indent()<<"if(!"<<prefix<<"->readString("<<fieldName<<"))return false;"<<std::endl;
+				break;
+			}
+			case	SimpleDefType::binaryType :
+			{
+				srcFile_<<indent()<<"if(!"<<prefix<<"->readBinary("<<fieldName<<"))return false;"<<std::endl;
 				break;
 			}
 		}
@@ -615,11 +592,11 @@ void CppGenerator::deSerializeField( DefType* t ,const std::string& fieldName ,c
 	else if(t->is_array())
 	{
 		std::string size="_n_"+fieldName+"_array";
-		srcFile_<<indent()<<"rpc::uint16 "<<size<<"=0;"<<std::endl;
-		srcFile_<<indent()<<"if(!"<<prefix<<"->readUInt16("<<size<<"))return false;"<<std::endl;
+		srcFile_<<indent()<<"rpc::int32 "<<size<<"=0;"<<std::endl;
+		srcFile_<<indent()<<"if(!"<<prefix<<"->readInt32("<<size<<"))return false;"<<std::endl;
 		srcFile_<<indent()<<fieldName<<".resize( "<<size<<");"<<std::endl;
 		std::string count="_i_"+fieldName+"_";
-		srcFile_<<indent()<<"for (size_t "<<count<<"=0;"<<count<<"<"<<size<<";"<<count<<"++)"<<std::endl;
+		srcFile_<<indent()<<"for (rpc::int32 "<<count<<"=0;"<<count<<"<"<<size<<";"<<count<<"++)"<<std::endl;
 		srcFile_<<indent()<<"{"<<std::endl;
 		indent_up();
 		std::string tempAgr=fieldName+"["+count+"]";
@@ -639,10 +616,10 @@ void CppGenerator::deSerializeField( DefType* t ,const std::string& fieldName ,c
 	else if(t->is_map())
 	{
 		std::string size="_n_"+fieldName+"_map_";
-		srcFile_<<indent()<<"rpc::uint16 "<<size<<"=0;"<<std::endl;
-		srcFile_<<indent()<<"if(!"<<prefix<<"->readUInt16("<<size<<"))return false;"<<std::endl;
+		srcFile_<<indent()<<"rpc::int32 "<<size<<"=0;"<<std::endl;
+		srcFile_<<indent()<<"if(!"<<prefix<<"->readInt32("<<size<<"))return false;"<<std::endl;
 		std::string count="_i_"+fieldName+"_";
-		srcFile_<<indent()<<"for (int "<<count<<"=0;"<<count<<"<"<<size<<";"<<count<<"++)"<<std::endl;
+		srcFile_<<indent()<<"for (rpc::int32 "<<count<<"=0;"<<count<<"<"<<size<<";"<<count<<"++)"<<std::endl;
 		srcFile_<<indent()<<"{"<<std::endl;
 		indent_up();
 		std::string firstType=typeName(((MapDefType*)t)->keyDef_);
@@ -705,7 +682,7 @@ void CppGenerator::genServiceStubHeader()
 		headerFile_<<indent()<<className<<"(const rpc::Connection* conn):ServiceStub(conn){}"<<std::endl;
 		headerFile_<<indent()<<"virtual ~"<<className<<"(){}"<<std::endl;
 
-		headerFile_<<indent()<< "void invokeAsync(rpc::uint16 msgId,const rpc::IProtocol* p,"<<"const std::string& functionName);"<<std::endl;
+		headerFile_<<indent()<< "void invokeAsync(rpc::int16 msgId,const rpc::IProtocol* p,"<<"const std::string& functionName);"<<std::endl;
 		headerFile_<<indent()<< "virtual bool dispatch(std::shared_ptr<rpc::RpcMsg> msg);" <<std::endl;
 
 		genFunStubDeclare(it);
@@ -728,7 +705,7 @@ void CppGenerator::genServiceStubSrc()
 		srcFile_<<indent()<<"const char* "<<generateContext->ns_.name_<<"::"<<it->name_<<"Stub::"<<"strFingerprint=\""<<md5(it->getFingerPrint())<<"\";"<<std::endl;
 		srcFile_<<indent()<<"const char* "<<generateContext->ns_.name_<<"::"<<it->name_<<"Stub::"<<"getObjName=\""<<generateContext->ns_.name_<<"."<<it->name_<<"\";"<<std::endl;
 		srcFile_ <<indent()<< "void  "<<generateContext->ns_.name_<<"::"<<it->name_
-			<<"Stub::"<<"invokeAsync(rpc::uint16 msgId,const rpc::IProtocol* p ,const std::string& functionName) {" << std::endl;
+			<<"Stub::"<<"invokeAsync(rpc::int16 msgId,const rpc::IProtocol* p ,const std::string& functionName) {" << std::endl;
 		indent_up();
 		srcFile_ <<indent()<<"std::shared_ptr<rpc::RpcMsg> msg = std::make_shared<rpc::RpcMsg>();" << std::endl;
 		srcFile_ <<indent()<<"msg->serviceName_= getObjName ;" << std::endl;
@@ -817,11 +794,10 @@ void CppGenerator::genServiceProxyHeader()
 	Context*  generateContext = program_->getGenerateContext();
 	if (generateContext->ns_.services_.defs_.empty())
 		return;
-	std::vector<ServiceDefType*>::iterator it=generateContext->ns_.services_.defs_.begin();
-	std::vector<ServiceDefType*>::iterator it_end=generateContext->ns_.services_.defs_.end();
-	while(it!=it_end)
+
+	for (auto& it : generateContext->ns_.services_.defs_)
 	{
-		std::string className=(*it)->name_+"ProxyIF";
+		std::string className=it->name_+"ProxyIF";
 		headerFile_<<indent()<<"class "<<className<<": public rpc::ServiceProxy "<<std::endl;
 		headerFile_<<indent()<<"{ "<<std::endl;
 		headerFile_<<indent()<<"public: "<<std::endl;
@@ -833,14 +809,13 @@ void CppGenerator::genServiceProxyHeader()
 
 		headerFile_<<indent()<<className<<"(const rpc::Connection* conn):ServiceProxy(conn){}"<<std::endl;
 		headerFile_<<indent()<<"virtual ~"<<className<<"(){}"<<std::endl;
-		genFunProxyDeclare(*it);
+		genFunProxyDeclare(it);
 		//dispatch
 		headerFile_<<indent()<<"virtual bool dispatch(std::shared_ptr<rpc::RpcMsg> msg);"<<std::endl;
 		headerFile_<<std::endl;
 		indent_down();
 		headerFile_<<indent()<<"};//class"<<std::endl;
 		headerFile_<<std::endl;
-		++it;
 	}
 
 }
@@ -850,15 +825,14 @@ void CppGenerator::genServiceProxySrc()
 	Context*  generateContext = program_->getGenerateContext();
 	if (generateContext->ns_.services_.defs_.empty())
 		return;
-	auto it=generateContext->ns_.services_.defs_.begin();
-	auto it_end=generateContext->ns_.services_.defs_.end();
-	while(it!=it_end)
+
+	for (auto& it : generateContext->ns_.services_.defs_)
 	{
 		//fingerprint
-		srcFile_<<indent()<<"const char* "<<generateContext->ns_.name_<<"::"<<(*it)->name_<<"ProxyIF::"<<"strFingerprint=\""<<md5((*it)->getFingerPrint())<<"\";"<<std::endl;
-		srcFile_<<indent()<<"const char* "<<generateContext->ns_.name_<<"::"<<(*it)->name_<<"ProxyIF::"<<"getObjName=\""<<generateContext->ns_.name_ <<"."<< (*it)->name_<<"\";"<<std::endl;
+		srcFile_<<indent()<<"const char* "<<generateContext->ns_.name_<<"::"<<(it)->name_<<"ProxyIF::"<<"strFingerprint=\""<<md5((it)->getFingerPrint())<<"\";"<<std::endl;
+		srcFile_<<indent()<<"const char* "<<generateContext->ns_.name_<<"::"<<(it)->name_<<"ProxyIF::"<<"getObjName=\""<<generateContext->ns_.name_ <<"."<< (it)->name_<<"\";"<<std::endl;
 		//dispatch
-		std::string className=(*it)->name_+"ProxyIF";
+		std::string className=(it)->name_+"ProxyIF";
 		srcFile_<<indent()<<"bool "<<generateContext->ns_.name_<<"::"<<className<<"::dispatch(std::shared_ptr<rpc::RpcMsg> msg)"<<std::endl;
 		srcFile_<<indent()<<"{"<<std::endl;
 		indent_up();
@@ -868,8 +842,8 @@ void CppGenerator::genServiceProxySrc()
 		srcFile_<<indent()<<"{"<<std::endl;
 		indent_up();
 		int i=0;
-		std::vector<FuctionDefType*>::iterator it_inner=(*it)->funs_.begin();
-		while(it_inner!=(*it)->funs_.end())
+		std::vector<FuctionDefType*>::iterator it_inner=(it)->funs_.begin();
+		while(it_inner!=(it)->funs_.end())
 		{
 			FuctionDefType*& t=*it_inner;
 			srcFile_<<indent()<<"case  "<<i++<<" :"<<std::endl;

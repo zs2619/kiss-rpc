@@ -90,15 +90,14 @@ public:
 	enum dataType
 	{
 		boolType ,
-		uint8Type  ,
+		byteType,
 		int8Type  ,
-		uint16Type  ,
 		int16Type  ,
-		uint32Type  ,
 		int32Type  ,
 		int64Type  ,
 		floatType  ,
 		stringType  ,
+		binaryType  ,
 	};
 	virtual bool is_simple_type() const { return true; }
 
@@ -107,15 +106,15 @@ public:
 		switch (t_)
 		{
 		case SimpleDefType::boolType : return " boolType ";
-		case SimpleDefType::uint8Type : return " uint8Type ";
-		case SimpleDefType::int8Type : return " int8Type ";
-		case SimpleDefType::uint16Type : return " uint16Type ";
-		case SimpleDefType::int16Type : return " int16Type ";
-		case SimpleDefType::uint32Type : return " uint32Type ";
+		case SimpleDefType::byteType: return " byteType ";
+		case SimpleDefType::int8Type: return " int8Type ";
+		case SimpleDefType::int16Type: return " int16Type ";
 		case SimpleDefType::int32Type : return " int32Type ";
 		case SimpleDefType::int64Type : return " int64Type ";
 		case SimpleDefType::floatType : return " floatType ";
 		case SimpleDefType::stringType : return " stringType ";
+		case SimpleDefType::binaryType: return " binaryType ";
+
 		default    : assert(0&&"type error"); return "";
 		}
 	}

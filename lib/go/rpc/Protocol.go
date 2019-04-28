@@ -12,26 +12,24 @@ type IProtocol interface {
 	SetBuffer(buff *bytes.Buffer)
 
 	WriteBool(b bool)
-	WriteUInt8(i uint8)
+	WriteByte(by byte)
 	WriteInt8(i int8)
-	WriteUInt16(i uint16)
 	WriteInt16(i int16)
-	WriteUInt32(i uint32)
 	WriteInt32(i int32)
 	WriteInt64(i int64)
 	WriteFloat(f float32)
 	WriteString(str string)
+	WriteBinary(b []byte)
 
 	ReadBool() bool
-	ReadUInt8() uint8
+	ReadByte() byte
 	ReadInt8() int8
-	ReadUInt16() uint16
 	ReadInt16() int16
-	ReadUInt32() uint32
 	ReadInt32() int32
 	ReadInt64() int64
 	ReadFloat() float32
 	ReadString() string
+	ReadBinary() []byte
 }
 
 type IProtocolFactory interface {
@@ -53,7 +51,7 @@ func (this *BinaryProtocol) GetBuffer() *bytes.Buffer {
 	return this.buff
 }
 func (this *BinaryProtocol) SetBuffer(buff *bytes.Buffer) {
-
+	this.buff=buff
 }
 
 func (this *BinaryProtocol) CreateProtoBuffer() IProtocol {
@@ -63,33 +61,21 @@ func (this *BinaryProtocol) CreateProtoBuffer() IProtocol {
 /**  Writing functions. */
 func (this *BinaryProtocol) WriteBool(b bool) {
 	if b {
-		this.WriteUInt8(1)
+		this.WriteInt8(1)
 	} else {
-		this.WriteUInt8(0)
+		this.WriteInt8(0)
 	}
 }
 
-func (this *BinaryProtocol) WriteUInt8(i uint8) {
-
-	binary.Write(this.buff, binary.LittleEndian, i)
+func (this *BinaryProtocol) WriteByte(by byte) {
+	binary.Write(this.buff, binary.LittleEndian, by)
 }
 
 func (this *BinaryProtocol) WriteInt8(i int8) {
 	binary.Write(this.buff, binary.LittleEndian, i)
-
-}
-
-func (this *BinaryProtocol) WriteUInt16(i uint16) {
-
-	binary.Write(this.buff, binary.LittleEndian, i)
 }
 
 func (this *BinaryProtocol) WriteInt16(i int16) {
-
-	binary.Write(this.buff, binary.LittleEndian, i)
-}
-
-func (this *BinaryProtocol) WriteUInt32(i uint32) {
 
 	binary.Write(this.buff, binary.LittleEndian, i)
 }
@@ -110,7 +96,7 @@ func (this *BinaryProtocol) WriteFloat(f float32) {
 }
 
 func (this *BinaryProtocol) WriteString(str string) {
-	this.WriteUInt16(uint16(len(str)))
+	this.WriteInt32(int32(len(str)))
 	var tmp = []uint8(str)
 	err := binary.Write(this.buff, binary.LittleEndian, tmp)
 	if err != nil {
@@ -118,9 +104,17 @@ func (this *BinaryProtocol) WriteString(str string) {
 	}
 }
 
+func (this *BinaryProtocol) WriteBinary(buff []byte) {
+	this.WriteInt32(int32(len(buff)))
+	err := binary.Write(this.buff, binary.LittleEndian, buff)
+	if err != nil {
+		fmt.Println(err)
+	}
+}
+
 /** Reading functions */
 func (this *BinaryProtocol) ReadBool() bool {
-	b := this.ReadUInt8()
+	b := this.ReadInt8()
 	if b == 1 {
 		return true
 	} else {
@@ -128,10 +122,10 @@ func (this *BinaryProtocol) ReadBool() bool {
 	}
 }
 
-func (this *BinaryProtocol) ReadUInt8() uint8 {
-	var i uint8
-	binary.Read(this.buff, binary.LittleEndian, &i)
-	return i
+func (this *BinaryProtocol) ReadByte() byte {
+	var by byte
+	binary.Read(this.buff, binary.LittleEndian, &by)
+	return by
 }
 
 func (this *BinaryProtocol) ReadInt8() int8 {
@@ -140,20 +134,8 @@ func (this *BinaryProtocol) ReadInt8() int8 {
 	return i
 }
 
-func (this *BinaryProtocol) ReadUInt16() uint16 {
-	var i uint16
-	binary.Read(this.buff, binary.LittleEndian, &i)
-	return i
-}
-
 func (this *BinaryProtocol) ReadInt16() int16 {
 	var i int16
-	binary.Read(this.buff, binary.LittleEndian, &i)
-	return i
-}
-
-func (this *BinaryProtocol) ReadUInt32() uint32 {
-	var i uint32
 	binary.Read(this.buff, binary.LittleEndian, &i)
 	return i
 }
@@ -177,11 +159,21 @@ func (this *BinaryProtocol) ReadFloat() float32 {
 }
 
 func (this *BinaryProtocol) ReadString() string {
-	n := this.ReadUInt16()
+	n := this.ReadInt32()
 	buf := make([]uint8, n)
 	err := binary.Read(this.buff, binary.LittleEndian, buf)
 	if err != nil {
 		fmt.Println(err)
 	}
 	return string(buf)
+}
+
+func (this *BinaryProtocol) ReadBinary() []byte {
+	n := this.ReadInt32()
+	buf := make([]byte, n)
+	err := binary.Read(this.buff, binary.LittleEndian, buf)
+	if err != nil {
+		fmt.Println(err)
+	}
+	return buf
 }

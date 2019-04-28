@@ -6,17 +6,16 @@ void SexTypeInit(rpc::EnumMap* e)
 } 
 rpc::EnumMap RpcEnum(SexType)(SexTypeInit);
 
-const char* shuai::role::strFingerprint="8163856412fcd3050d832f677d6ff6a0";
+const char* shuai::role::strFingerprint="5ad2cb5c4c22f48680d17d2a084021b2";
 shuai::role::role()
 :sexType(SexType(0))
 ,b(false)
+,by(0)
 ,i8(0)
-,ui8(0)
 ,i16(0)
-,ui16(0)
 ,i32(0)
-,ui32(0)
 ,i64(0)
+,f(0.0)
 { 
 } 
 shuai::role::~role()
@@ -30,21 +29,21 @@ void shuai::role::serialize(rpc::IProtocol* __P__) const
 
 	__P__->writeBool(b);
 
-	__P__->writeInt8(i8);
+	__P__->writeByte(by);
 
-	__P__->writeUInt8(ui8);
+	__P__->writeInt8(i8);
 
 	__P__->writeInt16(i16);
 
-	__P__->writeUInt16(ui16);
-
 	__P__->writeInt32(i32);
-
-	__P__->writeUInt32(ui32);
 
 	__P__->writeInt64(i64);
 
+	__P__->writeFloat(f);
+
 	__P__->writeString(str);
+
+	__P__->writeBinary(bin);
 
 }// serialize
 
@@ -57,21 +56,21 @@ bool shuai::role::deSerialize(rpc::IProtocol* __P__)
 
 	if(!__P__->readBool(b))return false;
 
-	if(!__P__->readInt8(i8))return false;
+	if(!__P__->readByte(by))return false;
 
-	if(!__P__->readUInt8(ui8))return false;
+	if(!__P__->readInt8(i8))return false;
 
 	if(!__P__->readInt16(i16))return false;
 
-	if(!__P__->readUInt16(ui16))return false;
-
 	if(!__P__->readInt32(i32))return false;
-
-	if(!__P__->readUInt32(ui32))return false;
 
 	if(!__P__->readInt64(i64))return false;
 
+	if(!__P__->readFloat(f))return false;
+
 	if(!__P__->readString(str))return false;
+
+	if(!__P__->readBinary(bin))return false;
 
 	return true; 
 }//deSerialize 
@@ -87,7 +86,7 @@ shuai::user::~user()
 //serialize
 void shuai::user::serialize(rpc::IProtocol* __P__) const 
 { 
-	__P__->writeUInt16(rpc::uint16(roleMap.size()));
+	__P__->writeInt32(rpc::int32(roleMap.size()));
 	std::map<rpc::int32,role>::const_iterator _it_roleMap_ = roleMap.begin();
 	while(_it_roleMap_!=roleMap.end())
 	{
@@ -96,13 +95,13 @@ void shuai::user::serialize(rpc::IProtocol* __P__) const
 		++_it_roleMap_;
 	}
 
-	__P__->writeUInt16(rpc::uint16(items.size()));
+	__P__->writeInt32(rpc::int32(items.size()));
 	for (size_t _i_items_=0;_i_items_<items.size();_i_items_++)
 	{
 		__P__->writeInt32(items[_i_items_]);
 	}
 
-	__P__->writeUInt16(rpc::uint16(roles.size()));
+	__P__->writeInt32(rpc::int32(roles.size()));
 	for (size_t _i_roles_=0;_i_roles_<roles.size();_i_roles_++)
 	{
 		roles[_i_roles_].serialize(__P__);
@@ -113,9 +112,9 @@ void shuai::user::serialize(rpc::IProtocol* __P__) const
 //deSerialize
 bool shuai::user::deSerialize(rpc::IProtocol* __P__)
 { 
-	rpc::uint16 _n_roleMap_map_=0;
-	if(!__P__->readUInt16(_n_roleMap_map_))return false;
-	for (int _i_roleMap_=0;_i_roleMap_<_n_roleMap_map_;_i_roleMap_++)
+	rpc::int32 _n_roleMap_map_=0;
+	if(!__P__->readInt32(_n_roleMap_map_))return false;
+	for (rpc::int32 _i_roleMap_=0;_i_roleMap_<_n_roleMap_map_;_i_roleMap_++)
 	{
 		rpc::int32  _first_map_roleMap;
 		role  _second_map_roleMap;
@@ -124,18 +123,18 @@ bool shuai::user::deSerialize(rpc::IProtocol* __P__)
 		roleMap[ _first_map_roleMap]= _second_map_roleMap;
 	}
 
-	rpc::uint16 _n_items_array=0;
-	if(!__P__->readUInt16(_n_items_array))return false;
+	rpc::int32 _n_items_array=0;
+	if(!__P__->readInt32(_n_items_array))return false;
 	items.resize( _n_items_array);
-	for (size_t _i_items_=0;_i_items_<_n_items_array;_i_items_++)
+	for (rpc::int32 _i_items_=0;_i_items_<_n_items_array;_i_items_++)
 	{
 		if(!__P__->readInt32(items[_i_items_]))return false;
 	}
 
-	rpc::uint16 _n_roles_array=0;
-	if(!__P__->readUInt16(_n_roles_array))return false;
+	rpc::int32 _n_roles_array=0;
+	if(!__P__->readInt32(_n_roles_array))return false;
 	roles.resize( _n_roles_array);
-	for (size_t _i_roles_=0;_i_roles_<_n_roles_array;_i_roles_++)
+	for (rpc::int32 _i_roles_=0;_i_roles_<_n_roles_array;_i_roles_++)
 	{
 		if(!roles[_i_roles_].deSerialize(__P__))return false;
 	}
@@ -145,7 +144,7 @@ bool shuai::user::deSerialize(rpc::IProtocol* __P__)
 
 const char* shuai::opServiceStub::strFingerprint="e5212fe49d9deba0e43271889ff23ec0";
 const char* shuai::opServiceStub::getObjName="shuai.opService";
-void  shuai::opServiceStub::invokeAsync(rpc::uint16 msgId,const rpc::IProtocol* p ,const std::string& functionName) {
+void  shuai::opServiceStub::invokeAsync(rpc::int16 msgId,const rpc::IProtocol* p ,const std::string& functionName) {
 	std::shared_ptr<rpc::RpcMsg> msg = std::make_shared<rpc::RpcMsg>();
 	msg->serviceName_= getObjName ;
 	msg->functionName_= functionName ;
@@ -180,10 +179,10 @@ bool  shuai::opServiceStub::dispatch(std::shared_ptr<rpc::RpcMsg> msg) {
 			std::unique_ptr<rpc::IProtocol> __P__(chan_->getProtocol()->createProtoBuffer());
 			__P__->setBuffer(msg->responseMsg_.buff);
 			std::vector<role>  ret ;
-			rpc::uint16 _n_ret_array=0;
-			if(!__P__.get()->readUInt16(_n_ret_array))return false;
+			rpc::int32 _n_ret_array=0;
+			if(!__P__.get()->readInt32(_n_ret_array))return false;
 			ret.resize( _n_ret_array);
-			for (size_t _i_ret_=0;_i_ret_<_n_ret_array;_i_ret_++)
+			for (rpc::int32 _i_ret_=0;_i_ret_<_n_ret_array;_i_ret_++)
 			{
 				if(!ret[_i_ret_].deSerialize(__P__.get()))return false;
 			}
@@ -233,7 +232,7 @@ void shuai::opServiceStub::xixi(user&  u,std::function<int(rpc::int8)> cb)
 void shuai::opServiceStub::lala(std::map<rpc::int32,role>&  m,std::vector<rpc::int32> &  ai,std::vector<role> &  ar,std::function<int(std::vector<role> )> cb)
 {
 	std::unique_ptr<rpc::IProtocol> __P__(chan_->getProtocol()->createProtoBuffer());
-	__P__.get()->writeUInt16(rpc::uint16(m.size()));
+	__P__.get()->writeInt32(rpc::int32(m.size()));
 	std::map<rpc::int32,role>::const_iterator _it_m_ = m.begin();
 	while(_it_m_!=m.end())
 	{
@@ -242,13 +241,13 @@ void shuai::opServiceStub::lala(std::map<rpc::int32,role>&  m,std::vector<rpc::i
 		++_it_m_;
 	}
 
-	__P__.get()->writeUInt16(rpc::uint16(ai.size()));
+	__P__.get()->writeInt32(rpc::int32(ai.size()));
 	for (size_t _i_ai_=0;_i_ai_<ai.size();_i_ai_++)
 	{
 		__P__.get()->writeInt32(ai[_i_ai_]);
 	}
 
-	__P__.get()->writeUInt16(rpc::uint16(ar.size()));
+	__P__.get()->writeInt32(rpc::int32(ar.size()));
 	for (size_t _i_ar_=0;_i_ar_<ar.size();_i_ar_++)
 	{
 		ar[_i_ar_].serialize(__P__.get());
@@ -322,9 +321,9 @@ bool shuai::opServiceProxyIF::dispatch(std::shared_ptr<rpc::RpcMsg> msg)
 			std::unique_ptr<rpc::IProtocol> __P__(service_->getProtocol()->createProtoBuffer());
 			__P__->setBuffer(msg->requestMsg_.buff);
 			std::map<rpc::int32,role> m;
-			rpc::uint16 _n_m_map_=0;
-			if(!__P__.get()->readUInt16(_n_m_map_))return false;
-			for (int _i_m_=0;_i_m_<_n_m_map_;_i_m_++)
+			rpc::int32 _n_m_map_=0;
+			if(!__P__.get()->readInt32(_n_m_map_))return false;
+			for (rpc::int32 _i_m_=0;_i_m_<_n_m_map_;_i_m_++)
 			{
 				rpc::int32  _first_map_m;
 				role  _second_map_m;
@@ -334,19 +333,19 @@ bool shuai::opServiceProxyIF::dispatch(std::shared_ptr<rpc::RpcMsg> msg)
 			}
 
 			std::vector<rpc::int32>  ai;
-			rpc::uint16 _n_ai_array=0;
-			if(!__P__.get()->readUInt16(_n_ai_array))return false;
+			rpc::int32 _n_ai_array=0;
+			if(!__P__.get()->readInt32(_n_ai_array))return false;
 			ai.resize( _n_ai_array);
-			for (size_t _i_ai_=0;_i_ai_<_n_ai_array;_i_ai_++)
+			for (rpc::int32 _i_ai_=0;_i_ai_<_n_ai_array;_i_ai_++)
 			{
 				if(!__P__.get()->readInt32(ai[_i_ai_]))return false;
 			}
 
 			std::vector<role>  ar;
-			rpc::uint16 _n_ar_array=0;
-			if(!__P__.get()->readUInt16(_n_ar_array))return false;
+			rpc::int32 _n_ar_array=0;
+			if(!__P__.get()->readInt32(_n_ar_array))return false;
 			ar.resize( _n_ar_array);
-			for (size_t _i_ar_=0;_i_ar_<_n_ar_array;_i_ar_++)
+			for (rpc::int32 _i_ar_=0;_i_ar_<_n_ar_array;_i_ar_++)
 			{
 				if(!ar[_i_ar_].deSerialize(__P__.get()))return false;
 			}
@@ -356,7 +355,7 @@ bool shuai::opServiceProxyIF::dispatch(std::shared_ptr<rpc::RpcMsg> msg)
 			{
 				std::unique_ptr<rpc::IProtocol> __P__(service_->getProtocol()->createProtoBuffer());
 				std::vector<role>  ret=std::get<1>(result);
-				__P__.get()->writeUInt16(rpc::uint16(ret.size()));
+				__P__.get()->writeInt32(rpc::int32(ret.size()));
 				for (size_t _i_ret_=0;_i_ret_<ret.size();_i_ret_++)
 				{
 					ret[_i_ret_].serialize(__P__.get());

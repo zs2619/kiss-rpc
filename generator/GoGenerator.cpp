@@ -142,14 +142,14 @@ void GoGenerator::generateStruct()
 		indent_down();
 		goFile_<<"}"<<std::endl;
 
-		goFile_<<indent()<<"func (this *"<<setInitialUpper(it->name_)<<") DeSerialize( P__ rpc.IProtocol) bool{"<<std::endl;
+		goFile_<<indent()<<"func (this *"<<setInitialUpper(it->name_)<<") DeSerialize( P__ rpc.IProtocol) error{"<<std::endl;
 		indent_up();
 		for(auto& inner:it->members_)
 		{
 			deSerializeField(inner->type_,"this."+setInitialUpper(inner->name_),"P__");
 			goFile_<<std::endl;
 		}
-		goFile_<<indent()<<"return true"<<std::endl;
+		goFile_<<indent()<<"return nil"<<std::endl;
 		indent_down();
 
 		goFile_<<"}"<<std::endl;
@@ -179,6 +179,7 @@ void GoGenerator::genServiceStub()
 	goFile_<<indent()<<"import ("<<std::endl;
 	indent_up();
 	goFile_<<indent()<<"\"kiss/rpc\""<<std::endl;
+	goFile_ << indent() << "\"bytes\"" << std::endl;
 	indent_down();
 	goFile_<<indent()<<")"<<std::endl;
 
@@ -210,12 +211,12 @@ void GoGenerator::genServiceStub()
 		indent_down();
 		goFile_<<indent()<<"}"<<std::endl;
 
-		goFile_<<indent()<<"func (this *OpServiceStub) invokeAsync(msgId uint16, p rpc.IProtocol, funcName string) {"<<std::endl;
+		goFile_<<indent()<<"func (this *OpServiceStub) invokeAsync(msgId int32, p rpc.IProtocol, funcName string) {"<<std::endl;
 		indent_up();
 		goFile_<<indent()<<"msg := &rpc.RpcMsg{}"<<std::endl;
 		goFile_<<indent()<<"msg.ServiceName = funcName"<<std::endl;
 		goFile_<<indent()<<"msg.RequestMsg.MsgId = msgId"<<std::endl;
-		goFile_<<indent()<<"msg.RequestMsg.Buff = p.GetBuffer()"<<std::endl;
+		goFile_<<indent()<<"msg.RequestMsg.Buff = p.GetBuffer().Bytes()"<<std::endl;
 		goFile_<<indent()<<"this.Invoke(msg)"<<std::endl;
 		indent_down();
 		goFile_<<indent()<<"}"<<std::endl;
@@ -287,7 +288,7 @@ void GoGenerator::genServiceStub()
 				goFile_ << indent() << "{" << std::endl;
 				indent_up();
 				goFile_<<indent()<<"proto := this.GetProtocol().CreateProtoBuffer()"<<std::endl;
-				goFile_ << indent() << "proto.SetBuffer(msg.ResponseMsg.Buff)" << std::endl;
+				goFile_ << indent() << "proto.SetBuffer(bytes.NewBuffer(msg.ResponseMsg.Buff))" << std::endl;
 
 				goFile_<<indent()<<"var ret "<<typeName(t->result_)<<std::endl;
 				deSerializeField(t->result_, "ret","proto");
@@ -331,6 +332,7 @@ void GoGenerator::genServiceProxy()
 	goFile_<<indent()<<"import ("<<std::endl;
 	indent_up();
 	goFile_<<indent()<<"\"kiss/rpc\""<<std::endl;
+	goFile_ << indent() << "\"bytes\"" << std::endl;
 	indent_down();
 	goFile_<<indent()<<")"<<std::endl;
 
@@ -403,7 +405,7 @@ void GoGenerator::genServiceProxy()
 			indent_up();
 
 			goFile_<<indent()<<"proto := this.GetProtocol().CreateProtoBuffer()"<<std::endl;
-			goFile_<<indent()<<"proto.SetBuffer(msg.ResponseMsg.Buff)"<<std::endl;
+			goFile_<<indent()<<"proto.SetBuffer(bytes.NewBuffer(msg.ResponseMsg.Buff))"<<std::endl;
 			deSerializeFields(t->argrs_,"proto");
 			if (!t->result_->is_void())
 			{
@@ -482,31 +484,22 @@ void GoGenerator::serializeField( DefType* t ,const std::string& fieldName ,cons
 				goFile_<<indent()<<inner<<".WriteBool("<<fieldName<<")"<<std::endl;
 				break;
 			} 
-		case	SimpleDefType::uint8Type : 
+		case	SimpleDefType::byteType : 
 			{
-				goFile_<<indent()<<inner<<".WriteUInt8("<<fieldName<<")"<<std::endl;
+				goFile_<<indent()<<inner<<".WriteByte("<<fieldName<<")"<<std::endl;
 				break;
 			} 
 		case	SimpleDefType::int8Type : 
 			{
-				goFile_<<indent()<<inner<<".WriteInt8("<<fieldName<<")"<<std::endl;
+				goFile_ << indent() << inner << ".WriteInt8(" << fieldName << ")" << std::endl;
 				break;
-			} 
-		case	SimpleDefType::uint16Type :
-			{
-				goFile_<<indent()<<inner<<".WriteUInt16("<<fieldName<<")"<<std::endl;
-				break;
-			} 
+			}
 		case	SimpleDefType::int16Type :
 			{
 				goFile_<<indent()<<inner<<".WriteInt16("<<fieldName<<")"<<std::endl;
 				break;
 			} 
-		case	SimpleDefType::uint32Type :
-			{
-				goFile_<<indent()<<inner<<".WriteUInt32("<<fieldName<<")"<<std::endl;
-				break;
-			} 
+
 		case	SimpleDefType::int32Type :
 			{
 				goFile_<<indent()<<inner<<".WriteInt32("<<fieldName<<")"<<std::endl;
@@ -527,12 +520,17 @@ void GoGenerator::serializeField( DefType* t ,const std::string& fieldName ,cons
 				goFile_<<indent()<<inner<<".WriteString("<<fieldName<<")"<<std::endl;
 				break;
 			}
+		case	SimpleDefType::binaryType :
+			{
+				goFile_<<indent()<<inner<<".WriteBinary("<<fieldName<<")"<<std::endl;
+				break;
+			}
 
 		}
 	}
 	else if(t->is_array())
 	{
-		goFile_<<indent()<<inner<<".WriteUInt16(uint16(len("<<fieldName<<")))"<<std::endl;
+		goFile_<<indent()<<inner<<".WriteInt32(int32(len("<<fieldName<<")))"<<std::endl;
 		goFile_<<indent()<<"for _ ,v := range "<<fieldName<<" {"<<std::endl;
 		indent_up();
 		serializeField(((ArrayDefType*)t)->valueDef_,"v",inner);
@@ -547,7 +545,7 @@ void GoGenerator::serializeField( DefType* t ,const std::string& fieldName ,cons
 	}
 	else if(t->is_map())
 	{
-		goFile_<<indent()<<inner<<".WriteUInt16(uint16(len("<<fieldName<<")))"<<std::endl;
+		goFile_<<indent()<<inner<<".WriteInt32(int32(len("<<fieldName<<")))"<<std::endl;
 		goFile_<<indent()<<"for k ,v := range "<<fieldName<<" {"<<std::endl;
 		indent_up();
 		serializeField(((MapDefType*)t)->keyDef_,"k",inner);
@@ -601,29 +599,14 @@ void GoGenerator::deSerializeField( DefType* t ,const std::string& fieldName  ,c
 				goFile_<<indent()<<fieldName<<"="<<inner<<".ReadBool()"<<std::endl;
 				break;
 			} 
-		case	SimpleDefType::uint8Type : 
-			{
-				goFile_<<indent()<<fieldName<<"="<<inner<<".ReadUInt8() "<<std::endl;
-				break;
-			} 
 		case	SimpleDefType::int8Type : 
 			{
 				goFile_<<indent()<<fieldName<<"="<<inner<<".ReadInt8()"<<std::endl;
 				break;
 			} 
-		case	SimpleDefType::uint16Type :
-			{
-				goFile_<<indent()<<fieldName<<"="<<inner<<".ReadUInt16()"<<std::endl;
-				break;
-			} 
 		case	SimpleDefType::int16Type :
 			{
 				goFile_<<indent()<<fieldName<<"="<<inner<<".ReadInt16()"<<std::endl;
-				break;
-			} 
-		case	SimpleDefType::uint32Type :
-			{
-				goFile_<<indent()<<fieldName<<"="<<inner<<".ReadUInt32()"<<std::endl;
 				break;
 			} 
 		case	SimpleDefType::int32Type :
@@ -646,6 +629,11 @@ void GoGenerator::deSerializeField( DefType* t ,const std::string& fieldName  ,c
 				goFile_<<indent()<<fieldName<<"="<<inner<<".ReadString()"<<std::endl;
 				break;
 			}
+		case	SimpleDefType::binaryType :
+			{
+				goFile_<<indent()<<fieldName<<"="<<inner<<".ReadBinary()"<<std::endl;
+				break;
+			}
 		}
 	}
 	else if(t->is_array())
@@ -653,11 +641,11 @@ void GoGenerator::deSerializeField( DefType* t ,const std::string& fieldName  ,c
 		static int i=0;
 		std::stringstream str;
 		str<<"_n_"<<i<<"_array";
-		goFile_<<indent()<<str.str()<<":="<<inner<<".ReadUInt16()"<<std::endl;
+		goFile_<<indent()<<str.str()<<":="<<inner<<".ReadInt32()"<<std::endl;
 		std::stringstream count;count<<"_i_"<<i<<"_";
 		i++;
 
-		goFile_<<indent()<<"for "<<count.str()<<":=0; "<<"uint16("<<count.str()<<")<"<<str.str()<<"; "<<count.str()<<"++ {"<<std::endl;
+		goFile_<<indent()<<"for "<<count.str()<<":=0; "<<"int32("<<count.str()<<")<"<<str.str()<<"; "<<count.str()<<"++ {"<<std::endl;
 		indent_up();
 		goFile_<<indent()<<"var tmp "<<typeName(((ArrayDefType*)t)->valueDef_)<<std::endl;
 		deSerializeField(((ArrayDefType*)t)->valueDef_,"tmp",inner);
@@ -674,11 +662,11 @@ void GoGenerator::deSerializeField( DefType* t ,const std::string& fieldName  ,c
 		static int i=0;
 		std::stringstream str;
 		str<<"_n_"<<i<<"_map";
-		goFile_<<indent()<<str.str()<<":="<<inner<<".ReadUInt16()"<<std::endl;
+		goFile_<<indent()<<str.str()<<":="<<inner<<".ReadInt32()"<<std::endl;
 		std::stringstream count;count<<"_i_"<<i<<"_";
 		i++;
 
-		goFile_<<indent()<<"for "<<count.str()<<":=0; "<<"uint16("<<count.str()<<")<"<<str.str()<<"; "<<count.str()<<"++ {"<<std::endl;
+		goFile_<<indent()<<"for "<<count.str()<<":=0; "<<"int32("<<count.str()<<")<"<<str.str()<<"; "<<count.str()<<"++ {"<<std::endl;
 		indent_up();
 		//key
 		goFile_<<indent()<<"var tmpKey "<<typeName(((MapDefType*)t)->keyDef_)<<std::endl;
@@ -691,7 +679,6 @@ void GoGenerator::deSerializeField( DefType* t ,const std::string& fieldName  ,c
 		goFile_<<indent()<<fieldName<<"[tmpKey]=tmpValue"<<std::endl;
 		indent_down();
 		goFile_<<indent()<<"}"<<std::endl;
-
 	}
 }
 
@@ -716,17 +703,15 @@ std::string GoGenerator::typeName(DefType* t)
 		switch (s->t_)
 		{
 		case SimpleDefType::boolType : return "bool";
-		case SimpleDefType::uint8Type : return "uint8";
+		case SimpleDefType::byteType: return "byte";
 		case SimpleDefType::int8Type : return "int8";
-		case SimpleDefType::uint16Type : return "uint16";
 		case SimpleDefType::int16Type : return "int16";
-
-		case SimpleDefType::uint32Type : return "uint32";
 		case SimpleDefType::int32Type : return "int32";
-
 		case SimpleDefType::int64Type : return "int64";
 		case SimpleDefType::floatType : return "float32";
 		case SimpleDefType::stringType : return "string";
+		case SimpleDefType::binaryType: return "[]byte";
+
 		default : assert(0&&"type error"); return "";
 		}
 	}

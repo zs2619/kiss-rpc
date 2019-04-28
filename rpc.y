@@ -13,6 +13,7 @@
  *  language keywords
  */
 %token tok_bool
+%token tok_byte
 %token tok_uint8
 %token tok_int8
 %token tok_uint16
@@ -22,6 +23,7 @@
 %token tok_int64
 %token tok_float
 %token tok_string
+%token tok_binary
 %token tok_void
 %token tok_enum
 %token tok_struct
@@ -347,30 +349,20 @@ tok_bool
 	$$= new SimpleDefType;
 	$$->t_=SimpleDefType::boolType;
 }
-|tok_uint8
+|tok_byte
 {
 	$$= new SimpleDefType;
-	$$->t_=SimpleDefType::uint8Type;
+	$$->t_=SimpleDefType::byteType;
 }
 |tok_int8
 {
 	$$= new SimpleDefType;
 	$$->t_=SimpleDefType::int8Type;
 }
-|tok_uint16
-{
-	$$= new SimpleDefType;
-	$$->t_=SimpleDefType::uint16Type;
-}
 |tok_int16
 {
 	$$= new SimpleDefType;
 	$$->t_=SimpleDefType::int16Type;
-}
-|tok_uint32
-{
-	$$= new SimpleDefType;
-	$$->t_=SimpleDefType::uint32Type;
 }
 |tok_int32
 {
@@ -392,5 +384,11 @@ tok_bool
 	$$= new SimpleDefType;
 	$$->t_=SimpleDefType::stringType;
 }
+|tok_binary
+{
+	$$= new SimpleDefType;
+	$$->t_=SimpleDefType::binaryType;
+}
+
 
 %%

@@ -61,24 +61,26 @@ void switchBuf(std::string& includeName)
 %%
 
 "bool"              { return tok_bool;}
-"uint8"             { return tok_uint8;}
+"byte"              { return tok_byte;}
 "int8"				{ return tok_int8;}
-"uint16"            { return tok_uint16;}
 "int16"				{ return tok_int16;}
-"uint32"            { return tok_uint32;}
 "int32"				{ return tok_int32;}
 "int64"				{ return tok_int64;}
 "float"			    { return tok_float;}
+"binary"            { return tok_binary;}
 "string"            { return tok_string;}
-"include"           { return tok_include;}
 "enum"			    { return tok_enum;}
 "struct"			{ return tok_struct;}
 "array"			    { return tok_array;}
 "map"               { return tok_map;}
 "void"			 	{ return tok_void; }
+"include"           { return tok_include;}
 "service"           { return tok_service;}
 "group"				{ return tok_group;}
 "namespace"			{ return tok_namespace;}
+"uint8"             { reserved_keyword(yytext);}
+"uint16"            { reserved_keyword(yytext);}
+"uint32"            { reserved_keyword(yytext);}
 "dynamic"           { reserved_keyword(yytext); }
 "make"				{ reserved_keyword(yytext); }
 "go"				{ reserved_keyword(yytext); }

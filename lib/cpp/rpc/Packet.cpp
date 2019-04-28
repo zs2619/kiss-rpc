@@ -6,7 +6,7 @@ void MsgProtocolTypeInit(rpc::EnumMap* e)
 } 
 rpc::EnumMap RpcEnum(MsgProtocolType)(MsgProtocolTypeInit);
 
-const char* rpc::RpcHeader::strFingerprint="28310e0dc8ad86ce46bf42a5037ee8d6";
+const char* rpc::RpcHeader::strFingerprint="2bcc93ddec2a7ac9beece683a78b5561";
 rpc::RpcHeader::RpcHeader()
 :version(0)
 ,msgType(MsgProtocolType(0))
@@ -19,7 +19,7 @@ rpc::RpcHeader::~RpcHeader()
 //serialize
 void rpc::RpcHeader::serialize(rpc::IProtocol* __P__) const 
 { 
-	__P__->writeUInt8(version);
+	__P__->writeInt8(version);
 
 	__P__->writeInt16((rpc::int16)msgType);
 
@@ -30,7 +30,7 @@ void rpc::RpcHeader::serialize(rpc::IProtocol* __P__) const
 //deSerialize
 bool rpc::RpcHeader::deSerialize(rpc::IProtocol* __P__)
 { 
-	if(!__P__->readUInt8(version))return false;
+	if(!__P__->readInt8(version))return false;
 
 	rpc::int16  __temp_enum__msgType =0;
 	if(!__P__->readInt16((rpc::int16&) __temp_enum__msgType))return false;
@@ -41,7 +41,7 @@ bool rpc::RpcHeader::deSerialize(rpc::IProtocol* __P__)
 	return true; 
 }//deSerialize 
 
-const char* rpc::RequestMsg::strFingerprint="2017ec81ad4621da5e3b8bd32bc985fe";
+const char* rpc::RequestMsg::strFingerprint="e61c37380db853addbaafae6c4850b2e";
 rpc::RequestMsg::RequestMsg()
 :msgSeqId(0)
 ,msgId(0)
@@ -58,13 +58,9 @@ void rpc::RequestMsg::serialize(rpc::IProtocol* __P__) const
 
 	__P__->writeInt64(msgSeqId);
 
-	__P__->writeUInt16(msgId);
+	__P__->writeInt32(msgId);
 
-	__P__->writeUInt16(rpc::uint16(buff.size()));
-	for (size_t _i_buff_=0;_i_buff_<buff.size();_i_buff_++)
-	{
-		__P__->writeInt8(buff[_i_buff_]);
-	}
+	__P__->writeBinary(buff);
 
 }// serialize
 
@@ -75,20 +71,14 @@ bool rpc::RequestMsg::deSerialize(rpc::IProtocol* __P__)
 
 	if(!__P__->readInt64(msgSeqId))return false;
 
-	if(!__P__->readUInt16(msgId))return false;
+	if(!__P__->readInt32(msgId))return false;
 
-	rpc::uint16 _n_buff_array=0;
-	if(!__P__->readUInt16(_n_buff_array))return false;
-	buff.resize( _n_buff_array);
-	for (size_t _i_buff_=0;_i_buff_<_n_buff_array;_i_buff_++)
-	{
-		if(!__P__->readInt8(buff[_i_buff_]))return false;
-	}
+	if(!__P__->readBinary(buff))return false;
 
 	return true; 
 }//deSerialize 
 
-const char* rpc::ResponseMsg::strFingerprint="ac24ea21771056228cb098ed462458e0";
+const char* rpc::ResponseMsg::strFingerprint="d44e3caf8903d1f381a22194a181c1cc";
 rpc::ResponseMsg::ResponseMsg()
 :msgSeqId(0)
 ,msgId(0)
@@ -105,13 +95,9 @@ void rpc::ResponseMsg::serialize(rpc::IProtocol* __P__) const
 
 	__P__->writeInt64(msgSeqId);
 
-	__P__->writeUInt16(msgId);
+	__P__->writeInt32(msgId);
 
-	__P__->writeUInt16(rpc::uint16(buff.size()));
-	for (size_t _i_buff_=0;_i_buff_<buff.size();_i_buff_++)
-	{
-		__P__->writeInt8(buff[_i_buff_]);
-	}
+	__P__->writeBinary(buff);
 
 }// serialize
 
@@ -122,15 +108,9 @@ bool rpc::ResponseMsg::deSerialize(rpc::IProtocol* __P__)
 
 	if(!__P__->readInt64(msgSeqId))return false;
 
-	if(!__P__->readUInt16(msgId))return false;
+	if(!__P__->readInt32(msgId))return false;
 
-	rpc::uint16 _n_buff_array=0;
-	if(!__P__->readUInt16(_n_buff_array))return false;
-	buff.resize( _n_buff_array);
-	for (size_t _i_buff_=0;_i_buff_<_n_buff_array;_i_buff_++)
-	{
-		if(!__P__->readInt8(buff[_i_buff_]))return false;
-	}
+	if(!__P__->readBinary(buff))return false;
 
 	return true; 
 }//deSerialize 

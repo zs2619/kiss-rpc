@@ -1,12 +1,12 @@
 package rpc
 
-const RequestMsg_strFingerprint = "2017ec81ad4621da5e3b8bd32bc985fe"
+const RequestMsg_strFingerprint = "e61c37380db853addbaafae6c4850b2e"
 
 type RequestMsg struct {
 	Header   RpcHeader `json:"header"`
 	MsgSeqId int64     `json:"msgSeqId"`
-	MsgId    uint16    `json:"msgId"`
-	Buff     []int8    `json:"buff"`
+	MsgId    int32     `json:"msgId"`
+	Buff     []byte    `json:"buff"`
 }
 
 func (this *RequestMsg) GetFingerprint() string {
@@ -17,27 +17,19 @@ func (this *RequestMsg) Serialize(P__ IProtocol) {
 
 	P__.WriteInt64(this.MsgSeqId)
 
-	P__.WriteUInt16(this.MsgId)
+	P__.WriteInt32(this.MsgId)
 
-	P__.WriteUInt16(uint16(len(this.Buff)))
-	for _, v := range this.Buff {
-		P__.WriteInt8(v)
-	}
+	P__.WriteBinary(this.Buff)
 
 }
-func (this *RequestMsg) DeSerialize(P__ IProtocol) bool {
+func (this *RequestMsg) DeSerialize(P__ IProtocol) error {
 	this.Header.DeSerialize(P__)
 
 	this.MsgSeqId = P__.ReadInt64()
 
-	this.MsgId = P__.ReadUInt16()
+	this.MsgId = P__.ReadInt32()
 
-	_n_0_array := P__.ReadUInt16()
-	for _i_0_ := 0; uint16(_i_0_) < _n_0_array; _i_0_++ {
-		var tmp int8
-		tmp = P__.ReadInt8()
-		this.Buff = append(this.Buff, tmp)
-	}
+	this.Buff = P__.ReadBinary()
 
-	return true
+	return nil
 }

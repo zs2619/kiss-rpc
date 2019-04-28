@@ -135,11 +135,8 @@ std::string CSharpGenerator::DefaultValue( DefType* t )
 		switch (s->t_)
 		{
 		case SimpleDefType::boolType : return "false";
-		case SimpleDefType::uint8Type : return "0";
 		case SimpleDefType::int8Type : return "0";
-		case SimpleDefType::uint16Type : return "0";
 		case SimpleDefType::int16Type : return "0";
-		case SimpleDefType::uint32Type : return "0";
 		case SimpleDefType::int32Type : return "0";
 		case SimpleDefType::int64Type : return "0";
 		case SimpleDefType::floatType : return "0.0f";
@@ -181,15 +178,9 @@ std::string CSharpGenerator::typeName( DefType* t )
 		switch (s->t_)
 		{
 		case SimpleDefType::boolType : return "bool";
-
-		case SimpleDefType::uint8Type : return "byte";
 		case SimpleDefType::int8Type : return "sbyte";
-		case SimpleDefType::uint16Type : return "ushort";
 		case SimpleDefType::int16Type : return "short";
-
-		case SimpleDefType::uint32Type : return "uint";
 		case SimpleDefType::int32Type : return "int";
-
 		case SimpleDefType::int64Type : return "long";
 		case SimpleDefType::floatType : return "float";
 		case SimpleDefType::stringType : return "string";
@@ -225,29 +216,14 @@ void CSharpGenerator::serializeField( DefType* t ,const std::string& fieldName )
 				csharpFile_<<indent()<<"__P__.writeBool("<<fieldName<<");"<<std::endl;
 				break;
 			} 
-		case	SimpleDefType::uint8Type : 
-			{
-				csharpFile_<<indent()<<"__P__.writeUInt8("<<fieldName<<");"<<std::endl;
-				break;
-			} 
 		case	SimpleDefType::int8Type : 
 			{
 				csharpFile_<<indent()<<"__P__.writeInt8("<<fieldName<<");"<<std::endl;
 				break;
 			} 
-		case	SimpleDefType::uint16Type :
-			{
-				csharpFile_<<indent()<<"__P__.writeUInt16("<<fieldName<<");"<<std::endl;
-				break;
-			} 
 		case	SimpleDefType::int16Type :
 			{
 				csharpFile_<<indent()<<"__P__.writeInt16("<<fieldName<<");"<<std::endl;
-				break;
-			} 
-		case	SimpleDefType::uint32Type :
-			{
-				csharpFile_<<indent()<<"__P__.writeUInt32("<<fieldName<<");"<<std::endl;
 				break;
 			} 
 		case	SimpleDefType::int32Type :
@@ -312,29 +288,15 @@ void CSharpGenerator::deSerializeField( DefType* t ,const std::string& fieldName
 				csharpFile_<<indent()<<fieldName<<"=__P__.readBool() ;"<<std::endl;
 				break;
 			} 
-		case	SimpleDefType::uint8Type : 
-			{
-				csharpFile_<<indent()<<fieldName<<"=__P__.readUInt8();"<<std::endl;
-				break;
-			} 
+
 		case	SimpleDefType::int8Type : 
 			{
 				csharpFile_<<indent()<<fieldName<<"=__P__.readInt8();"<<std::endl;
 				break;
 			} 
-		case	SimpleDefType::uint16Type :
-			{
-				csharpFile_<<indent()<<fieldName<<"=__P__.readUInt16();"<<std::endl;
-				break;
-			} 
 		case	SimpleDefType::int16Type :
 			{
 				csharpFile_<<indent()<<fieldName<<"=__P__.readInt16();"<<std::endl;
-				break;
-			} 
-		case	SimpleDefType::uint32Type :
-			{
-				csharpFile_<<indent()<<fieldName<<"=__P__.readUInt32();"<<std::endl;
 				break;
 			} 
 		case	SimpleDefType::int32Type :
