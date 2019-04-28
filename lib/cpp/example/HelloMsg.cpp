@@ -142,7 +142,7 @@ bool shuai::user::deSerialize(rpc::IProtocol* __P__)
 	return true; 
 }//deSerialize 
 
-const char* shuai::opServiceStub::strFingerprint="e5212fe49d9deba0e43271889ff23ec0";
+const char* shuai::opServiceStub::strFingerprint="878e3bfc527601565994f11bb9d347d0";
 const char* shuai::opServiceStub::getObjName="shuai.opService";
 void  shuai::opServiceStub::invokeAsync(rpc::int16 msgId,const rpc::IProtocol* p ,const std::string& functionName) {
 	std::shared_ptr<rpc::RpcMsg> msg = std::make_shared<rpc::RpcMsg>();
@@ -156,25 +156,25 @@ bool  shuai::opServiceStub::dispatch(std::shared_ptr<rpc::RpcMsg> msg) {
 	auto id=msg->responseMsg_.msgId;
 	switch (id)
 	{
+		case 0:
+		{
+			std::unique_ptr<rpc::IProtocol> __P__(chan_->getProtocol()->createProtoBuffer());
+			__P__->setBuffer(msg->responseMsg_.buff);
+			rpc::int8 ret ;
+			if(!__P__.get()->readInt8(ret))return false;
+			int cbRet = loginCallBack(ret);
+			return true;
+		}
 		case 1:
 		{
 			std::unique_ptr<rpc::IProtocol> __P__(chan_->getProtocol()->createProtoBuffer());
 			__P__->setBuffer(msg->responseMsg_.buff);
-			rpc::int8 ret ;
-			if(!__P__.get()->readInt8(ret))return false;
-			int cbRet = testCallBack(ret);
-			return true;
-		}
-		case 2:
-		{
-			std::unique_ptr<rpc::IProtocol> __P__(chan_->getProtocol()->createProtoBuffer());
-			__P__->setBuffer(msg->responseMsg_.buff);
-			rpc::int8 ret ;
-			if(!__P__.get()->readInt8(ret))return false;
+			user ret ;
+			if(!ret.deSerialize(__P__.get()))return false;
 			int cbRet = xixiCallBack(ret);
 			return true;
 		}
-		case 3:
+		case 2:
 		{
 			std::unique_ptr<rpc::IProtocol> __P__(chan_->getProtocol()->createProtoBuffer());
 			__P__->setBuffer(msg->responseMsg_.buff);
@@ -189,7 +189,7 @@ bool  shuai::opServiceStub::dispatch(std::shared_ptr<rpc::RpcMsg> msg) {
 			int cbRet = lalaCallBack(ret);
 			return true;
 		}
-		case 4:
+		case 3:
 		{
 			std::unique_ptr<rpc::IProtocol> __P__(chan_->getProtocol()->createProtoBuffer());
 			__P__->setBuffer(msg->responseMsg_.buff);
@@ -204,30 +204,21 @@ bool  shuai::opServiceStub::dispatch(std::shared_ptr<rpc::RpcMsg> msg) {
 		}
 	}
 }
-void shuai::opServiceStub::momo(rpc::int8  i8,rpc::int64  i64)
+void shuai::opServiceStub::login(const std::string&  openid,std::function<int(rpc::int8)> cb)
 {
 	std::unique_ptr<rpc::IProtocol> __P__(chan_->getProtocol()->createProtoBuffer());
-	__P__.get()->writeInt8(i8);
+	__P__.get()->writeString(openid);
 
-	__P__.get()->writeInt64(i64);
-
-	invokeAsync(0,__P__.get(),"momo");
+	loginCallBack = cb;
+	invokeAsync(0,__P__.get(),"login");
 }
-void shuai::opServiceStub::test(rpc::int8  i8,std::function<int(rpc::int8)> cb)
-{
-	std::unique_ptr<rpc::IProtocol> __P__(chan_->getProtocol()->createProtoBuffer());
-	__P__.get()->writeInt8(i8);
-
-	testCallBack = cb;
-	invokeAsync(1,__P__.get(),"test");
-}
-void shuai::opServiceStub::xixi(user&  u,std::function<int(rpc::int8)> cb)
+void shuai::opServiceStub::xixi(user&  u,std::function<int(user)> cb)
 {
 	std::unique_ptr<rpc::IProtocol> __P__(chan_->getProtocol()->createProtoBuffer());
 	u.serialize(__P__.get());
 
 	xixiCallBack = cb;
-	invokeAsync(2,__P__.get(),"xixi");
+	invokeAsync(1,__P__.get(),"xixi");
 }
 void shuai::opServiceStub::lala(std::map<rpc::int32,role>&  m,std::vector<rpc::int32> &  ai,std::vector<role> &  ar,std::function<int(std::vector<role> )> cb)
 {
@@ -254,15 +245,17 @@ void shuai::opServiceStub::lala(std::map<rpc::int32,role>&  m,std::vector<rpc::i
 	}
 
 	lalaCallBack = cb;
-	invokeAsync(3,__P__.get(),"lala");
+	invokeAsync(2,__P__.get(),"lala");
 }
-void shuai::opServiceStub::ping(std::function<int(rpc::int8)> cb)
+void shuai::opServiceStub::ping(rpc::int8  i8,std::function<int(rpc::int8)> cb)
 {
 	std::unique_ptr<rpc::IProtocol> __P__(chan_->getProtocol()->createProtoBuffer());
+	__P__.get()->writeInt8(i8);
+
 	pingCallBack = cb;
-	invokeAsync(4,__P__.get(),"ping");
+	invokeAsync(3,__P__.get(),"ping");
 }
-const char* shuai::opServiceProxyIF::strFingerprint="e5212fe49d9deba0e43271889ff23ec0";
+const char* shuai::opServiceProxyIF::strFingerprint="878e3bfc527601565994f11bb9d347d0";
 const char* shuai::opServiceProxyIF::getObjName="shuai.opService";
 bool shuai::opServiceProxyIF::dispatch(std::shared_ptr<rpc::RpcMsg> msg)
 {
@@ -274,22 +267,10 @@ bool shuai::opServiceProxyIF::dispatch(std::shared_ptr<rpc::RpcMsg> msg)
 		{
 			std::unique_ptr<rpc::IProtocol> __P__(service_->getProtocol()->createProtoBuffer());
 			__P__->setBuffer(msg->requestMsg_.buff);
-			rpc::int8 i8;
-			if(!__P__.get()->readInt8(i8))return false;
+			std::string openid;
+			if(!__P__.get()->readString(openid))return false;
 
-			rpc::int64 i64;
-			if(!__P__.get()->readInt64(i64))return false;
-
-			auto result = momo(i8,i64);
-		}
-		case  1 :
-		{
-			std::unique_ptr<rpc::IProtocol> __P__(service_->getProtocol()->createProtoBuffer());
-			__P__->setBuffer(msg->requestMsg_.buff);
-			rpc::int8 i8;
-			if(!__P__.get()->readInt8(i8))return false;
-
-			auto result = test(i8);
+			auto result = login(openid);
 			if (std::get<0>(result)==0)
 			{
 				std::unique_ptr<rpc::IProtocol> __P__(service_->getProtocol()->createProtoBuffer());
@@ -299,7 +280,7 @@ bool shuai::opServiceProxyIF::dispatch(std::shared_ptr<rpc::RpcMsg> msg)
 				invoke(msg);
 			}
 		}
-		case  2 :
+		case  1 :
 		{
 			std::unique_ptr<rpc::IProtocol> __P__(service_->getProtocol()->createProtoBuffer());
 			__P__->setBuffer(msg->requestMsg_.buff);
@@ -310,13 +291,13 @@ bool shuai::opServiceProxyIF::dispatch(std::shared_ptr<rpc::RpcMsg> msg)
 			if (std::get<0>(result)==0)
 			{
 				std::unique_ptr<rpc::IProtocol> __P__(service_->getProtocol()->createProtoBuffer());
-				rpc::int8 ret=std::get<1>(result);
-				__P__.get()->writeInt8(ret);
+				user ret=std::get<1>(result);
+				ret.serialize(__P__.get());
 				msg->responseMsg_.buff=__P__->getBuffer();
 				invoke(msg);
 			}
 		}
-		case  3 :
+		case  2 :
 		{
 			std::unique_ptr<rpc::IProtocol> __P__(service_->getProtocol()->createProtoBuffer());
 			__P__->setBuffer(msg->requestMsg_.buff);
@@ -364,11 +345,14 @@ bool shuai::opServiceProxyIF::dispatch(std::shared_ptr<rpc::RpcMsg> msg)
 				invoke(msg);
 			}
 		}
-		case  4 :
+		case  3 :
 		{
 			std::unique_ptr<rpc::IProtocol> __P__(service_->getProtocol()->createProtoBuffer());
 			__P__->setBuffer(msg->requestMsg_.buff);
-			auto result = ping();
+			rpc::int8 i8;
+			if(!__P__.get()->readInt8(i8))return false;
+
+			auto result = ping(i8);
 			if (std::get<0>(result)==0)
 			{
 				std::unique_ptr<rpc::IProtocol> __P__(service_->getProtocol()->createProtoBuffer());

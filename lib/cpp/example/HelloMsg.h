@@ -62,8 +62,7 @@ public:
 	static const char* strFingerprint;
 	static const char* getObjName;
 	enum {
-		momo_Id,
-		test_Id,
+		login_Id,
 		xixi_Id,
 		lala_Id,
 		ping_Id,
@@ -72,15 +71,14 @@ public:
 	virtual ~opServiceStub(){}
 	void invokeAsync(rpc::int16 msgId,const rpc::IProtocol* p,const std::string& functionName);
 	virtual bool dispatch(std::shared_ptr<rpc::RpcMsg> msg);
-	void momo(rpc::int8  i8,rpc::int64  i64);
-	void test(rpc::int8  i8,std::function<int(rpc::int8)> cb);
-	void xixi(user&  u,std::function<int(rpc::int8)> cb);
+	void login(const std::string&  openid,std::function<int(rpc::int8)> cb);
+	void xixi(user&  u,std::function<int(user)> cb);
 	void lala(std::map<rpc::int32,role>&  m,std::vector<rpc::int32> &  ai,std::vector<role> &  ar,std::function<int(std::vector<role> )> cb);
-	void ping(std::function<int(rpc::int8)> cb);
+	void ping(rpc::int8  i8,std::function<int(rpc::int8)> cb);
 
 protected:
-	std::function<int(rpc::int8)> testCallBack;
-	std::function<int(rpc::int8)> xixiCallBack;
+	std::function<int(rpc::int8)> loginCallBack;
+	std::function<int(user)> xixiCallBack;
 	std::function<int(std::vector<role> )> lalaCallBack;
 	std::function<int(rpc::int8)> pingCallBack;
 };//class
@@ -92,11 +90,10 @@ public:
 	static const char* getObjName;
 	opServiceProxyIF(const rpc::Connection* conn):ServiceProxy(conn){}
 	virtual ~opServiceProxyIF(){}
-	virtual std::tuple<int>momo(rpc::int8  i8,rpc::int64  i64)=0;
-	virtual std::tuple<int,rpc::int8>test(rpc::int8  i8)=0;
-	virtual std::tuple<int,rpc::int8>xixi(user&  u)=0;
+	virtual std::tuple<int,rpc::int8>login(const std::string&  openid)=0;
+	virtual std::tuple<int,user>xixi(user&  u)=0;
 	virtual std::tuple<int,std::vector<role> >lala(std::map<rpc::int32,role>&  m,std::vector<rpc::int32> &  ai,std::vector<role> &  ar)=0;
-	virtual std::tuple<int,rpc::int8>ping()=0;
+	virtual std::tuple<int,rpc::int8>ping(rpc::int8  i8)=0;
 	virtual bool dispatch(std::shared_ptr<rpc::RpcMsg> msg);
 
 };//class

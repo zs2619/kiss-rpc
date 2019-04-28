@@ -53,7 +53,7 @@ public:
 
 			auto proxy = proxyMap_.find(msg->requestMsg_.header.serviceName);
 			if (proxy == proxyMap_.end()) {
-				std::cout<<msg->requestMsg_.header.serviceName<<" error "<<std::endl;
+				std::cout<<msg->requestMsg_.header.serviceName<<" serviceName error "<<std::endl;
 				return 0;
 			}
 			int ret= proxy->second->dispatch(msg);

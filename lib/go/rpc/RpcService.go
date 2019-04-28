@@ -3,31 +3,33 @@ package rpc
 import (
 	"bytes"
 	"net"
-	"reflect"
 )
+
+type ServiceProxyFactory func (rpcService *RpcService) interface{} 
 
 type IRpcServiecFactroy interface {
 	NewRpcService(event *NetEvent, ep endPoint, tcpConn *net.TCPConn) *RpcService
 }
+
 type RpcServiecFactroy struct {
 	TransFactory     ITransportFactory
 	ProtoFactory     IProtocolFactory
-	ServiceProxyType []reflect.Type
+	ServiceProxyFactory []ServiceProxyFactory
 }
 
 func (this RpcServiecFactroy) NewRpcService(event *NetEvent, ep endPoint, tcpConn *net.TCPConn) *RpcService {
 	conn := NewConnection(event, ep, tcpConn, this.ProtoFactory.NewProtocol(), this.TransFactory.NewTransport())
-	proxyMap := make(map[string]IServiceProxy)
 
+	proxyMap := make(map[string]interface{})
 	service := &RpcService{connection: conn}
 
-	for _, t := range this.ServiceProxyType {
-		spValue := reflect.New(t)
-		vv := spValue.Elem().Interface().(IServiceProxyFactory)
-		proxy := vv.NewServiceProxy(service)
-		proxyMap[proxy.GetObjName()] = proxy
+	for _, factory := range this.ServiceProxyFactory {
+		proxy:=factory(service)
+		name:=proxy.(interface{ GetObjName() string }).GetObjName()
+		proxyMap[name] = proxy
 	}
 	service.proxyMap = proxyMap
+
 	conn.cb = service.handleInput
 	return service
 
@@ -35,7 +37,7 @@ func (this RpcServiecFactroy) NewRpcService(event *NetEvent, ep endPoint, tcpCon
 
 type RpcService struct {
 	*connection
-	proxyMap map[string]IServiceProxy
+	proxyMap map[string]interface{}
 }
 
 func (this *RpcService) handleInput(buff *bytes.Buffer) error {
@@ -43,13 +45,12 @@ func (this *RpcService) handleInput(buff *bytes.Buffer) error {
 	if err != nil {
 		return nil
 	}
-
 	proxy, ok := this.proxyMap[requestMsg.Header.ServiceName]
 	if !ok {
 		return nil
 	}
 	rpcMsg := &RpcMsg{}
-	proxy.Dispatch(rpcMsg)
-
-	return nil
+	rpcMsg.RequestMsg=*requestMsg
+	err=proxy.(interface{ Dispatch(msg *RpcMsg) error }).Dispatch(rpcMsg)
+	return err
 }

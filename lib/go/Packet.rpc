@@ -1,8 +1,3 @@
-
-/** 
-	rpc 内部使用消息格式 
-	buff 为proto协议层使用内容
-*/
 namespace rpc {
 
 enum MsgProtocolType
@@ -12,7 +7,7 @@ enum MsgProtocolType
 };
 
 struct RpcHeader {
-	uint8            version;
+	int8             version;
 	MsgProtocolType  msgType;
 	string           serviceName;
 };
@@ -20,14 +15,14 @@ struct RpcHeader {
 struct RequestMsg {
 	RpcHeader   header;
 	int64       msgSeqId;
-	uint16      msgId;
-	array<int8> buff;
+	int32       msgId;
+	binary      buff;
 };
 
 struct ResponseMsg {
-	RpcHeader    header;
-	int64        msgSeqId;
-	uint16       msgId;
-	array<int8>  buff;
+	RpcHeader     header;
+	int64         msgSeqId;
+	int32         msgId;
+	binary        buff;
 };
 }

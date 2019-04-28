@@ -1,5 +1,7 @@
 package rpc
 
+import "time"
+
 type ServiceStub struct {
 	*RpcChannel
 	maxMsgSeqId      int64
@@ -9,9 +11,14 @@ type ServiceStub struct {
 
 func (this *ServiceStub) Invoke(msg *RpcMsg) int {
 	msg.RequestMsg.MsgSeqId = this.maxMsgSeqId + 1
+	msg.RequestMsg.Header.Version = 0
+	msg.Time = time.Now().UTC()
+	msg.RequestMsg.Header.MsgType = MPT_Bin
+	msg.RequestMsg.Header.ServiceName = msg.ServiceName
 
 	ret := this.GetTransport().sendRequestMsg(&msg.RequestMsg)
 	if ret != nil {
+		return -1
 	}
 	this.msgQueue[msg.RequestMsg.MsgSeqId] = msg
 	return 0
@@ -27,6 +34,7 @@ func (this *ServiceStub) stubMsgCallBack(respMsg *ResponseMsg) error {
 	if !ok {
 		return nil
 	}
+	rpcMsg.ResponseMsg=*respMsg
 	this.RpcMsgDispatchCB(rpcMsg)
 	delete(this.msgQueue, respMsg.MsgSeqId)
 	return nil

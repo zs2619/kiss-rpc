@@ -46,7 +46,7 @@ void GoGenerator::generateEnum()
 
 	for(auto& it :program_->enums_.defs_)
 	{
-		std::string name=program_->getOutputDir()+ setInitialLower(it->name_)+".go";
+		std::string name=program_->getOutputDir()+ setInitialUpper(it->name_)+".go";
 		goFile_.open(name.c_str());
 		goFile_<<indent()<<"package "<<generateContext->ns_.name_<<std::endl;
 
@@ -99,7 +99,7 @@ void GoGenerator::generateStruct()
 
 	for(auto& it :program_->structs_.defs_)
 	{
-		std::string name=program_->getOutputDir()+setInitialLower(it->name_)+".go";
+		std::string name=program_->getOutputDir()+ setInitialUpper(it->name_)+".go";
 		goFile_.open(name.c_str());
 		goFile_<<indent()<<"package "<<generateContext->ns_.name_<<std::endl;
 
@@ -170,7 +170,7 @@ void GoGenerator::genServiceStub()
 	if (generateContext->ns_.services_.defs_.empty())
 		return;
 
-	std::string fileName=program_->getOutputDir()+setInitialLower(program_->getBaseName())+"Stub.go";
+	std::string fileName=program_->getOutputDir()+ setInitialUpper(program_->getBaseName())+"Stub.go";
 	goFile_.open(fileName.c_str());
 	goFile_<<indent()<<"package "<<generateContext->ns_.name_<<std::endl;
 	goFile_<<std::endl;
@@ -185,7 +185,12 @@ void GoGenerator::genServiceStub()
 
 	for (auto& it:program_->services_.defs_)
 	{
-		goFile_<<indent()<<"const "<<it->name_<<"_"<<"strFingerprintStub=\""<<md5(it->getFingerPrint())<<"\""<<std::endl;
+		std::string fingerprintName=it->name_+"_strFingerprintStub";
+		std::string objName=it->name_+"_getObjNameStub";
+
+		goFile_<<indent()<<"const "<<fingerprintName<<"=\""<<md5(it->getFingerPrint())<<"\""<<std::endl;
+		goFile_<<indent()<<"const "<<objName<<"=\""<<generateContext->ns_.name_<<"."<<it->name_<<"\";"<<std::endl;
+
 		std::string ifName=setInitialUpper(it->name_)+"Stub";
 		goFile_<<indent()<<"type "<<ifName<<" struct {"<<std::endl;
 		indent_up();
@@ -202,10 +207,12 @@ void GoGenerator::genServiceStub()
 		goFile_<<indent()<<"}"<<std::endl;
 		goFile_<<std::endl;
 
-		goFile_<<indent()<<"func New"<<setInitialUpper(it->name_)<<"Stub"<<"(rpcChan *rpc.RpcChannel) *"<<setInitialUpper(it->name_)<<"Stub"<< "{"<<std::endl;
+		goFile_<<indent()<<"func New"<<setInitialUpper(it->name_)<<"Stub"<<"(rpcChan *rpc.RpcChannel) *"
+		<<setInitialUpper(it->name_)<<"Stub"<< "{"<<std::endl;
 		indent_up();
-		goFile_<<indent()<<"stub := &"<<setInitialUpper(it->name_)<<"Stub"<<"{strFingerprint: \""<<md5(it->getFingerPrint())<<"\", getObjName: "
-		<<"\""<<it->name_<<"\", ServiceStub: rpc.NewServiceStub(rpcChan)}"<<std::endl;
+		goFile_<<indent()<<"stub := &"<<setInitialUpper(it->name_)<<"Stub"<<"{strFingerprint: "<<fingerprintName
+		<<", getObjName: " <<objName<<", ServiceStub: rpc.NewServiceStub(rpcChan)}"<<std::endl;
+		goFile_<<indent()<<"rpcChan.AddStubMap(stub.getObjName,stub.ServiceStub)"<<std::endl;
 		goFile_<<indent()<<"stub.ServiceStub.RpcMsgDispatchCB = stub.Dispatch"<<std::endl;
 		goFile_<<indent()<<"return stub"<<std::endl;
 		indent_down();
@@ -214,7 +221,8 @@ void GoGenerator::genServiceStub()
 		goFile_<<indent()<<"func (this *OpServiceStub) invokeAsync(msgId int32, p rpc.IProtocol, funcName string) {"<<std::endl;
 		indent_up();
 		goFile_<<indent()<<"msg := &rpc.RpcMsg{}"<<std::endl;
-		goFile_<<indent()<<"msg.ServiceName = funcName"<<std::endl;
+		goFile_<<indent()<<"msg.FunctionName = funcName"<<std::endl;
+		goFile_<<indent()<<"msg.ServiceName = this.GetObjName()"<<std::endl;
 		goFile_<<indent()<<"msg.RequestMsg.MsgId = msgId"<<std::endl;
 		goFile_<<indent()<<"msg.RequestMsg.Buff = p.GetBuffer().Bytes()"<<std::endl;
 		goFile_<<indent()<<"this.Invoke(msg)"<<std::endl;
@@ -323,7 +331,7 @@ void GoGenerator::genServiceProxy()
 	if (generateContext->ns_.services_.defs_.empty())
 		return;
 	//
-	std::string fileName=program_->getOutputDir()+program_->getBaseName()+"Proxy.go";
+	std::string fileName=program_->getOutputDir()+ setInitialUpper(program_->getBaseName())+"Proxy.go";
 	goFile_.open(fileName.c_str());
 	goFile_<<indent()<<"package "<<generateContext->ns_.name_<<std::endl;
 	goFile_<<std::endl;
@@ -358,12 +366,17 @@ void GoGenerator::genServiceProxy()
 		goFile_<<std::endl;
 
 		std::string cName=setInitialUpper(it->name_)+"Proxy";
-		goFile_<<indent()<<"const "<<it->name_<<"_"<<"strFingerprintProxy=\""<<md5(it->getFingerPrint())<<"\""<<std::endl;
+
+		std::string fingerprintName=it->name_+"_strFingerprintProxy";
+		std::string objName=it->name_+"_getObjNameProxy";
+
+		goFile_<<indent()<<"const "<<fingerprintName<<"=\""<<md5(it->getFingerPrint())<<"\""<<std::endl;
+		goFile_<<indent()<<"const "<<objName<<"=\""<<generateContext->ns_.name_<<"."<<it->name_<<"\";"<<std::endl;
 
 		goFile_<<indent()<<"type "<<cName<<" struct {"<<std::endl;
 		indent_up();
 		
-		goFile_<<indent()<<"*rpc.RpcService" << std::endl;
+		goFile_<<indent()<<"*rpc.ServiceProxy" << std::endl;
 		goFile_<<indent()<<"strFingerprint string"<<std::endl;
 		goFile_<<indent()<<"getObjName string"<<std::endl;
 		goFile_<<indent()<<"cbObject "<<ifName<<std::endl;
@@ -373,8 +386,8 @@ void GoGenerator::genServiceProxy()
 
 		goFile_<<indent()<< "func New"<<cName<<"(rpcService *rpc.RpcService,"<<"obj "<<ifName<<") *"<<cName<<" {"<<std::endl;
 		indent_up();
-		goFile_<<indent()<< "return &"<<cName<<"{strFingerprint: \""<<md5(it->getFingerPrint())<<"\", getObjName:\""<<cName
-		<<"\", RpcService: rpcService , cbObject:obj }"<<std::endl;
+		goFile_<<indent()<< "return &"<<cName<<"{strFingerprint: "<<fingerprintName<<", getObjName:"<<objName
+		<<", ServiceProxy:rpc.NewServiceProxy(rpcService), cbObject:obj }"<<std::endl;
 		indent_down();
 		goFile_<<indent()<<"}"<<std::endl;
 
@@ -394,9 +407,9 @@ void GoGenerator::genServiceProxy()
 		//dispatch
 		goFile_<<indent()<<"func (this *"<< setInitialUpper(it->name_)<<"Proxy) "<<"Dispatch"<<"(";
 		goFile_<<" msg *rpc.RpcMsg ";
-		goFile_<<") bool {"<<std::endl;
+		goFile_<<") error {"<<std::endl;
 		indent_up();
-		goFile_<<indent()<<"id := msg.ResponseMsg.MsgId"<<std::endl;
+		goFile_<<indent()<<"id := msg.RequestMsg.MsgId"<<std::endl;
 		goFile_<<indent()<<"switch id {"<<std::endl;
 		int i=0;
 		for(auto& t:it->funs_)
@@ -405,7 +418,7 @@ void GoGenerator::genServiceProxy()
 			indent_up();
 
 			goFile_<<indent()<<"proto := this.GetProtocol().CreateProtoBuffer()"<<std::endl;
-			goFile_<<indent()<<"proto.SetBuffer(bytes.NewBuffer(msg.ResponseMsg.Buff))"<<std::endl;
+			goFile_<<indent()<<"proto.SetBuffer(bytes.NewBuffer(msg.RequestMsg.Buff))"<<std::endl;
 			deSerializeFields(t->argrs_,"proto");
 			if (!t->result_->is_void())
 			{
@@ -420,10 +433,12 @@ void GoGenerator::genServiceProxy()
 
 			if (!t->result_->is_void())
 			{
-				goFile_<< indent()<< "if err!=nil{"<<std::endl;
+				goFile_<< indent()<< "if err==nil{"<<std::endl;
 				indent_up();
 				goFile_<< indent()<<"proto := this.GetProtocol().CreateProtoBuffer()"<<std::endl;
 				serializeField(t->result_, "result","proto");
+				goFile_ << indent() << "msg.ResponseMsg.Buff=proto.GetBuffer().Bytes();"<<std::endl;
+				goFile_ << indent() << "this.Invoke(msg);"<<std::endl;
 				indent_down();
 				goFile_ << indent() <<"}"<<std::endl;
 			}
@@ -434,11 +449,11 @@ void GoGenerator::genServiceProxy()
 				goFile_ << indent() <<"}"<<std::endl;
 			}
 		
-			goFile_<<indent()<<"return "<<"true"<<std::endl;
+			goFile_<<indent()<<"return "<<"nil"<<std::endl;
 			indent_down();
 		}
 		goFile_<<indent()<<"default:"<<std::endl;
-		goFile_<<indent()<<"return false"<<std::endl;
+		goFile_<<indent()<<"return nil"<<std::endl;
 
 
 		goFile_<<indent()<<"}//switch "<<std::endl;

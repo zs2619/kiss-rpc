@@ -3,6 +3,7 @@ package main
 import (
 	"kiss/rpc"
 	"kiss/shuai"
+	"fmt"
 )
 
 func main() {
@@ -12,7 +13,8 @@ func main() {
 		return
 	}
 	opServiceStub := shuai.NewOpServiceStub(rpcChan)
-	opServiceStub.Test(1, func(i int8) error {
+	opServiceStub.Login("shuai", func(i8 int8) error {
+		fmt.Printf("%d",i8)
 		return nil
 	})
 	event.EventLoop()

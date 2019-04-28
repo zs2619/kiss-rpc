@@ -1,11 +1,12 @@
 #include "rpc/Transport.h"
 #include "rpc/NetEvent.h"
 
+const size_t MsgHeaderMaxSize=2;
 int rpc::TcpTransport::sendRequestMsg( const RequestMsg& reqMsg) {
 	BinaryProtocol proto;
 	reqMsg.serialize(&proto);
 
-	int32 len = int32(proto.getBuffer().size());
+	uint16 len = uint16(proto.getBuffer().size());
 	struct evbuffer * msgbuff= evbuffer_new();
 	evbuffer_add(msgbuff,(byte*)&len,MsgHeaderMaxSize);
 	evbuffer_add(msgbuff,proto.getBuffer().data(), proto.getBuffer().size());
@@ -26,7 +27,7 @@ int rpc::TcpTransport::recvResponseMsg(struct evbuffer* buff,std::vector<Respons
 		struct evbuffer_iovec v[1];
 		ret=evbuffer_peek(buff, MsgHeaderMaxSize, NULL, v, 1);
 		RpcAssert(ret==1);
-		int32 msgLen= *(int32*)(v[0].iov_base);
+		uint16 msgLen= *(uint16*)(v[0].iov_base);
 
 		if (evbuffer_get_length(buff) < size_t(msgLen+MsgHeaderMaxSize)) {
 			return ret;
@@ -53,7 +54,7 @@ int rpc::TcpTransport::sendResponseMsg(const ResponseMsg& respMsg) {
 	BinaryProtocol proto;
 	respMsg.serialize(&proto);
 
-	int32 len = int32(proto.getBuffer().size());
+	uint16 len = uint16(proto.getBuffer().size());
 	struct evbuffer * msgbuff= evbuffer_new();
 	evbuffer_add(msgbuff,(byte*)&len,MsgHeaderMaxSize);
 	evbuffer_add(msgbuff,proto.getBuffer().data(), proto.getBuffer().size());
@@ -74,7 +75,7 @@ int rpc::TcpTransport::recvRequestMsg(struct evbuffer* buff,std::vector<RequestM
 		struct evbuffer_iovec v[1];
 		ret=evbuffer_peek(buff, MsgHeaderMaxSize, NULL, v, 1);
 		RpcAssert(ret==1);
-		uint16 msgLen= *(int32*)(v[0].iov_base);
+		uint16 msgLen= *(uint16*)(v[0].iov_base);
 
 		if (evbuffer_get_length(buff) < size_t( msgLen+MsgHeaderMaxSize)) {
 			return ret;

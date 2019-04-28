@@ -12,7 +12,6 @@
 #include <chrono>
 #include "rpc/Packet.h"
 namespace rpc {
-const uint16 MsgHeaderMaxSize=2;
 class RpcMsg {
 public:
 	RpcMsg() {}

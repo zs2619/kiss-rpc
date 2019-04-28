@@ -1,0 +1,38 @@
+
+namespace shuai{
+enum SexType
+{
+	male,
+	famale,
+};
+
+struct role
+{
+	SexType sexType;
+	bool    b;
+	byte    by;
+	int8 	i8;
+	int16   i16;
+	int32   i32;
+	int64   i64;
+	float   f;
+	string  str;
+	binary  bin;
+};
+
+struct user
+{
+	map<int32,role> roleMap;
+	array<int32> 	items;
+	array<role>     roles;
+};
+
+
+service opService
+{
+	int8 login(string  openid);
+	user xixi(user u);
+	array<role> lala(map<int32,role> m,array<int32> ai,array<role> ar);
+	int8 ping(int8 i8);
+};
+}

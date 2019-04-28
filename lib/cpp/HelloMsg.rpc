@@ -30,14 +30,9 @@ struct user
 
 service opService
 {
-	group{
-		int8 haha(int8 a,string h);
-		int8 hehe(string s ,float f);
-	}
-	void momo(int8 i8,int64 i64);
-    int8 test(int8 i8);
-	int8 xixi(user u);
+	int8 login(string  openid);
+	user xixi(user u);
 	array<role> lala(map<int32,role> m,array<int32> ai,array<role> ar);
-	int8 ping();
+	int8 ping(int8 i8);
 };
 }

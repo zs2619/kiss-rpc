@@ -143,7 +143,7 @@ public:
 		int32 len=int32(str.length());
 		if(write((byte*)&len,4))
 		{
-			return write((byte*)str.c_str(),uint32(str.length()));
+			return write((byte*)str.c_str(),len);
 		}
 		return false;
 	};
@@ -152,7 +152,7 @@ public:
 		int32 len=int32(buff.size());
 		if(write((byte*)&len,4))
 		{
-			return write((byte*)buff_.data()+curRead_,len);
+			return write((byte*)buff.data(),len);
 		}
 		return false;
 	};

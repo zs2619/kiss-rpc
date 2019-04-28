@@ -1,23 +1,25 @@
 package rpc
 
-type IServiceProxyFactory interface {
-	NewServiceProxy(rpcService *RpcService) IServiceProxy
-}
-type IServiceProxy interface {
-	Dispatch(msg *RpcMsg) bool
-	GetObjName() string
-}
 
 type ServiceProxy struct {
-	*connection
+	*RpcService
 }
 
-func (this *ServiceProxy) Invoke(m *RpcMsg) int {
+func (this *ServiceProxy) Invoke(msg *RpcMsg) int {
+	msg.ResponseMsg.MsgId=msg.RequestMsg.MsgId;
+	msg.ResponseMsg.MsgSeqId=msg.RequestMsg.MsgSeqId;
+	msg.ResponseMsg.Header.Version=0;
+	msg.ResponseMsg.Header.MsgType=MPT_Bin;
+	msg.ResponseMsg.Header.ServiceName=msg.RequestMsg.Header.ServiceName;
 
+	ret:=this.GetTransport().sendResponseMsg(&msg.ResponseMsg)
+	if ret!=nil{
+		return -1;
+	}
 	return 0
 }
 
 func NewServiceProxy(rpcService *RpcService) *ServiceProxy {
-	proxy := &ServiceProxy{connection: rpcService.connection}
+	proxy := &ServiceProxy{RpcService: rpcService}
 	return proxy
 }

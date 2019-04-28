@@ -16,11 +16,14 @@ func NewRpcChannel(event *NetEvent, ep endPoint, proto IProtocol, transFactory I
 	if err != nil {
 		return nil
 	}
-
 	conn := NewConnection(event, ep, tcpConn, proto, transFactory.NewTransport())
 	rpcChan := &RpcChannel{connection: conn, transFactory: transFactory, stubMap: make(map[string]*ServiceStub)}
 	rpcChan.connection.cb = rpcChan.handleInput
 	return rpcChan
+}
+func (this *RpcChannel) AddStubMap(name string, stub *ServiceStub) error {
+	this.stubMap[name] = stub
+	return nil
 }
 
 func (this *RpcChannel) handleInput(buff *bytes.Buffer) error {

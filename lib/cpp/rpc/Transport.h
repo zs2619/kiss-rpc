@@ -8,6 +8,7 @@ extern "C"{
 #include <event2/bufferevent.h>
 }
 #include "rpc/RpcMessage.h"
+
 namespace rpc {
 	class ITransport {
 	public:
@@ -40,8 +41,8 @@ namespace rpc {
 		virtual int sendResponseMsg(const ResponseMsg& respMsg);
 		virtual int recvRequestMsg(struct evbuffer* buff, std::vector<RequestMsg>& msgVec);
 
-		std::vector<int8> recvbuff_;
-		std::vector<int8> sendbuff_;
+		std::vector<byte> recvbuff_;
+		std::vector<byte> sendbuff_;
 	};
 
 	class HttpTransport :public ITransport {

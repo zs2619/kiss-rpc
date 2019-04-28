@@ -6,3 +6,8 @@
 /CMakeCache.txt
 /cmake_install.cmake
 /Makefile
+/.vscode/ipch
+*.ipch
+/lib/cpp/example/HelloClient/Debug
+/lib/cpp/example/HelloServer/Debug
+*.suo

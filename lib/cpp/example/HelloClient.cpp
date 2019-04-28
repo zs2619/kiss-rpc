@@ -22,11 +22,11 @@ int main(int argc,char ** argv)
 	rpc::NetEvent::getInstance()->scheduleTimer([](evutil_socket_t fd, short what, void *arg) -> void{
 
 	    shuai::opServiceStub* client=(shuai::opServiceStub*)arg;
-	    client->test(100,[=](int a)->int{
+	    client->login("shuai",[=](rpc::int8 a)->int{
 	        std::cout<<a<<std::endl;
 	        return 0;
 	    });
-	},client, timeval{10,0},timeval{10,0});
+	},client, timeval{5,0},timeval{10,0});
 
     rpc::NetEvent::getInstance()->eventLoop();
 
