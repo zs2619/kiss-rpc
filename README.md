@@ -10,6 +10,8 @@ KissRPC 是个简单、可扩展 、跨语言的异步RPC框架。可以应用�
   * cshape(待实现)
   * typescript(待实现)
 
+## [IDL 格式](https://github.com/zs2619/kiss-rpc/tree/master/docs/IDL.md) 
+
 ## 依赖
 ```
 flex and bison
