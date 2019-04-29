@@ -1,5 +1,10 @@
-include "shuai.rpc"
-struct god
+#include "shuai.rpc"
+namespace shuai{
+service opService
 {
-	user g;
+	int8 login(string  openid);
+	user xixi(user u);
+	array<role> lala(map<int32,role> m,array<int32> ai,array<role> ar);
+	int8 ping(int8 i8);
 };
+}

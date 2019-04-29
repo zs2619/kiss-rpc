@@ -14,7 +14,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <type_traits>
-
+#include <memory>
 
 #include "parser/Global.h"
 #include "generator/Generator.h"

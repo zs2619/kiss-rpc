@@ -35,4 +35,4 @@ SET(SRC_FILES
 	main.cpp
 	)
 ADD_EXECUTABLE(rpc ${SRC_FILES} )
-add_definitions(-std=c++11)
+add_definitions(-std=c++14)

@@ -1,3 +1,4 @@
+namespace shuai{
 enum SexType
 {
 	male,
@@ -8,14 +9,14 @@ struct role
 {
 	SexType sexType;
 	bool    b;
+	byte    by;
 	int8 	i8;
-	uint8 	ui8; 
 	int16   i16;
-	uint16  ui16;
 	int32   i32;
-	uint32  ui32;
 	int64   i64;
+	float   f;
 	string  str;
+	binary  bin;
 };
 
 struct user
@@ -24,15 +25,4 @@ struct user
 	array<int32> 	items;
 	array<role>     roles;
 };
-
-service opService
-{
-	group{
-		int8 haha(int8 a,string h);
-		int8 hehe(string s ,float f);
-	}
-	void momo(int8 i8,int64 i64);
-	int8 xixi(user u);
-	array<role> lala(map<int32,role> m,array<int32> ai,array<role> ar);
-	int8 ping();
-};
+}
