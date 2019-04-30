@@ -1,0 +1,28 @@
+namespace rpc {
+
+enum MsgProtocolType
+{
+	MPT_Bin,
+	MPT_Json,
+};
+
+struct RpcHeader {
+	int8             version;
+	MsgProtocolType  msgType;
+	string           serviceName;
+};
+
+struct RequestMsg {
+	RpcHeader   header;
+	int64       msgSeqId;
+	int32       msgId;
+	binary      buff;
+};
+
+struct ResponseMsg {
+	RpcHeader     header;
+	int64         msgSeqId;
+	int32         msgId;
+	binary        buff;
+};
+}

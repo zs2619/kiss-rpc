@@ -45,6 +45,9 @@
     <Filter Include="misc">
       <UniqueIdentifier>{41691de1-e0e3-4aae-bc06-d48b7edd9b10}</UniqueIdentifier>
     </Filter>
+    <Filter Include="generator\ts">
+      <UniqueIdentifier>{e5998b9b-f157-4738-b7d2-351ad0e55f22}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="generator\Generator.cpp">
@@ -81,6 +84,9 @@
     <ClCompile Include="parser\rpc.tab.cpp">
       <Filter>parser\src</Filter>
     </ClCompile>
+    <ClCompile Include="generator\TSGenerator.cpp">
+      <Filter>generator\ts</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="generator\Generator.h">
@@ -115,6 +121,9 @@
     </ClInclude>
     <ClInclude Include="parser\rpc.tab.hpp">
       <Filter>parser\include</Filter>
+    </ClInclude>
+    <ClInclude Include="generator\TSGenerator.h">
+      <Filter>generator\ts</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

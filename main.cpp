@@ -22,6 +22,7 @@
 #include "generator/CppGenerator.h"
 #include "generator/CSharpGenerator.h"
 #include "generator/GoGenerator.h"
+#include "generator/TsGenerator.h"
 #include "parser/Program.h"
 
 #include "misc/misc.h"
@@ -147,6 +148,11 @@ int main(int argc,char** argv)
 		else if(it=="go")
 		{
 			std::unique_ptr<Generator> go(new GoGenerator(Program::inst(),"go"));
+			go->generateProgram();
+		}
+		else if (it == "ts")
+		{
+			std::unique_ptr<Generator> go(new TSGenerator(Program::inst(), "ts"));
 			go->generateProgram();
 		}
 	}

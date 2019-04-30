@@ -115,6 +115,7 @@ bison.exe -d -v -o parser\rpc.tab.cpp rpc.y
     <ClCompile Include="generator\CppGenerator.cpp" />
     <ClCompile Include="generator\As3Generator.cpp" />
     <ClCompile Include="generator\GoGenerator.cpp" />
+    <ClCompile Include="generator\TSGenerator.cpp" />
     <ClCompile Include="misc\md5.cpp" />
     <ClCompile Include="parser\DefType.cpp" />
     <ClCompile Include="parser\Global.cpp" />
@@ -129,6 +130,7 @@ bison.exe -d -v -o parser\rpc.tab.cpp rpc.y
     <ClInclude Include="generator\CppGenerator.h" />
     <ClInclude Include="generator\As3Generator.h" />
     <ClInclude Include="generator\GoGenerator.h" />
+    <ClInclude Include="generator\TSGenerator.h" />
     <ClInclude Include="misc\md5.h" />
     <ClInclude Include="misc\misc.h" />
     <ClInclude Include="parser\DefType.h" />

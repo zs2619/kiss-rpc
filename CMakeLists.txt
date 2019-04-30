@@ -16,6 +16,7 @@ SET(HEADER_FILES
 	generator/CppGenerator.h
 	generator/GoGenerator.h
 	generator/CSharpGenerator.h
+	generator/TSharpGenerator.h
 	generator/Generator.h
 	misc/md5.h
 	parser/rpc.tab.hpp
@@ -28,6 +29,7 @@ SET(SRC_FILES
 	generator/CppGenerator.cpp
 	generator/GoGenerator.cpp
 	generator/CSharpGenerator.cpp
+	generator/TSharpGenerator.cpp
 	generator/Generator.cpp
 	misc/md5.cpp
 	parser/lex.yy.cpp 
