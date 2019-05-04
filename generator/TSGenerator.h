@@ -28,6 +28,8 @@ private:
 	void deSerializeFields( StructDefType* t ,const std::string& prefix);
 
 	void serializeField( DefType* t ,const std::string& fieldName,const std::string& prefix );
+	void deSerializeField( DefType* t ,const std::string& fieldName,const std::string& prefix );
+
 private:
 	std::ofstream	tsFile_;
 };

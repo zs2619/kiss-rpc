@@ -1,6 +1,7 @@
 
 #include"TSGenerator.h"
 #include "../misc/md5.h"
+#include <sstream>
 TSGenerator::TSGenerator( Program* pro,const std::string& name ) :Generator(pro,name)
 {
 
@@ -58,11 +59,19 @@ void TSGenerator::generateStruct()
 		}
 		tsFile_<<indent()<<"//serialize"<<std::endl;
 		tsFile_<<indent()<<"public serialize( __P__:rpc.IProtocol):void "<<std::endl;
-		tsFile_<<"{ "<<std::endl;
+		tsFile_<<indent()<<"{ "<<std::endl;
 		indent_up();
 		serializeFields(it,"__P__");
 		indent_down();
-		tsFile_<<"}// serialize"<<std::endl;
+		tsFile_<<indent()<<"}// serialize"<<std::endl;
+
+		tsFile_<<indent()<<"//deSerialize"<<std::endl;
+		tsFile_<<indent()<<"public deSerialize( __P__:rpc.IProtocol):void "<<std::endl;
+		tsFile_<<indent()<<"{ "<<std::endl;
+		indent_up();
+		deSerializeFields(it,"__P__");
+		indent_down();
+		tsFile_<<indent()<<"}// deSerialize"<<std::endl;
 
 		indent_down();
 		tsFile_<<"}//class"<<std::endl;
@@ -171,6 +180,16 @@ void TSGenerator::serializeFields( StructDefType* t ,const std::string& prefix)
 	}
 
 }
+
+void TSGenerator::deSerializeFields( StructDefType* t ,const std::string& prefix)
+{
+	for(auto& it :t->members_)
+	{
+		deSerializeField(it->type_,"this."+it->name_,prefix);
+		tsFile_<<std::endl;
+	}
+
+}
 void TSGenerator::serializeField( DefType* t ,const std::string& fieldName,const std::string& prefix )
 {
 	if (t->is_struct())
@@ -254,4 +273,103 @@ void TSGenerator::serializeField( DefType* t ,const std::string& fieldName,const
 		indent_down();
 		tsFile_<<indent()<<"})"<<std::endl;
 	}
+}
+void TSGenerator::deSerializeField( DefType* t ,const std::string& fieldName,const std::string& prefix )
+{
+	if (t->is_struct())
+	{
+		tsFile_<<indent()<<fieldName<<".deSerialize("<<prefix<<")"<<std::endl;
+	}
+	else if (t->is_simple_type())
+	{
+		SimpleDefType* s=(SimpleDefType*)t;
+		switch (s->t_)
+		{
+		case	SimpleDefType::boolType : 
+			{
+				tsFile_<<indent()<<fieldName<<"="<<prefix<<".readBool()"<<std::endl;
+				break;
+			} 
+		case	SimpleDefType::int8Type : 
+			{
+				tsFile_<<indent()<<fieldName<<"="<<prefix<<".readInt8()"<<std::endl;
+				break;
+			} 
+		case	SimpleDefType::int16Type :
+			{
+				tsFile_<<indent()<<fieldName<<"="<<prefix<<".readInt16()"<<std::endl;
+				break;
+			} 
+		case	SimpleDefType::int32Type :
+			{
+				tsFile_<<indent()<<fieldName<<"="<<prefix<<".readInt32()"<<std::endl;
+				break;
+			} 
+		case	SimpleDefType::int64Type :
+			{
+				tsFile_<<indent()<<fieldName<<"="<<prefix<<".readInt64()"<<std::endl;
+				break;
+			} 
+		case	SimpleDefType::floatType :
+			{
+				tsFile_<<indent()<<fieldName<<"="<<prefix<<".readFloat()"<<std::endl;
+				break;
+			} 
+		case	SimpleDefType::stringType :
+			{
+				tsFile_<<indent()<<fieldName<<"="<<prefix<<".readString()"<<std::endl;
+				break;
+			}
+		case	SimpleDefType::binaryType :
+			{
+				tsFile_<<indent()<<fieldName<<"="<<prefix<<".readBinary()"<<std::endl;
+				break;
+			}
+		}
+	}
+	else if(t->is_array())
+	{
+		static int i=0;
+		std::stringstream str;
+		str<<"_n_"<<i<<"_array";
+		tsFile_<<indent()<<"let "<<str.str()<<":number="<<prefix<<".readInt32()"<<std::endl;
+		std::stringstream count;count<<"_i_"<<i<<"_";
+		i++;
+
+		tsFile_<<indent()<<"for( let "<<count.str()<<":number=0; "<<count.str()<<"<"<<str.str()<<"; "<<count.str()<<"++) {"<<std::endl;
+		indent_up();
+		tsFile_<<indent()<<"let tmp:"<<typeName(((ArrayDefType*)t)->valueDef_)<<"="<<defaultValue(((ArrayDefType*)t)->valueDef_)<<std::endl;
+		deSerializeField(((ArrayDefType*)t)->valueDef_,"tmp",prefix);
+		tsFile_<<indent()<<fieldName<<".push(tmp)"<<std::endl;
+		indent_down();
+		tsFile_<<indent()<<"}"<<std::endl;
+
+	}else if (t->is_enum())
+	{
+		tsFile_<<indent()<<fieldName<<"="<<prefix<<".readInt16()"<<std::endl;
+
+	}else if(t->is_map())
+	{
+		static int i=0;
+		std::stringstream str;
+		str<<"_n_"<<i<<"_map";
+		tsFile_<<indent()<<"let "<<str.str()<<":number="<<prefix<<".readInt32()"<<std::endl;
+		std::stringstream count;count<<"_i_"<<i<<"_";
+		i++;
+
+		tsFile_<<indent()<<"for(let "<<count.str()<<":number=0; "<<count.str()<<"<"<<str.str()<<"; "<<count.str()<<"++ ){"<<std::endl;
+		indent_up();
+		//key
+		tsFile_<<indent()<<"let tmpKey:"<<typeName(((MapDefType*)t)->keyDef_)<<"="<<defaultValue(((MapDefType*)t)->keyDef_)<<std::endl;
+		deSerializeField(((MapDefType*)t)->keyDef_,"tmpKey",prefix);
+
+		//value
+		tsFile_<<indent()<<"let tmpValue:"<<typeName(((MapDefType*)t)->valueDef_)<<"="<<defaultValue(((MapDefType*)t)->valueDef_)<<std::endl;
+		deSerializeField(((MapDefType*)t)->valueDef_,"tmpValue",prefix);
+
+		tsFile_<<indent()<<fieldName<<".set(tmpKey,tmpValue)"<<std::endl;
+		indent_down();
+		tsFile_<<indent()<<"}"<<std::endl;
+	}
+
 }
