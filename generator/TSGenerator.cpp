@@ -97,7 +97,7 @@ std::string TSGenerator::typeName(DefType* t,bool isAgr)
 			case	SimpleDefType::int8Type : return "number";
 			case	SimpleDefType::int16Type : return "number";
 			case	SimpleDefType::int32Type : return "number";
-			case	SimpleDefType::int64Type : return "number";
+			case	SimpleDefType::int64Type : return "rpc.Int64";
 			case	SimpleDefType::floatType : return "number";
 			case	SimpleDefType::stringType : return "string";
 			case   SimpleDefType::binaryType :  return "Uint8Array|null" ;
@@ -140,7 +140,7 @@ std::string TSGenerator::defaultValue( DefType* t )
 			case SimpleDefType::int8Type : return "0";
 			case SimpleDefType::int16Type : return "0";
 			case SimpleDefType::int32Type : return "0";
-			case SimpleDefType::int64Type : return "0";
+			case SimpleDefType::int64Type : return "new rpc.Int64";
 			case SimpleDefType::floatType : return "0.0";
 			case SimpleDefType::stringType : return "\"\"";
 			case SimpleDefType::binaryType: return "null";
