@@ -2,6 +2,8 @@
 #include"TSGenerator.h"
 #include "../misc/md5.h"
 #include <sstream>
+#include <set>
+#include "../misc/misc.h"
 TSGenerator::TSGenerator( Program* pro,const std::string& name ) :Generator(pro,name)
 {
 
@@ -21,9 +23,9 @@ void TSGenerator::generateEnum()
 
 	for(auto& it :program_->enums_.defs_)
 	{
-		std::string name=program_->getOutputDir()+ it->name_+".ts";
+		misc::mkdir((program_->getOutputDir() + generateContext->ns_.name_).c_str());
+		std::string name = program_->getOutputDir() + generateContext->ns_.name_ + "/" + it->name_ + ".ts";
 		tsFile_.open(name.c_str());
-		tsFile_<<"namespace "<<generateContext->ns_.name_<<"{"<<std::endl;
 		tsFile_<<"export enum "<<it->name_<<std::endl;
 		tsFile_<<"{ "<<std::endl;
 		indent_up();
@@ -33,7 +35,6 @@ void TSGenerator::generateEnum()
 		}
 		indent_down();
 		tsFile_<<"}//enum"<<std::endl;
-		tsFile_<<"}//namespace"<<std::endl;
 		tsFile_.close();
 	}
 }
@@ -43,11 +44,60 @@ void TSGenerator::generateStruct()
 	if (generateContext->ns_.structs_.defs_.empty())
 		return;
 
+
 	for(auto& it :generateContext->ns_.structs_.defs_)
 	{
-		std::string name=program_->getOutputDir()+ it->name_+".ts";
+		std::set<std::string> importSet;
+		misc::mkdir((program_->getOutputDir() + generateContext->ns_.name_).c_str());
+		std::string name=program_->getOutputDir()+generateContext->ns_.name_+"/"+ it->name_+".ts";
 		tsFile_.open(name.c_str());
-		tsFile_<<"namespace "<<generateContext->ns_.name_<<"{"<<std::endl;
+		if (program_->option_.compileParam_=="deno")
+		{
+			tsFile_ << "import  * as rpc from \"../rpc/index.ts\"" << std::endl;
+		}
+		else
+		{
+			tsFile_ << "import  * as rpc from \"../rpc/index\"" << std::endl;
+		}
+		
+		for (auto& it: it->members_)
+		{
+			DefType* dt = nullptr;
+			if (it->type_->is_struct() ||it->type_->is_enum()){
+				dt=it->type_;
+			}
+			else if (it->type_->is_array())
+			{
+				ArrayDefType* array=(ArrayDefType*)it->type_;
+				if (array->valueDef_->is_struct()||it->type_->is_enum()){
+					dt=array->valueDef_;
+				}
+			}
+			else if (it->type_->is_map())
+			{
+				MapDefType* mt=(MapDefType*)it->type_;
+				if (mt->valueDef_->is_struct()||mt->valueDef_->is_enum()){
+					dt=mt->valueDef_;
+				}
+			}
+			if (dt!=nullptr)
+			{
+				importSet.insert(dt->name_);
+			}
+	
+		}
+		for (auto& it : importSet)
+		{
+			if (program_->option_.compileParam_=="deno")
+			{
+				tsFile_ << "import  {" << it << "}  from \"./" << it << ".ts\"" << std::endl;
+			}
+			else
+			{
+				tsFile_ << "import  {" << it << "}  from \"./" << it << "\"" << std::endl;
+			}
+		}
+
 		tsFile_<<"export class "<<it->name_<<std::endl;
 		tsFile_<<"{ "<<std::endl;
 		indent_up();
@@ -75,7 +125,6 @@ void TSGenerator::generateStruct()
 
 		indent_down();
 		tsFile_<<"}//class"<<std::endl;
-		tsFile_<<"}//namespace" << std::endl;
 
 		tsFile_.close();
 	}

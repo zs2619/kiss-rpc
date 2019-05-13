@@ -1,5 +1,4 @@
-namespace rpc{
-
+import {Int64} from "./BigInt"
 export interface IProtocol {
 	createProtoBuffer() :IProtocol
 	writeBool( b:boolean) :boolean
@@ -171,5 +170,4 @@ export class BinaryProtocol extends Protocol implements  IProtocol{
 		}
 		return dataBuf 
 	}
-}
 }

@@ -75,6 +75,7 @@ public:
 		std::string			inputDir_;	
 		std::string			outputDir_;	
 		bool				json_;		
+		std::string 		compileParam_;
 	};
 	Option  option_;
 

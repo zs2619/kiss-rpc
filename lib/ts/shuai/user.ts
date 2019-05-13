@@ -1,4 +1,5 @@
-namespace shuai{
+import  * as rpc from "../rpc/index"
+import  {role}  from "./role"
 export class user
 { 
 	public static readonly strFingerprint:string="58d411b316d3ad09ca4c27108e0ca7d7"
@@ -55,4 +56,3 @@ export class user
 
 	}// deSerialize
 }//class
-}//namespace

@@ -1,15 +1,15 @@
 {
     "compilerOptions": {
-        "module": "system",
+        "module":"commonjs",
         "strict":true,
         "target": "es6",
         "noImplicitAny": true,
         "removeComments": true,
+        //"declaration": true,
         "preserveConstEnums": true,
-        "outFile": "shuai.js",
         "sourceMap": true,
+        "outDir": "build",
         "lib":["es6","dom"]
-
     },
     "include": [
         "rpc/*",

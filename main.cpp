@@ -130,27 +130,35 @@ int main(int argc,char** argv)
 	/**后端生成代码*/
 	for (auto& it:gen)
 	{
-		if (it=="cpp")
+		std::vector<std::string> gen;
+		split(it,":",gen);
+		std::string genName=gen[0];
+		if (gen.size()>1)
+		{
+			Program::inst()->option_.compileParam_=gen[1];
+		}
+
+		if (genName=="cpp")
 		{
 			std::unique_ptr<Generator> cpp(new CppGenerator(Program::inst(),"cpp"));
 			cpp->generateProgram();
 		}
-		else if(it=="as3")
+		else if(genName=="as3")
 		{
 			std::unique_ptr<Generator> as3(new As3Generator(Program::inst(),"as3"));
 			as3->generateProgram();
 		}
-		else if(it=="cs")
+		else if(genName=="cs")
 		{
 			std::unique_ptr<Generator> cs(new CSharpGenerator(Program::inst(),"cs"));
 			cs->generateProgram();
 		}
-		else if(it=="go")
+		else if(genName=="go")
 		{
 			std::unique_ptr<Generator> go(new GoGenerator(Program::inst(),"go"));
 			go->generateProgram();
 		}
-		else if (it == "ts")
+		else if (genName == "ts")
 		{
 			std::unique_ptr<Generator> go(new TSGenerator(Program::inst(), "ts"));
 			go->generateProgram();
