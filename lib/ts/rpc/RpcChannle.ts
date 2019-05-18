@@ -2,7 +2,7 @@ import {ServiceStub} from "./ServiceStub"
 
 interface dummy extends ServiceStub
 {
-	getObjName:string,
+	getObjName():string,
 }
 
 export class RpcChannel{
@@ -17,7 +17,7 @@ export class RpcChannel{
 	}
 	public  createStub<T extends dummy>(ctor: { new(c:RpcChannel): T }):T{
 		let t= new ctor(this);
-		this.stubMap.set(t.getObjName,t)
+		this.stubMap.set(t.getObjName(),t)
 		return t
 	}
 
