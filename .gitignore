@@ -11,3 +11,5 @@
 /lib/cpp/example/HelloClient/Debug
 /lib/cpp/example/HelloServer/Debug
 *.suo
+/lib/ts/node_modules
+/lib/ts/package-lock.json
