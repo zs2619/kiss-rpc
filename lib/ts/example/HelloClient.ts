@@ -1,5 +1,6 @@
 import * as rpc from "../rpc/index"
 import {OpServiceStub} from "../shuai/index"
-let ch =new rpc.RpcChannel("ws://127.0.0.1:2619")
-ch.createStub(OpServiceStub)
+let ch =new rpc.RpcChannel("ws://121.40.165.18:8800")
+let stub=ch.createStub(OpServiceStub)
 console.log(ch)
+console.log(stub)

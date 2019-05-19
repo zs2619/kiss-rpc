@@ -4,4 +4,8 @@ export class ServiceStub{
 	constructor(chan:RpcChannel){
 		this.chan=chan
 	}
+
+	protected stubMsgCallBack( respMsg:ResponseMsg){
+	}
+	public bool dispatch(std::shared_ptr<rpc::RpcMsg> msg);
 }

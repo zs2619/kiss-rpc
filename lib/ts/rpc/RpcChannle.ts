@@ -7,13 +7,16 @@ interface dummy extends ServiceStub
 
 export class RpcChannel{
 	private endPoint:string
-	private ws:any
+	private ws:WebSocket
 	private stubMap:Map<string,ServiceStub>=new Map<string,ServiceStub>()
 
 	constructor(endPoint:string){
 		this.endPoint=endPoint
 		this.ws = new WebSocket(this.endPoint)
-		this.ws.onopen =this.onConnect
+		let that = this;
+		this.ws.onopen = function (ev: Event) { 
+			if (that.onConnect) { that.onConnect.call(that,ev); }
+            };
 	}
 	public  createStub<T extends dummy>(ctor: { new(c:RpcChannel): T }):T{
 		let t= new ctor(this);
@@ -23,21 +26,29 @@ export class RpcChannel{
 
 	private  onConnect(ev: Event){
 		console.log("WebSocket is open now.")
-		this.ws.onmessage =this.onMessage
-		this.ws.onclose=this.onclose
-		this.ws.onerror=this.onError
+		let that = this;
+		that.send('shuai')
+		that.ws.onmessage = function (ev: Event) { 
+				if (that.onMessage) { that.onMessage.call(that,ev); }
+            };
+		that.ws.onclose = function (ev: Event) { 
+				if (that.onClose) { that.onClose.call(that,ev); }
+			};
+		that.ws.onerror = function (ev: Event) { 
+				if (that.onError) { that.onError.call(that,ev); }
+            };
 	}
 	private onMessage(ev:Event){
-		console.debug("WebSocket message received:", ev);
+		console.log("WebSocket message received:", ev);
 	}
-	private onclose(ev:Event){
-
+	private onClose(ev:Event){
+		console.log("WebSocket close:", ev);
 	}
 	private onError(ev:Event){
-
+		console.log("WebSocket error:", ev);
 	}
-	private send(){
-
+	private send(str:string){
+		this.ws.send(str)
 	}
 	private handleInput(){
 
