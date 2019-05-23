@@ -12,9 +12,9 @@ export class role
 	public i64:rpc.Int64=new rpc.Int64
 	public f:number=0.0
 	public str:string=""
-	public bin:Uint8Array|null=null
+	public bin!:Uint8Array
 	//serialize
-	public serialize( __P__:rpc.IProtocol):void 
+	public serialize( __P__:rpc.Protocol):void 
 	{ 
 		__P__.writeInt16(this.sexType);
 
@@ -38,7 +38,7 @@ export class role
 
 	}// serialize
 	//deSerialize
-	public deSerialize( __P__:rpc.IProtocol):void 
+	public deSerialize( __P__:rpc.Protocol):void 
 	{ 
 		this.sexType=__P__.readInt16()
 

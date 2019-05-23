@@ -38,14 +38,14 @@ public:
 		return bev_ ;
 	}
 	int setHandler() {
-	bufferevent_setcb(bev_, Connection::conn_readcb, Connection::conn_writecb, Connection::conn_eventcb, this);
-	evutil_socket_t fd = bufferevent_getfd(bev_);
-	int one = 1;
-	setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (char *)&one, sizeof one);
+		bufferevent_setcb(bev_, Connection::conn_readcb, Connection::conn_writecb, Connection::conn_eventcb, this);
+		evutil_socket_t fd = bufferevent_getfd(bev_);
+		int one = 1;
+		setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (char *)&one, sizeof one);
 
-	getTransport()->setBufferEvent(bev_);
-	int ret=bufferevent_enable(bev_, EV_WRITE|EV_READ);
-		return ret;
+		getTransport()->setBufferEvent(bev_);
+		int ret=bufferevent_enable(bev_, EV_WRITE|EV_READ);
+			return ret;
 	}
 	virtual int handleInput(struct evbuffer* buff)=0;
 	virtual int handleOutput()=0;

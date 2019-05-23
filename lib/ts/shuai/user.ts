@@ -7,7 +7,7 @@ export class user
 	public items:number[]=[]
 	public roles:role[]=[]
 	//serialize
-	public serialize( __P__:rpc.IProtocol):void 
+	public serialize( __P__:rpc.Protocol):void 
 	{ 
 		__P__.writeInt32(this.roleMap.size);
 		this.roleMap.forEach((value , key) =>{ 
@@ -29,7 +29,7 @@ export class user
 
 	}// serialize
 	//deSerialize
-	public deSerialize( __P__:rpc.IProtocol):void 
+	public deSerialize( __P__:rpc.Protocol):void 
 	{ 
 		let _n_0_map:number=__P__.readInt32()
 		for(let _i_0_:number=0; _i_0_<_n_0_map; _i_0_++ ){

@@ -1,57 +1,45 @@
 import {ServiceStub} from "./ServiceStub"
+import {Connection} from "./Connection"
+import {ResponseMsg} from "./ResponseMsg"
+import {Protocol} from "./Protocol"
+import {Transport} from "./Transport"
+
 
 interface dummy extends ServiceStub
 {
 	getObjName():string,
 }
 
-export class RpcChannel{
-	private endPoint:string
-	private ws:WebSocket
+export class RpcChannel<T extends Transport,P extends Protocol> extends Connection{
 	private stubMap:Map<string,ServiceStub>=new Map<string,ServiceStub>()
 
-	constructor(endPoint:string){
-		this.endPoint=endPoint
-		this.ws = new WebSocket(this.endPoint)
-		let that = this;
-		this.ws.onopen = function (ev: Event) { 
-			if (that.onConnect) { that.onConnect.call(that,ev); }
-            };
+	constructor(endPoint:string,tctor:{new(conn?:Connection):T},pctor:{new():P} ){
+		super(endPoint,new tctor(this),new pctor())
+		this.getTransport().connect(endPoint)
 	}
-	public  createStub<T extends dummy>(ctor: { new(c:RpcChannel): T }):T{
+	public  createStub<S extends dummy>(ctor: { new(c:RpcChannel<T,P>): S }):S{
 		let t= new ctor(this);
 		this.stubMap.set(t.getObjName(),t)
 		return t
 	}
-
-	private  onConnect(ev: Event){
-		console.log("WebSocket is open now.")
-		let that = this;
-		that.send('shuai')
-		that.ws.onmessage = function (ev: Event) { 
-				if (that.onMessage) { that.onMessage.call(that,ev); }
-            };
-		that.ws.onclose = function (ev: Event) { 
-				if (that.onClose) { that.onClose.call(that,ev); }
-			};
-		that.ws.onerror = function (ev: Event) { 
-				if (that.onError) { that.onError.call(that,ev); }
-            };
+	public handleInput(respMsgVec:ResponseMsg[]):boolean{
+		for(let msg of respMsgVec)
+		{
+			let stub = this.stubMap.get(msg.header.serviceName);
+			if (stub==undefined) {
+				console.log("message stubMap get error");
+				continue
+			}
+			let ret=stub.stubMsgCallBack(msg);
+			if (ret)
+			{
+				console.log("message stubMsgCallBack error");
+				return false 
+			}
+		}
+		return true
 	}
-	private onMessage(ev:Event){
-		console.log("WebSocket message received:", ev);
+	public handleClose():boolean{
+		return true
 	}
-	private onClose(ev:Event){
-		console.log("WebSocket close:", ev);
-	}
-	private onError(ev:Event){
-		console.log("WebSocket error:", ev);
-	}
-	private send(str:string){
-		this.ws.send(str)
-	}
-	private handleInput(){
-
-	}
-
 }
