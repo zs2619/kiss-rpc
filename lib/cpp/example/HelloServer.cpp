@@ -12,6 +12,7 @@ class  HelloMsgProxy :public shuai::opServiceProxyIF
 	HelloMsgProxy(const rpc::Connection* conn=nullptr):opServiceProxyIF(conn){}
 
 	virtual std::tuple<int,rpc::int8> login(const std::string& opendid) {
+	  std::cout << opendid << std::endl;
 	  return std::make_tuple(0,1); 
 	};
 	virtual std::tuple<int, shuai::user> xixi(shuai::user&  u) {
@@ -26,7 +27,7 @@ class  HelloMsgProxy :public shuai::opServiceProxyIF
 	};
 
 };
-int main(int argc,char ** argv)
+int main(int argc,char** argv)
 {
 	rpc::EndPoint ep(std::string(":2619"));
 	using rpcServiceType = rpc::RpcService<rpc::TcpTransport, rpc::BinaryProtocol, HelloMsgProxy>;

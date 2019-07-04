@@ -1,7 +1,23 @@
 #include "rpc/Transport.h"
 #include "rpc/NetEvent.h"
+#include "rpc/Connection.h"
 
 const size_t MsgHeaderMaxSize=2;
+void rpc::ITransport::conn_eventcb(bufferevent * bev, short events, void * userData) {
+	ITransport* trans = (ITransport*)userData;
+	trans->conn_->handleClose();
+}
+
+void rpc::ITransport::conn_readcb(bufferevent * bev, void * userData) {
+	ITransport* trans = (ITransport*)userData;
+	struct evbuffer *input = bufferevent_get_input(bev);
+
+	trans->conn_->handleInput(input);
+}
+void rpc::ITransport::conn_writecb(bufferevent * bev, void * userData) {
+	ITransport* trans = (ITransport*)userData;
+}
+
 int rpc::TcpTransport::sendRequestMsg( const RequestMsg& reqMsg) {
 	BinaryProtocol proto;
 	reqMsg.serialize(&proto);

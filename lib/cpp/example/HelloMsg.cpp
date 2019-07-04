@@ -279,6 +279,7 @@ bool shuai::opServiceProxyIF::dispatch(std::shared_ptr<rpc::RpcMsg> msg)
 				msg->responseMsg_.buff=__P__->getBuffer();
 				invoke(msg);
 			}
+			return true;
 		}
 		case  1 :
 		{
@@ -296,6 +297,7 @@ bool shuai::opServiceProxyIF::dispatch(std::shared_ptr<rpc::RpcMsg> msg)
 				msg->responseMsg_.buff=__P__->getBuffer();
 				invoke(msg);
 			}
+			return true;
 		}
 		case  2 :
 		{
@@ -344,6 +346,7 @@ bool shuai::opServiceProxyIF::dispatch(std::shared_ptr<rpc::RpcMsg> msg)
 				msg->responseMsg_.buff=__P__->getBuffer();
 				invoke(msg);
 			}
+			return true;
 		}
 		case  3 :
 		{
@@ -361,6 +364,7 @@ bool shuai::opServiceProxyIF::dispatch(std::shared_ptr<rpc::RpcMsg> msg)
 				msg->responseMsg_.buff=__P__->getBuffer();
 				invoke(msg);
 			}
+			return true;
 		}
 		default:
 		{

@@ -15,7 +15,8 @@ class RpcService:public Connection  {
 
 public:
 	RpcService(NetEvent*  event,EndPoint ep, struct bufferevent* bev)
-	:Connection(event,ep,bev,new T(),new P()){ 
+	:Connection(event,ep,new T(this),new P()){ 
+		getTransport()->setBufferEvent(bev);
 	}
 
 	~RpcService(){ 
@@ -29,14 +30,13 @@ public:
 
 	static RpcService<T, P>*  makeServiceHandler(NetEvent*   event,EndPoint   ep, struct bufferevent* bev) {
 		RpcService<T,P>*  service=new RpcService<T,P>(event,ep,bev);
-		service->handleConnction();
+		service->handleConnction(bev);
 		/*神奇代码 动态创建 模板不定参数类型 对象*/
 		auto f= { createProxy<Types>(service)... };
 		return service;
 	}
 
 	virtual int handleInput(struct evbuffer* buff){
-
 		std::vector<RequestMsg> requestMsgList;
 		int ret=getTransport()->recvRequestMsg(buff,requestMsgList);
 		if (-1==ret){
@@ -62,15 +62,11 @@ public:
 		return 0;
 	}
 
-	virtual int handleOutput(){
-		return 0;
-	}
 	virtual int handleClose(){
 		std::cout<<"handleClose"<<std::endl;
 		return 0;
 	}
-	virtual int handleConnction(){
-		setHandler();
+	virtual int handleConnction(struct bufferevent* bev){
 		return 0;
 	};
 

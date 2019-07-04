@@ -204,7 +204,7 @@ public:
 		int32	len=0;
 		if (read((byte*)&len,4))
 		{
-			buff.insert(buff.begin(), ((byte*)buff_.data()+curRead_,len));
+			buff.insert(buff.begin(), buff_.data()+curRead_,buff_.data()+curRead_+len );
 			curRead_+=len;
 			return true;
 		}

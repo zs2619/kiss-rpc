@@ -870,6 +870,7 @@ void CppGenerator::genServiceProxySrc()
 				srcFile_ << indent() << "invoke(msg);"<<std::endl;
 				indent_down();
 				srcFile_ << indent() <<"}"<<std::endl;
+				srcFile_ << indent() << "return true;" << std::endl;
 			}
 
 			indent_down();
