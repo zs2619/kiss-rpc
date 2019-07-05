@@ -63,6 +63,7 @@ public:
 
 	virtual int handleClose(){
 		std::cout<<"handleClose"<<std::endl;
+		getTransport()->close();
 		isValid_=false;
 		return 0;
 	}

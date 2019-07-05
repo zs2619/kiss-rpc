@@ -23,6 +23,7 @@ public:
 		int ret=chan_->getTransport()->sendRequestMsg(msg->requestMsg_);
 		if (ret==-1){
 			std::cout<<"chan_->getTransport()->sendRequestMsg"<<std::endl;
+			return -1;
 		}
 
 		MsgQueue_[msg->requestMsg_.msgSeqId]=msg;

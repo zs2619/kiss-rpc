@@ -17,9 +17,16 @@ public:
 	}
 
 	virtual ~ITransport(){
+		close();
+		conn_=nullptr;
+	}
+
+	int close(){
 		if (bev_!=nullptr){
 			bufferevent_free(bev_);
+			bev_=nullptr;
 		}
+		return 0;
 	}
 
 	virtual int sendRequestMsg(const RequestMsg& reqMsg) = 0;
@@ -28,9 +35,7 @@ public:
 	virtual int recvRequestMsg(struct evbuffer* buff, std::vector<RequestMsg>& msgVec) = 0;
 
 	int setBufferEvent(struct bufferevent* bev) {
-		if (bev_!=nullptr){
-			bufferevent_free(bev_);
-		}
+		close();
 		bev_=bev;
 
 		bufferevent_setcb(bev_, ITransport::conn_readcb, ITransport::conn_writecb, ITransport::conn_eventcb, this);

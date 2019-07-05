@@ -16,10 +16,10 @@ class RpcService:public Connection  {
 public:
 	RpcService(NetEvent*  event,EndPoint ep, struct bufferevent* bev)
 	:Connection(event,ep,new T(this),new P()){ 
-		getTransport()->setBufferEvent(bev);
 	}
 
 	~RpcService(){ 
+		getTransport()->close();
 	} 
 
 	template<typename N>
@@ -44,7 +44,6 @@ public:
 		}
 
 		for ( auto& it:requestMsgList){
-
 			std::shared_ptr<RpcMsg> msg = std::make_shared<RpcMsg>();
 			msg->requestMsg_.header=it.header;
 			msg->requestMsg_.msgId = it.msgId;
@@ -57,6 +56,9 @@ public:
 				return 0;
 			}
 			int ret= proxy->second->dispatch(msg);
+			if (ret==-1){
+				std::cerr << "handleInput error" << std::endl;
+			}
 		}
 
 		return 0;
@@ -64,9 +66,11 @@ public:
 
 	virtual int handleClose(){
 		std::cout<<"handleClose"<<std::endl;
+		delete this;
 		return 0;
 	}
 	virtual int handleConnction(struct bufferevent* bev){
+		getTransport()->setBufferEvent(bev);
 		return 0;
 	};
 
