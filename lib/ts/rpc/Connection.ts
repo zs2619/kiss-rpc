@@ -17,6 +17,6 @@ export abstract class Connection {
 		this.proto=proto
 	}
 
-	public abstract handleInput(respMsgVec:ResponseMsg[]):boolean
-	public abstract handleClose():boolean
+	public abstract handleInput(buff:Uint8Array):boolean
+	public abstract handleClose(ev: Event):boolean
 }
