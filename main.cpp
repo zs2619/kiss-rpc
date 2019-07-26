@@ -22,7 +22,7 @@
 #include "generator/CppGenerator.h"
 #include "generator/CSharpGenerator.h"
 #include "generator/GoGenerator.h"
-#include "generator/TsGenerator.h"
+#include "generator/TSGenerator.h"
 #include "parser/Program.h"
 
 #include "misc/misc.h"
@@ -34,7 +34,7 @@ void usage()
 	std::cout<< "Options:" << std::endl;
 	std::cout<< "  -o   dir    output file directory" << std::endl;
 	std::cout<< "  -i   dir    input  file directory" << std::endl;
-	std::cout<< "  -gen lang   cpp as3 cs go Generate code" << std::endl;
+	std::cout<< "  -gen lang   cpp as3 cs go ts Generate code" << std::endl;
 	std::cout<< "  -json       serialize json." << std::endl;
 	exit(0);
 }

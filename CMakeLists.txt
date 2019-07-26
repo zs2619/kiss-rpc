@@ -29,7 +29,7 @@ SET(SRC_FILES
 	generator/CppGenerator.cpp
 	generator/GoGenerator.cpp
 	generator/CSharpGenerator.cpp
-	generator/TSharpGenerator.cpp
+	generator/TSGenerator.cpp
 	generator/Generator.cpp
 	misc/md5.cpp
 	parser/lex.yy.cpp 
