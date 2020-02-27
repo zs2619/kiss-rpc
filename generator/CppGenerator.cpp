@@ -682,7 +682,7 @@ void CppGenerator::genServiceStubHeader()
 		headerFile_<<indent()<<className<<"(const rpc::Connection* conn):ServiceStub(conn){}"<<std::endl;
 		headerFile_<<indent()<<"virtual ~"<<className<<"(){}"<<std::endl;
 
-		headerFile_<<indent()<< "void invokeAsync(rpc::int16 msgId,const rpc::IProtocol* p,"<<"const std::string& functionName);"<<std::endl;
+		headerFile_<<indent()<< "int invokeAsync(rpc::int16 msgId,const rpc::IProtocol* p,"<<"const std::string& functionName);"<<std::endl;
 		headerFile_<<indent()<< "virtual bool dispatch(std::shared_ptr<rpc::RpcMsg> msg);" <<std::endl;
 
 		genFunStubDeclare(it);
@@ -704,7 +704,7 @@ void CppGenerator::genServiceStubSrc()
 		//fingerprint
 		srcFile_<<indent()<<"const char* "<<generateContext->ns_.name_<<"::"<<it->name_<<"Stub::"<<"strFingerprint=\""<<md5(it->getFingerPrint())<<"\";"<<std::endl;
 		srcFile_<<indent()<<"const char* "<<generateContext->ns_.name_<<"::"<<it->name_<<"Stub::"<<"getObjName=\""<<generateContext->ns_.name_<<"."<<it->name_<<"\";"<<std::endl;
-		srcFile_ <<indent()<< "void  "<<generateContext->ns_.name_<<"::"<<it->name_
+		srcFile_ <<indent()<< "int  "<<generateContext->ns_.name_<<"::"<<it->name_
 			<<"Stub::"<<"invokeAsync(rpc::int16 msgId,const rpc::IProtocol* p ,const std::string& functionName) {" << std::endl;
 		indent_up();
 		srcFile_ <<indent()<<"std::shared_ptr<rpc::RpcMsg> msg = std::make_shared<rpc::RpcMsg>();" << std::endl;
@@ -712,7 +712,7 @@ void CppGenerator::genServiceStubSrc()
 		srcFile_ <<indent()<<"msg->functionName_= functionName ;" << std::endl;
 		srcFile_ <<indent()<<"msg->requestMsg_.msgId = msgId;"<<std::endl;
 		srcFile_ <<indent()<<"msg->requestMsg_.buff = p->getBuffer();"<<std::endl;
-		srcFile_ <<indent()<<"invoke(msg);" << std::endl;
+		srcFile_ <<indent()<<"return invoke(msg);" << std::endl;
 		indent_down();
 		srcFile_ <<indent()<< "}" << std::endl;
 
@@ -761,7 +761,7 @@ void CppGenerator::genServiceStubSrc()
 		for(auto& it_inner:it->funs_)
 		{
 			FuctionDefType*& t=it_inner;
-			srcFile_<<indent()<<"void "<<generateContext->ns_.name_<<"::"<<it->name_<<+"Stub"<<"::"<<t->name_<<"(";
+			srcFile_<<indent()<<"int "<<generateContext->ns_.name_<<"::"<<it->name_<<+"Stub"<<"::"<<t->name_<<"(";
 			genFunAgrList(srcFile_,t->argrs_);
 			if (!t->result_->is_void())
 			{
@@ -780,7 +780,7 @@ void CppGenerator::genServiceStubSrc()
 			{
 				srcFile_ << indent() <<t->name_<< "CallBack = cb;" << std::endl;
 			}
-			srcFile_<<indent()<<"invokeAsync("<<i<<",__P__.get()"<<",\"" << t->name_<<"\");"<<std::endl;
+			srcFile_<<indent()<<"return invokeAsync("<<i<<",__P__.get()"<<",\"" << t->name_<<"\");"<<std::endl;
 			indent_down();
 
 			srcFile_<<indent()<<"}"<<std::endl;
@@ -870,6 +870,7 @@ void CppGenerator::genServiceProxySrc()
 				srcFile_ << indent() << "invoke(msg);"<<std::endl;
 				indent_down();
 				srcFile_ << indent() <<"}"<<std::endl;
+				srcFile_ << indent() << "return true;" << std::endl;
 			}
 
 			indent_down();
@@ -922,7 +923,7 @@ void CppGenerator::genFunStubDeclare( ServiceDefType* service )
 	for (auto& it_inner:service->funs_)
 	{
 		FuctionDefType*& t=it_inner;
-		headerFile_<<indent()<<"void "<<t->name_<<"(";
+		headerFile_<<indent()<<"int "<<t->name_<<"(";
 		genFunAgrList(headerFile_,t->argrs_);
 		if (!t->result_->is_void())
 		{

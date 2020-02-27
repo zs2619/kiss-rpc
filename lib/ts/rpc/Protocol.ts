@@ -1,61 +1,59 @@
 import {Int64} from "./BigInt"
-export interface IProtocol {
-	createProtoBuffer() :IProtocol
-	writeBool( b:boolean) :boolean
-	writeByte( by:number) :boolean
-	writeInt8( i:number) :boolean
-	writeInt16( i:number) :boolean
-	writeInt32( i:number) :boolean
-	writeInt64( i:Int64) :boolean
-	writeFloat( f:number) :boolean
-	writeString(str:string) :boolean
-	writeBinary( buff:Uint8Array|null) :boolean
-	readBool() :boolean
-	readByte() :number
-	readInt8() :number
-	readInt16() :number
-	readInt32() :number
-	readInt64() :Int64
-	readFloat() :number
-	readString() :string
-	readBinary() :Uint8Array|null
-}
 
-abstract class Protocol {
+export abstract class Protocol {
 	protected curRead:number=0
 	protected urWrite:number=0
-	protected buff: Uint8Array=new Uint8Array(1024)
+	protected buff: ArrayBuffer=new ArrayBuffer (1024)
 	protected dataView:DataView
 	constructor(){
         this.dataView = new DataView(this.buff);
 	}
+	public abstract createProtoBuffer():Protocol 
+	public abstract	writeBool( b:boolean) :boolean
+	public abstract	writeByte( by:number) :boolean
+	public abstract	writeInt8( i:number) :boolean
+	public abstract	writeInt16( i:number) :boolean
+	public abstract	writeInt32( i:number) :boolean
+	public abstract	writeInt64( i:Int64) :boolean
+	public abstract	writeFloat( f:number) :boolean
+	public abstract	writeString(str:string) :boolean
+	public abstract	writeBinary( buff:Uint8Array) :boolean
+	public abstract	readBool() :boolean
+	public abstract	readByte() :number
+	public abstract	readInt8() :number
+	public abstract	readInt16() :number
+	public abstract	readInt32() :number
+	public abstract	readInt64() :Int64
+	public abstract	readFloat() :number
+	public abstract	readString() :string
+	public abstract	readBinary() :Uint8Array
 
-	public getBuffer():Uint8Array|null{
-		return null
+	public getBuffer():Uint8Array{
+		return new Uint8Array(this.buff)
 	}
 	public setBuffer(buff:Uint8Array){
 		this.buff=buff
 	}
 	protected growBuff(newLen:number){
-		if (newLen>this.buff.length){
+		if (newLen>this.buff.byteLength){
 			let adjustLen:number=1
 			//  adjust to 2 power
 			while(adjustLen<newLen) {
 				adjustLen*=2
 			}
 			let newBuff:Uint8Array= new Uint8Array(adjustLen)
-			newBuff.set(this.buff)
+			newBuff.set(new Uint8Array(this.buff))
 			this.buff=newBuff
         	this.dataView=new DataView(this.buff)
 		}
 	}
 }
 
-export class BinaryProtocol extends Protocol implements  IProtocol{
+export class BinaryProtocol extends Protocol implements  Protocol{
 	constructor(){
 		super()
 	}
-	public	createProtoBuffer() :IProtocol{
+	public	createProtoBuffer() :Protocol{
 		return new BinaryProtocol
 	}
 	public	writeBool( b:boolean) :boolean{
@@ -162,7 +160,7 @@ export class BinaryProtocol extends Protocol implements  IProtocol{
 		let ret = new TextDecoder("utf-8").decode(dataBuf);
 		return ret 
 	}
-	public	readBinary() :Uint8Array|null{
+	public	readBinary() :Uint8Array{
 		let len=this.readInt16()
 		let dataBuf : Uint8Array=new Uint8Array(Int64.dataLenght)
 		for (let i=0;i<Int64.dataLenght;i++){

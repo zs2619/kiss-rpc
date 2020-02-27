@@ -15,10 +15,11 @@ class RpcService:public Connection  {
 
 public:
 	RpcService(NetEvent*  event,EndPoint ep, struct bufferevent* bev)
-	:Connection(event,ep,bev,new T(),new P()){ 
+	:Connection(event,ep,new T(this),new P()){ 
 	}
 
 	~RpcService(){ 
+		getTransport()->close();
 	} 
 
 	template<typename N>
@@ -29,14 +30,13 @@ public:
 
 	static RpcService<T, P>*  makeServiceHandler(NetEvent*   event,EndPoint   ep, struct bufferevent* bev) {
 		RpcService<T,P>*  service=new RpcService<T,P>(event,ep,bev);
-		service->handleConnction();
+		service->handleConnction(bev);
 		/*神奇代码 动态创建 模板不定参数类型 对象*/
 		auto f= { createProxy<Types>(service)... };
 		return service;
 	}
 
 	virtual int handleInput(struct evbuffer* buff){
-
 		std::vector<RequestMsg> requestMsgList;
 		int ret=getTransport()->recvRequestMsg(buff,requestMsgList);
 		if (-1==ret){
@@ -44,7 +44,6 @@ public:
 		}
 
 		for ( auto& it:requestMsgList){
-
 			std::shared_ptr<RpcMsg> msg = std::make_shared<RpcMsg>();
 			msg->requestMsg_.header=it.header;
 			msg->requestMsg_.msgId = it.msgId;
@@ -57,20 +56,21 @@ public:
 				return 0;
 			}
 			int ret= proxy->second->dispatch(msg);
+			if (ret==-1){
+				std::cerr << "handleInput error" << std::endl;
+			}
 		}
 
 		return 0;
 	}
 
-	virtual int handleOutput(){
-		return 0;
-	}
 	virtual int handleClose(){
 		std::cout<<"handleClose"<<std::endl;
+		delete this;
 		return 0;
 	}
-	virtual int handleConnction(){
-		setHandler();
+	virtual int handleConnction(struct bufferevent* bev){
+		getTransport()->setBufferEvent(bev);
 		return 0;
 	};
 

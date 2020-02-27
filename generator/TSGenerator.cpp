@@ -6,7 +6,49 @@
 #include "../misc/misc.h"
 TSGenerator::TSGenerator( Program* pro,const std::string& name ) :Generator(pro,name)
 {
+}
 
+static void generateImport(std::ofstream& tsFile ,const std::string& compileParam, const std::vector<FieldDefType*>& defs)
+{
+		std::set<std::string> importSet;
+
+		for (auto& it:defs)
+		{
+			DefType* dt = nullptr;
+			if (it->type_->is_struct() ||it->type_->is_enum()){
+				dt=it->type_;
+			}
+			else if (it->type_->is_array())
+			{
+				ArrayDefType* array=(ArrayDefType*)it->type_;
+				if (array->valueDef_->is_struct()||it->type_->is_enum()){
+					dt=array->valueDef_;
+				}
+			}
+			else if (it->type_->is_map())
+			{
+				MapDefType* mt=(MapDefType*)it->type_;
+				if (mt->valueDef_->is_struct()||mt->valueDef_->is_enum()){
+					dt=mt->valueDef_;
+				}
+			}
+			if (dt!=nullptr)
+			{
+				importSet.insert(dt->name_);
+			}
+	
+		}
+		for (auto& it : importSet)
+		{
+			if (compileParam=="deno")
+			{
+				tsFile << "import  {" << it << "}  from \"./" << it << ".ts\"" << std::endl;
+			}
+			else
+			{
+				tsFile << "import  {" << it << "}  from \"./" << it << "\"" << std::endl;
+			}
+		}
 }
 
 void TSGenerator::generateProgram()
@@ -44,14 +86,13 @@ void TSGenerator::generateStruct()
 	if (generateContext->ns_.structs_.defs_.empty())
 		return;
 
-
 	for(auto& it :generateContext->ns_.structs_.defs_)
 	{
 		std::set<std::string> importSet;
 		misc::mkdir((program_->getOutputDir() + generateContext->ns_.name_).c_str());
 		std::string name=program_->getOutputDir()+generateContext->ns_.name_+"/"+ it->name_+".ts";
 		tsFile_.open(name.c_str());
-		if (program_->option_.compileParam_=="deno")
+		if (program_->option_.compileParam_ =="deno")
 		{
 			tsFile_ << "import  * as rpc from \"../rpc/index.ts\"" << std::endl;
 		}
@@ -59,44 +100,8 @@ void TSGenerator::generateStruct()
 		{
 			tsFile_ << "import  * as rpc from \"../rpc/index\"" << std::endl;
 		}
-		
-		for (auto& it: it->members_)
-		{
-			DefType* dt = nullptr;
-			if (it->type_->is_struct() ||it->type_->is_enum()){
-				dt=it->type_;
-			}
-			else if (it->type_->is_array())
-			{
-				ArrayDefType* array=(ArrayDefType*)it->type_;
-				if (array->valueDef_->is_struct()||it->type_->is_enum()){
-					dt=array->valueDef_;
-				}
-			}
-			else if (it->type_->is_map())
-			{
-				MapDefType* mt=(MapDefType*)it->type_;
-				if (mt->valueDef_->is_struct()||mt->valueDef_->is_enum()){
-					dt=mt->valueDef_;
-				}
-			}
-			if (dt!=nullptr)
-			{
-				importSet.insert(dt->name_);
-			}
-	
-		}
-		for (auto& it : importSet)
-		{
-			if (program_->option_.compileParam_=="deno")
-			{
-				tsFile_ << "import  {" << it << "}  from \"./" << it << ".ts\"" << std::endl;
-			}
-			else
-			{
-				tsFile_ << "import  {" << it << "}  from \"./" << it << "\"" << std::endl;
-			}
-		}
+
+		generateImport(tsFile_,program_->option_.compileParam_,it->members_);
 
 		tsFile_<<"export class "<<it->name_<<std::endl;
 		tsFile_<<"{ "<<std::endl;
@@ -105,10 +110,17 @@ void TSGenerator::generateStruct()
 		for(auto& it_inner :it->members_)
 		{
 			FieldDefType*& t=it_inner;
-			tsFile_<<indent()<<"public "<<t->name_<<":"<<typeName(t->type_) <<"="<<defaultValue(t->type_)<<std::endl;
+			if (t->type_->is_simple_type()&& ((SimpleDefType*)t->type_)->t_==SimpleDefType::binaryType)
+			{
+				tsFile_<<indent()<<"public "<<t->name_<<"!:"<<typeName(t->type_) <<std::endl;
+			}
+			else
+			{
+				tsFile_<<indent()<<"public "<<t->name_<<":"<<typeName(t->type_) <<"="<<defaultValue(t->type_)<<std::endl;
+			}
 		}
 		tsFile_<<indent()<<"//serialize"<<std::endl;
-		tsFile_<<indent()<<"public serialize( __P__:rpc.IProtocol):void "<<std::endl;
+		tsFile_<<indent()<<"public serialize( __P__:rpc.Protocol):void "<<std::endl;
 		tsFile_<<indent()<<"{ "<<std::endl;
 		indent_up();
 		serializeFields(it,"__P__");
@@ -116,7 +128,7 @@ void TSGenerator::generateStruct()
 		tsFile_<<indent()<<"}// serialize"<<std::endl;
 
 		tsFile_<<indent()<<"//deSerialize"<<std::endl;
-		tsFile_<<indent()<<"public deSerialize( __P__:rpc.IProtocol):void "<<std::endl;
+		tsFile_<<indent()<<"public deSerialize( __P__:rpc.Protocol):void "<<std::endl;
 		tsFile_<<indent()<<"{ "<<std::endl;
 		indent_up();
 		deSerializeFields(it,"__P__");
@@ -129,10 +141,145 @@ void TSGenerator::generateStruct()
 		tsFile_.close();
 	}
 }
+
 void TSGenerator::generateService()
 {
+	Context*  generateContext = program_->getGenerateContext();
+	if (generateContext->ns_.services_.defs_.empty())
+		return;
+
+	for(auto& it :generateContext->ns_.services_.defs_)
+	{
+		misc::mkdir((program_->getOutputDir() + generateContext->ns_.name_).c_str());
+		std::string name=program_->getOutputDir()+generateContext->ns_.name_+"/"+ it->name_+".ts";
+		tsFile_.open(name.c_str());
+
+		if (program_->option_.compileParam_ =="deno")
+		{
+			tsFile_ << "import  * as rpc from \"../rpc/index.ts\"" << std::endl;
+		}
+		else
+		{
+			tsFile_ << "import  * as rpc from \"../rpc/index\"" << std::endl;
+		}
+		for (auto& innerit:it->funs_)
+		{
+			generateImport(tsFile_,program_->option_.compileParam_,innerit->argrs_->members_);
+		}
+
+		std::string className=it->name_+"Stub";
+		tsFile_<<indent()<<"export class "<<className<<" extends rpc.ServiceStub"<<std::endl;
+		tsFile_<<indent()<<"{ "<<std::endl;
+		indent_up();
+
+		//fingerprint
+		tsFile_<<indent()<<"static readonly strFingerprint=\""<<md5(it->getFingerPrint())<<"\""<<std::endl;
+		tsFile_<<indent()<<"static readonly getObjName=\""<<generateContext->ns_.name_<<"\""<<std::endl;
+
+		tsFile_<<indent()<<"public getObjName():string{ return "<<className<<".getObjName }"<<std::endl;
+
+		for (auto& it_inner:it->funs_)
+		{
+			FuctionDefType*& t=it_inner;
+			if (!t->result_->is_void())
+			{
+				tsFile_ << indent() << "private "<< t->name_ << "CallBack!:"<< "(ret"<<":"<< typeName(t->result_) << ")=>number"  << std::endl;
+			}
+		}
+
+		tsFile_<<indent()<<"constructor(chan:rpc.Connection)"<<std::endl;
+		tsFile_<<indent()<<"{ "<<std::endl;
+		indent_up();
+		tsFile_<<indent()<<"super(chan)"<<std::endl;
+		indent_down();
+		tsFile_<<indent()<<"} "<<std::endl;
+
+		tsFile_ <<indent()<<"protected "<<"invokeAsync(msgId:number,p:rpc.Protocol, functionName:string) {" << std::endl;
+		indent_up();
+		tsFile_ <<indent()<<"let msg =new rpc.RpcMsg();" << std::endl;
+		tsFile_ <<indent()<<"msg.serviceName= this.getObjName();" << std::endl;
+		tsFile_ <<indent()<<"msg.functionName= functionName ;" << std::endl;
+		tsFile_ <<indent()<<"msg.requestMsg.msgId = msgId;"<<std::endl;
+		tsFile_ <<indent()<<"msg.requestMsg.buff = p.getBuffer();"<<std::endl;
+		tsFile_ <<indent()<<"super.invoke(msg);" << std::endl;
+		indent_down();
+		tsFile_ <<indent()<< "}" << std::endl;
+
+		int i=0;
+		for (auto& innerit:it->funs_)
+		{
+			FuctionDefType*& t=innerit;
+			tsFile_<<indent()<<"public "<<t->name_<<"(";
+			genFunAgrList(tsFile_,t->argrs_);
+			if (!t->result_->is_void())
+			{
+				if (!t->argrs_->members_.empty()) {
+					tsFile_ << ",";
+				}
+				tsFile_ <<"cb:"<<"(ret"<<":"<< typeName(t->result_) << ")=>number";
+			}
+			tsFile_<<")"<<std::endl;
+			tsFile_ <<indent()<< "{" << std::endl;
+
+			indent_up();
+			tsFile_<<indent()<<"let __P__= this.chan.getProtocol().createProtoBuffer();"<<std::endl;
+			serializeFields(t->argrs_,"__P__",false);
+			tsFile_<<indent()<<"this.invokeAsync("<<i++<<",__P__"<<",\"" << t->name_<<"\");"<<std::endl;
+			tsFile_<<indent()<< "this."<<t->name_ << "CallBack" <<"=cb" << std::endl;
+
+			indent_down();
+			tsFile_ <<indent()<< "}" << std::endl;
+		}
+
+		tsFile_<<indent()<<"protected dispatch(msg:rpc.RpcMsg):boolean" <<std::endl;
+		tsFile_<<indent()<<"{"<<std::endl;
+		indent_up();
+		tsFile_ << indent() << "let id=msg.responseMsg.msgId;" << std::endl;
+		tsFile_ << indent() << "switch (id)" << std::endl;
+		tsFile_ << indent() << "{" << std::endl;
+		indent_up();
+		i = 0;
+		indent_up();
+		for(auto& it_inner:it->funs_)
+		{
+			FuctionDefType*& t = it_inner;
+			if (!t->result_->is_void())
+			{
+				tsFile_ << indent() << "case "<<i<<":"<< std::endl;
+				tsFile_ << indent() << "{" << std::endl;
+				indent_up();
+				tsFile_ << indent() << "let __P__= this.chan.getProtocol().createProtoBuffer()" << std::endl;
+				tsFile_ << indent() << "__P__.setBuffer(msg.responseMsg.buff);" << std::endl;
+				tsFile_ << indent() <<  "let ret:"<< typeName(t->result_)<<"="<<defaultValue(t->result_)<< std::endl;
+
+				deSerializeField(t->result_, "ret","__P__");
+
+				tsFile_ << indent() << "let cbRet = this."<<t->name_<<"CallBack(ret);" << std::endl;
+				tsFile_ << indent() << "return true;" << std::endl;
+				indent_down();
+				tsFile_ << indent() << "}" << std::endl;
+			}
+			i++;
+		}
+
+
+		tsFile_ << indent() << "default:" << std::endl;
+		tsFile_ << indent() << "{" << std::endl;
+		indent_up();
+		tsFile_ << indent() << "return false;" << std::endl;
+		indent_down();
+		tsFile_ << indent() << "}" << std::endl;
+		indent_down();
+		tsFile_ << indent() << "}" << std::endl;
+		indent_down();
+		tsFile_<<indent()<<"}" << std::endl;
+
+		indent_down();
+		tsFile_<<indent()<<"};//class"<<std::endl;
+	}
 
 }
+
 
 std::string TSGenerator::typeName(DefType* t,bool isAgr)
 {
@@ -149,7 +296,7 @@ std::string TSGenerator::typeName(DefType* t,bool isAgr)
 			case	SimpleDefType::int64Type : return "rpc.Int64";
 			case	SimpleDefType::floatType : return "number";
 			case	SimpleDefType::stringType : return "string";
-			case   SimpleDefType::binaryType :  return "Uint8Array|null" ;
+			case   SimpleDefType::binaryType :  return "Uint8Array" ;
 			default : assert(0&&"type error"); return "";
 		}
 	}
@@ -220,21 +367,36 @@ std::string TSGenerator::defaultValue( DefType* t )
 
 }
 
-void TSGenerator::serializeFields( StructDefType* t ,const std::string& prefix)
+void TSGenerator::serializeFields( StructDefType* t ,const std::string& prefix,bool needThis)
 {
 	for(auto& it :t->members_)
 	{
-		serializeField(it->type_,"this."+it->name_,prefix);
+		if(needThis)
+		{
+			serializeField(it->type_,"this."+it->name_,prefix);
+		}
+		else
+		{
+			serializeField(it->type_,it->name_,prefix);
+		}
+		
 		tsFile_<<std::endl;
 	}
 
 }
 
-void TSGenerator::deSerializeFields( StructDefType* t ,const std::string& prefix)
+void TSGenerator::deSerializeFields( StructDefType* t ,const std::string& prefix,bool needThis)
 {
 	for(auto& it :t->members_)
 	{
-		deSerializeField(it->type_,"this."+it->name_,prefix);
+		if (needThis)
+		{
+			deSerializeField(it->type_,"this."+it->name_,prefix);
+		}
+		else
+		{
+			deSerializeField(it->type_,it->name_,prefix);
+		}
 		tsFile_<<std::endl;
 	}
 
@@ -393,11 +555,12 @@ void TSGenerator::deSerializeField( DefType* t ,const std::string& fieldName,con
 		indent_down();
 		tsFile_<<indent()<<"}"<<std::endl;
 
-	}else if (t->is_enum())
+	}
+	else if (t->is_enum())
 	{
 		tsFile_<<indent()<<fieldName<<"="<<prefix<<".readInt16()"<<std::endl;
-
-	}else if(t->is_map())
+	}
+	else if(t->is_map())
 	{
 		static int i=0;
 		std::stringstream str;
@@ -419,6 +582,32 @@ void TSGenerator::deSerializeField( DefType* t ,const std::string& fieldName,con
 		tsFile_<<indent()<<fieldName<<".set(tmpKey,tmpValue)"<<std::endl;
 		indent_down();
 		tsFile_<<indent()<<"}"<<std::endl;
+	}
+}
+
+void TSGenerator::genFunAgrList( std::ofstream& stream,StructDefType* agrList,ParamType paramType)
+{
+	bool first=true;
+	for (auto& it_inner:agrList->members_)
+	{
+		FieldDefType*& t=it_inner;
+		if (!first)
+		{
+			stream<<",";
+		}
+		if (paramType==PT_Value)
+		{
+			stream<<t->name_;
+		}
+		else if(paramType==PT_TypeValue)
+		{
+			stream<<t->name_ <<":"<<typeName(t->type_,true);
+		}
+		else if (paramType==PT_Type) 
+		{
+			stream<<typeName(t->type_,true);
+		}
+		first = false;
 	}
 
 }

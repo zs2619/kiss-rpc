@@ -15,6 +15,10 @@ rpc::NetEvent::~NetEvent() {
 	if (nullptr != base_) {
 		event_base_free(base_);
 	}
+
+#ifdef _WIN32
+	WSACleanup();
+#endif
 }
 
 rpc::NetEvent * rpc::NetEvent::getInstance() {

@@ -8,44 +8,70 @@ extern "C"{
 #include <event2/bufferevent.h>
 }
 #include "rpc/RpcMessage.h"
-
+#include "rpc/NetEvent.h"
 namespace rpc {
-	class ITransport {
-	public:
-		ITransport():connStatus_(0){}
-		virtual ~ITransport(){}
+class Connection;
+class ITransport {
+public:
+	ITransport(Connection* conn): bev_(nullptr),conn_(conn){
+	}
 
-		void setBufferEvent(bufferevent* bev) {
-			bev_ = bev;
+	virtual ~ITransport(){
+		close();
+		conn_=nullptr;
+	}
+
+	int close(){
+		if (bev_!=nullptr){
+			bufferevent_free(bev_);
+			bev_=nullptr;
 		}
+		return 0;
+	}
 
-		virtual int sendRequestMsg(const RequestMsg& reqMsg) = 0;
-		virtual int recvResponseMsg(struct evbuffer* buff, std::vector<ResponseMsg>& msg) = 0;
+	virtual int sendRequestMsg(const RequestMsg& reqMsg) = 0;
+	virtual int recvResponseMsg(struct evbuffer* buff, std::vector<ResponseMsg>& msg) = 0;
+	virtual int sendResponseMsg(const ResponseMsg& respMsg) = 0;
+	virtual int recvRequestMsg(struct evbuffer* buff, std::vector<RequestMsg>& msgVec) = 0;
 
-		virtual int sendResponseMsg(const ResponseMsg& respMsg) = 0;
-		virtual int recvRequestMsg(struct evbuffer* buff, std::vector<RequestMsg>& msgVec) = 0;
+	int setBufferEvent(struct bufferevent* bev) {
+		close();
+		bev_=bev;
 
-	protected:
-		int         connStatus_;
-		bufferevent* bev_;
-	};
+		bufferevent_setcb(bev_, ITransport::conn_readcb, ITransport::conn_writecb, ITransport::conn_eventcb, this);
+		evutil_socket_t fd = bufferevent_getfd(bev_);
+		int one = 1;
+		setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (char *)&one, sizeof one);
+		int ret=bufferevent_enable(bev_, EV_WRITE|EV_READ);
+			return ret;
+		return 0;
+	}
 
-	class TcpTransport :public ITransport {
-	public:
-		TcpTransport(){}
-		virtual ~TcpTransport(){}
+	Connection* conn_;
+protected:
+	static void conn_eventcb(struct bufferevent *bev, short events, void *userData);
+	static void conn_readcb(struct bufferevent *bev, void *userData);
+	static void conn_writecb(struct bufferevent *bev, void *userData);
+protected:
+	bufferevent*  bev_;
+};
 
-		virtual int sendRequestMsg(const RequestMsg& reqMsg);
-		virtual int recvResponseMsg(struct evbuffer* buff, std::vector<ResponseMsg>& msg) ;
+class TcpTransport :public ITransport {
+public:
+	TcpTransport(Connection* conn):ITransport(conn){}
+	virtual ~TcpTransport(){}
 
-		virtual int sendResponseMsg(const ResponseMsg& respMsg);
-		virtual int recvRequestMsg(struct evbuffer* buff, std::vector<RequestMsg>& msgVec);
+	virtual int sendRequestMsg(const RequestMsg& reqMsg);
+	virtual int recvResponseMsg(struct evbuffer* buff, std::vector<ResponseMsg>& msg) ;
 
-		std::vector<byte> recvbuff_;
-		std::vector<byte> sendbuff_;
-	};
+	virtual int sendResponseMsg(const ResponseMsg& respMsg);
+	virtual int recvRequestMsg(struct evbuffer* buff, std::vector<RequestMsg>& msgVec);
 
-	class HttpTransport :public ITransport {
-	};
+	std::vector<byte> recvbuff_;
+	std::vector<byte> sendbuff_;
+};
+
+class HttpTransport :public ITransport {
+};
 }
 #endif

@@ -6,7 +6,7 @@
 struct timeval s10 = { 10,0 };
 struct event *ev;
 
-int main(int argc,char ** argv)
+int main(int argc,char** argv)
 {
     std::string url("127.0.0.1:2619");
     rpc::EndPoint ep(url);
@@ -21,10 +21,13 @@ int main(int argc,char ** argv)
 	rpc::NetEvent::getInstance()->scheduleTimer([](evutil_socket_t fd, short what, void *arg) -> void{
 
 	    shuai::opServiceStub* client=(shuai::opServiceStub*)arg;
-	    client->login("shuai",[=](rpc::int8 a)->int{
+	    int ret=client->login("shuai",[=](rpc::int8 a)->int{
 	        std::cout<<a<<std::endl;
 	        return 0;
 	    });
+		if (ret == -1) {
+			std::cerr << "connection error" << std::endl;
+		}
 	},client, timeval{5,0},timeval{10,0});
 
     rpc::NetEvent::getInstance()->eventLoop();

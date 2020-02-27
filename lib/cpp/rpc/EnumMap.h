@@ -22,7 +22,7 @@ public:
 	{
 		f(this);
 	}
-	int	getIdByName(const std::string& name)
+	size_t	getIdByName(const std::string& name)
 	{
 		for (size_t i=0;i<v.size();i++)
 		{

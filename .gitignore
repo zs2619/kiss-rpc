@@ -1,5 +1,4 @@
 /Debug
-
 /.vs
 /rpc.vcxproj.user
 /CMakeFiles
@@ -8,8 +7,11 @@
 /Makefile
 /.vscode/ipch
 *.ipch
-/lib/cpp/example/HelloClient/Debug
-/lib/cpp/example/HelloServer/Debug
 *.suo
 /lib/ts/node_modules
 /lib/ts/package-lock.json
+/lib/cpp/example/HelloServer/x64
+/lib/cpp/example/HelloClient/Debug
+/lib/cpp/example/HelloServer/Debug
+/lib/cpp/example/HelloServer/.vs
+/lib/cpp/example/HelloClient/.vs

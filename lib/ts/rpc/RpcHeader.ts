@@ -7,7 +7,7 @@ export class RpcHeader
 	public msgType:MsgProtocolType=0
 	public serviceName:string=""
 	//serialize
-	public serialize( __P__:rpc.IProtocol):void 
+	public serialize( __P__:rpc.Protocol):void 
 	{ 
 		__P__.writeInt8(this.version);
 
@@ -17,7 +17,7 @@ export class RpcHeader
 
 	}// serialize
 	//deSerialize
-	public deSerialize( __P__:rpc.IProtocol):void 
+	public deSerialize( __P__:rpc.Protocol):void 
 	{ 
 		this.version=__P__.readInt8()
 

@@ -24,11 +24,12 @@ private:
 	std::string typeName(DefType* t,bool isAgr=false);
 	std::string defaultValue( DefType* t );
 
-	void serializeFields( StructDefType* t ,const std::string& prefix);
-	void deSerializeFields( StructDefType* t ,const std::string& prefix);
+	void serializeFields( StructDefType* t ,const std::string& prefix,bool needThis=true);
+	void deSerializeFields( StructDefType* t ,const std::string& prefix,bool needThis=true);
 
 	void serializeField( DefType* t ,const std::string& fieldName,const std::string& prefix );
 	void deSerializeField( DefType* t ,const std::string& fieldName,const std::string& prefix );
+	void genFunAgrList(std::ofstream& stream,StructDefType* agrList,ParamType paramType=PT_TypeValue);
 
 private:
 	std::ofstream	tsFile_;

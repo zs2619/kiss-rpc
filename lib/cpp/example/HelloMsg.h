@@ -69,12 +69,12 @@ public:
 	};
 	opServiceStub(const rpc::Connection* conn):ServiceStub(conn){}
 	virtual ~opServiceStub(){}
-	void invokeAsync(rpc::int16 msgId,const rpc::IProtocol* p,const std::string& functionName);
+	int invokeAsync(rpc::int16 msgId,const rpc::IProtocol* p,const std::string& functionName);
 	virtual bool dispatch(std::shared_ptr<rpc::RpcMsg> msg);
-	void login(const std::string&  openid,std::function<int(rpc::int8)> cb);
-	void xixi(user&  u,std::function<int(user)> cb);
-	void lala(std::map<rpc::int32,role>&  m,std::vector<rpc::int32> &  ai,std::vector<role> &  ar,std::function<int(std::vector<role> )> cb);
-	void ping(rpc::int8  i8,std::function<int(rpc::int8)> cb);
+	int login(const std::string&  openid,std::function<int(rpc::int8)> cb);
+	int xixi(user&  u,std::function<int(user)> cb);
+	int lala(std::map<rpc::int32,role>&  m,std::vector<rpc::int32> &  ai,std::vector<role> &  ar,std::function<int(std::vector<role> )> cb);
+	int ping(rpc::int8  i8,std::function<int(rpc::int8)> cb);
 
 protected:
 	std::function<int(rpc::int8)> loginCallBack;

@@ -1,8 +1,26 @@
 #include "rpc/Transport.h"
 #include "rpc/NetEvent.h"
+#include "rpc/Connection.h"
 
 const size_t MsgHeaderMaxSize=2;
+void rpc::ITransport::conn_eventcb(bufferevent * bev, short events, void * userData) {
+	ITransport* trans = (ITransport*)userData;
+	trans->conn_->handleClose();
+}
+
+void rpc::ITransport::conn_readcb(bufferevent * bev, void * userData) {
+	ITransport* trans = (ITransport*)userData;
+	struct evbuffer *input = bufferevent_get_input(bev);
+	trans->conn_->handleInput(input);
+}
+void rpc::ITransport::conn_writecb(bufferevent * bev, void * userData) {
+	ITransport* trans = (ITransport*)userData;
+}
+
 int rpc::TcpTransport::sendRequestMsg( const RequestMsg& reqMsg) {
+	if (bev_==nullptr) {
+		return -1;
+	}
 	BinaryProtocol proto;
 	reqMsg.serialize(&proto);
 
@@ -10,11 +28,8 @@ int rpc::TcpTransport::sendRequestMsg( const RequestMsg& reqMsg) {
 	struct evbuffer * msgbuff= evbuffer_new();
 	evbuffer_add(msgbuff,(byte*)&len,MsgHeaderMaxSize);
 	evbuffer_add(msgbuff,proto.getBuffer().data(), proto.getBuffer().size());
-
 	int ret = bufferevent_write_buffer(bev_, msgbuff);
-
 	evbuffer_free(msgbuff);
-
 	return ret;
 }
 
@@ -51,6 +66,9 @@ int rpc::TcpTransport::recvResponseMsg(struct evbuffer* buff,std::vector<Respons
 }
 
 int rpc::TcpTransport::sendResponseMsg(const ResponseMsg& respMsg) {
+	if (bev_==nullptr) {
+		return -1;
+	}
 	BinaryProtocol proto;
 	respMsg.serialize(&proto);
 
@@ -58,11 +76,8 @@ int rpc::TcpTransport::sendResponseMsg(const ResponseMsg& respMsg) {
 	struct evbuffer * msgbuff= evbuffer_new();
 	evbuffer_add(msgbuff,(byte*)&len,MsgHeaderMaxSize);
 	evbuffer_add(msgbuff,proto.getBuffer().data(), proto.getBuffer().size());
-
 	int ret = bufferevent_write_buffer(bev_, msgbuff);
-
 	evbuffer_free(msgbuff);
-
 	return ret;
 }
 

@@ -6,9 +6,9 @@ export class ResponseMsg
 	public header:RpcHeader=new RpcHeader()
 	public msgSeqId:rpc.Int64=new rpc.Int64
 	public msgId:number=0
-	public buff:Uint8Array|null=null
+	public buff!:Uint8Array
 	//serialize
-	public serialize( __P__:rpc.IProtocol):void 
+	public serialize( __P__:rpc.Protocol):void 
 	{ 
 		this.header.serialize(__P__);
 
@@ -20,7 +20,7 @@ export class ResponseMsg
 
 	}// serialize
 	//deSerialize
-	public deSerialize( __P__:rpc.IProtocol):void 
+	public deSerialize( __P__:rpc.Protocol):void 
 	{ 
 		this.header.deSerialize(__P__)
 
