@@ -5,12 +5,19 @@
 
 # To fully customize the contents of this image, use the following Dockerfile instead:
 # https://github.com/microsoft/vscode-dev-containers/tree/v0.101.1/containers/alpine-3.10-git/.devcontainer/Dockerfile
-FROM debian:stretch
+FROM golang:1.14-stretch
+
 
 # ** [Optional] Uncomment this section to install additional packages. **
 #
 RUN apt-get update \
-    &&apt-get install -y gcc \
-    && apt-get install -y g++ \
     && apt-get install -y gdb \
-    && apt-get install -y cmake
+    && apt-get install -y cmake \
+    && apt-get install -y git  \
+    && apt-get install -y flex \
+    && apt-get install -y bison \
+    && curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.2/install.sh | bash \
+    && export NVM_DIR="$HOME/.nvm" \
+    && . "$NVM_DIR/nvm.sh"  \
+    && nvm install node \
+    && npm install -g typescript

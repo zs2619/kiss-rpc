@@ -22,7 +22,7 @@
 #include "generator/CppGenerator.h"
 #include "generator/CSharpGenerator.h"
 #include "generator/GoGenerator.h"
-#include "generator/TsGenerator.h"
+#include "generator/TSGenerator.h"
 #include "parser/Program.h"
 
 #include "misc/misc.h"
