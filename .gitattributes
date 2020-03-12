@@ -1,2 +1,4 @@
 tools/* linguist-vendored
 lib/cpp/libevent/* linguist-vendored
+*	text=auto
+
