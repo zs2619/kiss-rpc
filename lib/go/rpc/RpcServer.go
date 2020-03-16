@@ -29,11 +29,10 @@ func (this *RpcServer) Open() int {
 	return 0
 }
 func (this *RpcServer) Close() {
-
+	this.listener.Close()
 }
 
 func (this *RpcServer) accept() {
-
 	for {
 		tcpConn, err := this.listener.AcceptTCP()
 		if err != nil {
@@ -44,7 +43,6 @@ func (this *RpcServer) accept() {
 }
 
 func NewRpcServer(event *NetEvent, ep endPoint, factroy RpcServiecFactroy) *RpcServer {
-
 	return &RpcServer{
 		rpcServiecFactroy: factroy,
 		ep:                ep,

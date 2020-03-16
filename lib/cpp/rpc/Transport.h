@@ -71,6 +71,17 @@ public:
 	std::vector<byte> sendbuff_;
 };
 
+class RpcTransport :public ITransport {
+	RpcTransport(Connection* conn):ITransport(conn){}
+	virtual ~RpcTransport(){}
+
+	virtual int sendRequestMsg(const RequestMsg& reqMsg);
+	virtual int recvResponseMsg(struct evbuffer* buff, std::vector<ResponseMsg>& msg) ;
+
+	virtual int sendResponseMsg(const ResponseMsg& respMsg);
+	virtual int recvRequestMsg(struct evbuffer* buff, std::vector<RequestMsg>& msgVec);
+};
+
 class HttpTransport :public ITransport {
 };
 }

@@ -112,3 +112,19 @@ int rpc::TcpTransport::recvRequestMsg(struct evbuffer* buff,std::vector<RequestM
 
 	return ret;
 }
+
+int rpc::RpcTransport::sendRequestMsg( const RequestMsg& reqMsg) {
+	if (bev_==nullptr) {
+		return -1;
+	}
+	BinaryProtocol proto;
+	reqMsg.serialize(&proto);
+
+	uint16 len = uint16(proto.getBuffer().size());
+	struct evbuffer * msgbuff= evbuffer_new();
+	evbuffer_add(msgbuff,(byte*)&len,MsgHeaderMaxSize);
+	evbuffer_add(msgbuff,proto.getBuffer().data(), proto.getBuffer().size());
+	int ret = bufferevent_write_buffer(bev_, msgbuff);
+	evbuffer_free(msgbuff);
+	return ret;
+}
