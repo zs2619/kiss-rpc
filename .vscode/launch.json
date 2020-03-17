@@ -24,6 +24,26 @@
             ],
             "preLaunchTask": "g++ build active file",
             "miDebuggerPath": "/usr/bin/gdb"
+        },
+        {
+            "name": "go rpc example client",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "program": "${workspaceFolder}/lib/go/example/client/HelloClient.go",
+            "env": {},
+            "args": [],
+            "showLog": true
+        },
+        {
+            "name": "go rpc example server",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "program": "${workspaceFolder}/lib/go/example/server/HelloServer.go",
+            "env": {},
+            "args": [],
+            "showLog": true
         }
     ]
 }
