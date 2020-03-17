@@ -12,9 +12,9 @@ func NewShuaiOpServiceProxyFactory(rpcService *rpc.RpcService) interface{} {
 type shuaiOpServiceProxy struct {
 }
 
-func (this *shuaiOpServiceProxy) Login(openid string) (int8,error) {
+func (this *shuaiOpServiceProxy) Login(openid string) (int8, error) {
 
-	return 1,nil
+	return 1, nil
 }
 func (this *shuaiOpServiceProxy) Ping(i8 int8) (int8, error) {
 
@@ -28,7 +28,6 @@ func (this *shuaiOpServiceProxy) Lala(m map[int32]shuai.Role, ai []int32, ar []s
 }
 
 func main() {
-
 	serviceProxyFactory := []rpc.ServiceProxyFactory{NewShuaiOpServiceProxyFactory}
 
 	factory := rpc.RpcServiecFactroy{TransFactory: rpc.TcpTransportFactory{},

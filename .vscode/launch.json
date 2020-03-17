@@ -44,6 +44,16 @@
             "env": {},
             "args": [],
             "showLog": true
+        },
+        {
+            "name": "go gateway",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "program": "${workspaceFolder}/lib/gateway/main.go",
+            "env": {},
+            "args": [],
+            "showLog": true
         }
     ]
 }

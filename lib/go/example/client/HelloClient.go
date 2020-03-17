@@ -1,9 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"kiss/rpc"
 	"kiss/shuai"
-	"fmt"
+
+	"github.com/sirupsen/logrus"
 )
 
 func main() {
@@ -13,8 +15,13 @@ func main() {
 		return
 	}
 	opServiceStub := shuai.NewOpServiceStub(rpcChan)
+
+	event.ScheduleTimer(1000*5, func() error {
+		logrus.Info("ScheduleTimer")
+		return nil
+	})
 	opServiceStub.Login("shuai", func(i8 int8) error {
-		fmt.Printf("%d",i8)
+		fmt.Printf("%d", i8)
 		return nil
 	})
 	event.EventLoop()
