@@ -3,6 +3,7 @@ package main
 import (
 	"kiss/gateway/config"
 	"kiss/kissnet"
+	"kiss/rpc"
 
 	"github.com/sirupsen/logrus"
 )
@@ -25,6 +26,7 @@ func main() {
 		return
 	}
 
+	event := rpc.NewNetEvent()
 	err = gRPCConnectorMgr.Init(config.GetGWConfig())
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
@@ -41,7 +43,12 @@ func main() {
 		return
 	}
 
+	event.ScheduleTimer(1000*5, func() error {
+		logrus.Info("ScheduleTimer")
+		return nil
+	})
 	gAcceptor.Run()
+	event.EventLoop()
 	gAcceptor.Close()
 	logrus.Info("acceptor end")
 }
