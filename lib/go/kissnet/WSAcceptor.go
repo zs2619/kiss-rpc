@@ -2,7 +2,7 @@ package kissnet
 
 import (
 	"fmt"
-	"gateway/config"
+	"kiss/gateway/config"
 	"net/http"
 
 	"github.com/gorilla/websocket"

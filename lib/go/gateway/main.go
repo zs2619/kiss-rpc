@@ -1,8 +1,8 @@
 package main
 
 import (
-	"gateway/config"
-	"gateway/kissnet"
+	"kiss/gateway/config"
+	"kiss/kissnet"
 
 	"github.com/sirupsen/logrus"
 )

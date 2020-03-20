@@ -2,7 +2,7 @@ package kissnet
 
 import (
 	"fmt"
-	"gateway/config"
+	"kiss/gateway/config"
 	"net"
 
 	"github.com/sirupsen/logrus"

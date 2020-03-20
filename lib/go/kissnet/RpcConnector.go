@@ -2,7 +2,7 @@ package kissnet
 
 import (
 	"bytes"
-	"gateway/config"
+	"kiss/gateway/config"
 	"net"
 )
 
